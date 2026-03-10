@@ -8,9 +8,9 @@ export const dynamic = "force-dynamic";
 export default async function LivePage() {
   const livestream = await getLivestreamContent();
   const fallbackVideo =
-    livestream.fallbackVideoUrl && !livestream.fallbackVideoUrl.includes("stream_fallback_loop")
-      ? livestream.fallbackVideoUrl
-      : "https://www.golibertychurch.com/assets/hero_vids/worship_hero.mp4";
+    livestream.fallbackVideoUrl ||
+    process.env.NEXT_PUBLIC_FALLBACK_STREAM_VIDEO_URL ||
+    "https://www.golibertychurch.com/assets/stream_fallback_loop/stream_fall_back_loop.mp4";
 
   return (
     <>

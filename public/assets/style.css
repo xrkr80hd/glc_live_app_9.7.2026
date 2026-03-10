@@ -673,50 +673,59 @@ body.youth .series-toggle:hover{background:rgba(255,255,255,.06)}
 .text-right{text-align:right}
 .note{color:var(--muted);font-size:.92rem}
 
+.flow > * + *{margin-top:10px}
+.lede{max-width:760px;color:var(--muted)}
+
 .prayer-form-card{
-	padding:32px;
-	border:1px solid var(--border);
-	border-radius:20px;
-	box-shadow:var(--shadow);
-	background:var(--card);
-	max-width:820px;
+	padding:34px 36px;
+	border:1px solid rgba(31,138,76,.18);
+	border-radius:18px;
+	box-shadow:0 20px 44px rgba(14,24,19,.09);
+	background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(247,251,248,.96));
+	max-width:860px;
 	margin:0 auto;
 }
 
-.prayer-form-card h3{margin-top:0;margin-bottom:8px;font-size:1.9rem}
-.prayer-form-card .muted{margin-top:0;margin-bottom:18px}
+.prayer-form-card h3{margin-top:0;margin-bottom:8px;font-size:1.7rem;line-height:1.2}
+.prayer-form-card .muted{margin-top:0;margin-bottom:16px}
+.prayer-form-card .form{gap:14px}
+.prayer-form-card textarea{min-height:220px}
+.prayer-form-card .note{margin:2px 0 0}
+.prayer-form-card .btn{min-width:220px}
+
 .prayer-checkbox{
-	display:flex;
-	align-items:flex-start;
-	gap:12px;
+	display:grid;
+	grid-template-columns:auto 1fr;
+	align-items:center;
+	gap:10px;
 	font-weight:400;
-	font-size:0.95rem;
+	font-size:0.96rem;
 	color:var(--text);
-	background:var(--bg-alt);
-	padding:12px 14px;
+	background:#f7fcf8;
+	padding:10px 12px;
 	border-radius:12px;
-	border:1px solid var(--border);
+	border:1px solid rgba(31,138,76,.2);
 	cursor:pointer;
 	transition:all var(--transition-base);
 }
 
 .prayer-checkbox:hover{
-	background:var(--card);
-	border-color:var(--brand);
+	background:#ffffff;
+	border-color:rgba(31,138,76,.45);
 }
 
 .prayer-checkbox input[type="checkbox"]{
-	margin-top:2px;
-	width:18px;
-	height:18px;
-	min-width:18px;
+	margin-top:0;
+	width:17px;
+	height:17px;
+	min-width:17px;
 	cursor:pointer;
 	accent-color:var(--brand);
-	border-radius:4px;
+	border-radius:3px;
 }
 
 .prayer-checkbox span{
-	line-height:1.5;
+	line-height:1.45;
 	flex:1;
 }
 
@@ -756,8 +765,10 @@ body.youth .series-toggle:hover{background:rgba(255,255,255,.06)}
 #prayerStatus.error{color:#b13737}
 
 @media (max-width:640px){
-	.prayer-form-card{padding:24px;border-radius:16px}
-	.prayer-form-card h3{font-size:1.6rem}
+	.prayer-form-card{padding:22px 20px;border-radius:14px}
+	.prayer-form-card h3{font-size:1.45rem}
+	.prayer-form-card textarea{min-height:170px}
+	.prayer-form-card .btn{width:100%;min-width:0}
 }
 
 /* Map and modal */
