@@ -12,37 +12,44 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
   border: 1px solid rgba(132, 151, 184, 0.3);
-  background: rgba(21, 30, 45, 0.92);
+  background:
+    linear-gradient(135deg, rgba(22, 32, 48, 0.96), rgba(16, 24, 37, 0.98)),
+    rgba(21, 30, 45, 0.92);
   border-radius: 14px;
-  padding: 1rem;
+  padding: 1rem 1.1rem;
   margin-bottom: 1rem;
 }
 
+.brandBlock {
+  display: grid;
+  gap: 0.18rem;
+}
+
 .kicker {
-  margin: 0 0 0.35rem;
-  color: #9adbc2;
-  font-size: 0.78rem;
+  margin: 0;
+  color: #a8dccc;
+  font-size: 0.74rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
+  font-weight: 700;
 }
 
 .topBar h1 {
   margin: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: clamp(1.08rem, 1.7vw, 1.45rem);
+  font-size: clamp(1.2rem, 1.75vw, 1.52rem);
+  letter-spacing: 0.01em;
 }
 
 .metaLine {
-  margin: 0.55rem 0 0;
-  color: #b8c3d9;
+  margin: 0.2rem 0 0;
+  color: #c2cee4;
+  font-size: 0.95rem;
 }
 
 .topActions {
@@ -177,6 +184,48 @@
 
 .fieldWide {
   grid-column: 1 / -1;
+}
+
+.uploadGroup {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.uploadDropzone {
+  border: 1px dashed rgba(137, 157, 189, 0.62);
+  border-radius: 10px;
+  padding: 0.62rem 0.72rem;
+  color: #d4deef;
+  background: rgba(15, 22, 35, 0.72);
+  font-size: 0.84rem;
+}
+
+.uploadDropzoneDragging {
+  border-color: rgba(113, 218, 170, 0.9);
+  background: rgba(17, 39, 33, 0.9);
+}
+
+.uploadActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.uploadHiddenInput {
+  display: none;
+}
+
+.uploadHint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #aebbd5;
+}
+
+.uploadError {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #ffd5d6;
 }
 
 .field input:focus-visible,

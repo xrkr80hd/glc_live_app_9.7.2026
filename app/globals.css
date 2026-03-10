@@ -292,11 +292,12 @@ a {
   overflow: hidden;
   border-radius: 18px;
   min-height: 300px;
-  border: 1px solid rgba(224, 233, 249, 0.2);
+  border: 1px solid rgba(207, 159, 63, 0.34);
   background:
-    radial-gradient(circle at 0% 0%, rgba(120, 200, 158, 0.18), transparent 45%),
-    linear-gradient(140deg, #17202f 0%, #141a28 55%, #102234 100%);
-  box-shadow: 0 24px 52px rgba(5, 10, 19, 0.45);
+    radial-gradient(circle at 0% 0%, rgba(203, 169, 89, 0.2), transparent 42%),
+    radial-gradient(circle at 100% 100%, rgba(88, 142, 116, 0.22), transparent 44%),
+    linear-gradient(140deg, #1b3a31 0%, #1e4238 48%, #1f3a31 100%);
+  box-shadow: 0 24px 52px rgba(22, 44, 36, 0.38);
 }
 
 .seasonal-media {
@@ -315,7 +316,7 @@ a {
 .seasonal-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, rgba(7, 13, 21, 0.85) 5%, rgba(10, 22, 34, 0.42) 70%);
+  background: linear-gradient(115deg, rgba(19, 44, 36, 0.84) 5%, rgba(26, 53, 45, 0.54) 70%);
 }
 
 .seasonal-content {
@@ -329,20 +330,20 @@ a {
 
 .seasonal-content h2 {
   margin: 0;
-  color: #f7fbff;
+  color: #f6f2e8;
 }
 
 .seasonal-content p {
   margin: 0;
-  color: #dce8f9;
+  color: #dbe6de;
   line-height: 1.6;
 }
 
 .seasonal-content blockquote {
   margin: 0;
-  border-left: 3px solid rgba(135, 231, 181, 0.8);
+  border-left: 3px solid rgba(216, 185, 110, 0.92);
   padding-left: 0.75rem;
-  color: #eaf6ff;
+  color: #f1ece0;
   font-style: italic;
 }
 

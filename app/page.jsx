@@ -73,7 +73,7 @@ export default async function HomePage() {
               ) : null}
               <div className="seasonal-overlay" />
               <div className="seasonal-content">
-                <h2>{seasonalFeature.title}</h2>
+                {seasonalFeature.title ? <h2>{seasonalFeature.title}</h2> : null}
                 {seasonalFeature.body ? <p>{seasonalFeature.body}</p> : null}
                 {seasonalFeature.scripture_text ? (
                   <blockquote>{seasonalFeature.scripture_text}</blockquote>

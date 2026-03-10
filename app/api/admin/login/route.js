@@ -5,15 +5,17 @@ import {
   getAdminSessionCookieOptions,
   isAdminAuthConfigured,
   verifyAdminCredentials,
+  verifyTeamMemberCredentials,
 } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/admin-api";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request) {
   if (!isAdminAuthConfigured()) {
     return NextResponse.json(
       {
         success: false,
-        message: "Admin auth is not configured. Set ADMIN_USERNAME, ADMIN_PASSWORD, and ADMIN_SESSION_SECRET.",
+        message: "Admin auth is not configured. Set ADMIN_SESSION_SECRET and either env admin credentials or DB team-member logins.",
       },
       { status: 500 },
     );
@@ -37,7 +39,10 @@ export async function POST(request) {
     );
   }
 
-  if (!verifyAdminCredentials(username, password)) {
+  const envLoginValid = verifyAdminCredentials(username, password);
+  const dbLoginSession = envLoginValid ? null : await verifyTeamMemberCredentials(username, password);
+
+  if (!envLoginValid && !dbLoginSession) {
     return NextResponse.json(
       {
         success: false,
@@ -47,7 +52,12 @@ export async function POST(request) {
     );
   }
 
-  const token = createAdminSessionToken(username);
+  const sessionUsername = dbLoginSession?.username || username;
+  const token = createAdminSessionToken(sessionUsername, {
+    memberId: dbLoginSession?.memberId || null,
+    isSuperuser: dbLoginSession?.isSuperuser ?? true,
+    source: dbLoginSession?.source || "env",
+  });
   if (!token) {
     return NextResponse.json(
       {
@@ -58,12 +68,21 @@ export async function POST(request) {
     );
   }
 
+  if (dbLoginSession?.memberId) {
+    const supabase = createSupabaseAdminClient();
+    if (supabase) {
+      await supabase
+        .from("team_members")
+        .update({ last_login_at: new Date().toISOString() })
+        .eq("id", dbLoginSession.memberId);
+    }
+  }
+
   const response = NextResponse.json({
     success: true,
-    username,
+    username: sessionUsername,
   });
 
   response.cookies.set(ADMIN_SESSION_COOKIE, token, getAdminSessionCookieOptions());
   return response;
 }
-

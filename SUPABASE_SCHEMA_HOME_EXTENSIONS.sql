@@ -27,14 +27,196 @@ create table if not exists public.seasonal_features (
   created_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.prayer_requests (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  phone text,
+  request_text text not null,
+  is_private boolean not null default false,
+  status text not null default 'new' check (status in ('new', 'in_progress', 'prayed', 'closed')),
+  submitted_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.visit_requests (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  phone text,
+  preferred_service text,
+  party_size integer not null default 1 check (party_size > 0),
+  message text,
+  submitted_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.photo_albums (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  album_date date,
+  description text,
+  cover_photo_url text,
+  sort_order integer not null default 0,
+  is_published boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.album_photos (
+  id uuid primary key default gen_random_uuid(),
+  album_id uuid not null references public.photo_albums(id) on delete cascade,
+  photo_url text not null,
+  caption text,
+  taken_on date,
+  sort_order integer not null default 0,
+  is_published boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.gallery_videos (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  video_url text not null,
+  thumbnail_url text,
+  description text,
+  recorded_on date,
+  sort_order integer not null default 0,
+  is_published boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.team_roles (
+  id uuid primary key default gen_random_uuid(),
+  role_key text not null unique,
+  name text not null,
+  description text,
+  sort_order integer not null default 0,
+  is_system boolean not null default false,
+  is_active boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.team_members (
+  id uuid primary key default gen_random_uuid(),
+  username text not null unique,
+  full_name text,
+  email text unique,
+  phone text,
+  password_hash text,
+  last_login_at timestamptz,
+  is_superuser boolean not null default false,
+  is_active boolean not null default true,
+  notes text,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+alter table if exists public.team_members
+  add column if not exists password_hash text,
+  add column if not exists last_login_at timestamptz;
+
+create table if not exists public.team_member_roles (
+  id uuid primary key default gen_random_uuid(),
+  member_id uuid not null references public.team_members(id) on delete cascade,
+  role_id uuid not null references public.team_roles(id) on delete cascade,
+  is_role_admin boolean not null default false,
+  assigned_at timestamptz not null default timezone('utc', now()),
+  unique (member_id, role_id)
+);
+
+alter table if exists public.team_member_roles
+  add column if not exists is_role_admin boolean not null default false;
+
+create table if not exists public.curriculum_library (
+  id uuid primary key default gen_random_uuid(),
+  role_id uuid references public.team_roles(id) on delete set null,
+  title text not null,
+  file_url text,
+  topic text,
+  starts_on date,
+  ends_on date,
+  notes text,
+  is_active boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now()),
+  constraint curriculum_library_date_window check (ends_on is null or starts_on is null or ends_on >= starts_on)
+);
+
+create table if not exists public.service_song_lists (
+  id uuid primary key default gen_random_uuid(),
+  role_id uuid references public.team_roles(id) on delete set null,
+  service_date date not null,
+  title text not null,
+  songs_json jsonb not null default '[]'::jsonb,
+  notes text,
+  is_active boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.team_member_password_resets (
+  id uuid primary key default gen_random_uuid(),
+  member_id uuid not null references public.team_members(id) on delete cascade,
+  token_hash text not null,
+  request_ip text,
+  requested_at timestamptz not null default timezone('utc', now()),
+  expires_at timestamptz not null,
+  used_at timestamptz
+);
+
 create index if not exists ministries_lookup_idx
   on public.ministries (is_published, sort_order, created_at desc);
 
 create index if not exists seasonal_features_lookup_idx
   on public.seasonal_features (is_active, starts_at, ends_at, sort_order, created_at desc);
 
+create index if not exists prayer_requests_status_idx
+  on public.prayer_requests (status, submitted_at desc);
+
+create index if not exists visit_requests_submitted_idx
+  on public.visit_requests (submitted_at desc);
+
+create index if not exists photo_albums_lookup_idx
+  on public.photo_albums (is_published, sort_order, album_date desc, created_at desc);
+
+create index if not exists album_photos_lookup_idx
+  on public.album_photos (album_id, is_published, sort_order, taken_on desc, created_at desc);
+
+create index if not exists gallery_videos_lookup_idx
+  on public.gallery_videos (is_published, sort_order, recorded_on desc, created_at desc);
+
+create index if not exists team_roles_lookup_idx
+  on public.team_roles (is_active, sort_order, created_at desc);
+
+create index if not exists team_members_lookup_idx
+  on public.team_members (is_active, is_superuser, created_at desc);
+
+create index if not exists team_member_roles_lookup_idx
+  on public.team_member_roles (member_id, role_id, assigned_at desc);
+
+create index if not exists team_member_roles_admin_lookup_idx
+  on public.team_member_roles (role_id, is_role_admin, assigned_at desc);
+
+create index if not exists curriculum_library_lookup_idx
+  on public.curriculum_library (role_id, starts_on desc, ends_on desc, created_at desc);
+
+create index if not exists service_song_lists_lookup_idx
+  on public.service_song_lists (role_id, service_date desc, created_at desc);
+
+create index if not exists team_member_password_resets_lookup_idx
+  on public.team_member_password_resets (member_id, requested_at desc);
+
+create unique index if not exists team_member_password_resets_token_hash_uidx
+  on public.team_member_password_resets (token_hash);
+
 alter table public.ministries enable row level security;
 alter table public.seasonal_features enable row level security;
+alter table public.prayer_requests enable row level security;
+alter table public.visit_requests enable row level security;
+alter table public.photo_albums enable row level security;
+alter table public.album_photos enable row level security;
+alter table public.gallery_videos enable row level security;
+alter table public.team_roles enable row level security;
+alter table public.team_members enable row level security;
+alter table public.team_member_roles enable row level security;
+alter table public.curriculum_library enable row level security;
+alter table public.service_song_lists enable row level security;
+alter table public.team_member_password_resets enable row level security;
 
 drop policy if exists ministries_public_read on public.ministries;
 create policy ministries_public_read
@@ -50,3 +232,54 @@ for select
 to anon, authenticated
 using (is_active = true);
 
+drop policy if exists prayer_requests_public_insert on public.prayer_requests;
+create policy prayer_requests_public_insert
+on public.prayer_requests
+for insert
+to anon, authenticated
+with check (true);
+
+drop policy if exists visit_requests_public_insert on public.visit_requests;
+create policy visit_requests_public_insert
+on public.visit_requests
+for insert
+to anon, authenticated
+with check (true);
+
+drop policy if exists photo_albums_public_read on public.photo_albums;
+create policy photo_albums_public_read
+on public.photo_albums
+for select
+to anon, authenticated
+using (is_published = true);
+
+drop policy if exists album_photos_public_read on public.album_photos;
+create policy album_photos_public_read
+on public.album_photos
+for select
+to anon, authenticated
+using (is_published = true);
+
+drop policy if exists gallery_videos_public_read on public.gallery_videos;
+create policy gallery_videos_public_read
+on public.gallery_videos
+for select
+to anon, authenticated
+using (is_published = true);
+
+insert into public.team_roles (role_key, name, description, sort_order, is_system, is_active)
+values
+  ('superuser', 'Superuser', 'Full platform access.', -100, true, true),
+  ('media_team', 'Media Team', 'Media capture, editing, and publishing.', 10, true, true),
+  ('worship_team', 'Worship Team', 'Music ministry planning and execution.', 20, true, true),
+  ('foh_sound', 'FOH Sound', 'Front of house audio team.', 30, true, true),
+  ('childrens_church', 'Children''s Church Ministry', 'Children''s curriculum and classroom coordination.', 40, true, true),
+  ('youth_ministry', 'Youth Ministry', 'Youth curriculum and ministry operations.', 50, true, true)
+on conflict (role_key) do nothing;
+
+insert into public.team_members (username, full_name, is_superuser, is_active, notes)
+values ('xrkr80hdadmin', 'Primary Superuser', true, true, 'Bootstrap superuser account.')
+on conflict (username)
+do update set
+  is_superuser = true,
+  is_active = true;

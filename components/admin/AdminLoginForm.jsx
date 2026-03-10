@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IconAlertCircle, IconLockPassword, IconLogin2, IconShieldCheck, IconUser } from "@tabler/icons-react";
 import styles from "./AdminLoginForm.module.css";
@@ -102,9 +103,12 @@ export function AdminLoginForm() {
             <IconLogin2 size={18} stroke={1.8} aria-hidden="true" />
             {loading ? "Signing In..." : "Sign In"}
           </button>
+
+          <Link href="/admin/forgot-password" className={styles.secondaryLink}>
+            Forgot password?
+          </Link>
         </form>
       </div>
     </div>
   );
 }
-

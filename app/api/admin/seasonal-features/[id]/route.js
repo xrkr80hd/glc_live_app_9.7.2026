@@ -81,11 +81,7 @@ export async function PATCH(request, context) {
   const update = {};
 
   if (payload?.title !== undefined) {
-    const title = String(payload.title || "").trim();
-    if (!title) {
-      return NextResponse.json({ error: "title cannot be empty" }, { status: 400 });
-    }
-    update.title = title;
+    update.title = String(payload.title || "").trim();
   }
 
   if (payload?.body !== undefined) {
@@ -209,4 +205,3 @@ export async function DELETE(request, context) {
 
   return NextResponse.json({ success: true });
 }
-

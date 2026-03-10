@@ -87,9 +87,6 @@ export async function POST(request) {
   const sortOrder = parseInteger(payload?.sort_order, 0);
   const isActive = parseBoolean(payload?.is_active, true);
 
-  if (!title) {
-    return NextResponse.json({ error: "title is required" }, { status: 400 });
-  }
   if (mediaTypeRaw != null && String(mediaTypeRaw).trim() !== "" && !mediaType) {
     return NextResponse.json({ error: "media_type must be 'video' or 'image'" }, { status: 400 });
   }
@@ -125,4 +122,3 @@ export async function POST(request) {
 
   return NextResponse.json({ seasonalFeature: data }, { status: 201 });
 }
-

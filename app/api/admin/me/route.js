@@ -20,7 +20,9 @@ export async function GET(request) {
     session: {
       username: session.username,
       expiresAt: session.exp,
+      memberId: session.memberId || null,
+      isSuperuser: Boolean(session.isSuperuser),
+      source: session.source || "env",
     },
   });
 }
-

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -9,7 +9,6 @@ import {
   IconBible,
   IconBroadcast,
   IconDeviceFloppy,
-  IconLayoutDashboard,
   IconLogout2,
   IconMapPin,
   IconMenu2,
@@ -19,9 +18,9 @@ import {
   IconPlayerPlay,
   IconPlus,
   IconRefresh,
-  IconShieldCheck,
   IconSpeakerphone,
   IconTrash,
+  IconUsersGroup,
   IconX,
 } from "@tabler/icons-react";
 import styles from "./AdminDashboard.module.css";
@@ -138,8 +137,8 @@ const CONTENT_RESOURCES = [
   },
   {
     key: "ministries",
-    label: "Ministries",
-    singularLabel: "Ministry",
+    label: "Ministries & Service Times",
+    singularLabel: "Ministry/Service Item",
     description: "Homepage ministry rows like Men's group and nursery.",
     icon: IconCalendarEvent,
     listEndpoint: "/api/admin/ministries?include_unpublished=true&limit=120",
@@ -160,21 +159,109 @@ const CONTENT_RESOURCES = [
     ],
   },
   {
+    key: "team-roles",
+    label: "Team Roles",
+    singularLabel: "Team Role",
+    description: "Create roles like Media Team, Worship Team, FOH Sound, Children's, and Youth.",
+    icon: IconUsersGroup,
+    listEndpoint: "/api/admin/team-roles?include_inactive=true&limit=300",
+    createEndpoint: "/api/admin/team-roles",
+    itemEndpoint: (id) => `/api/admin/team-roles/${id}`,
+    listKey: "teamRoles",
+    fields: [
+      { name: "role_key", label: "Role Key", type: "text", required: true, placeholder: "media_team" },
+      { name: "name", label: "Role Name", type: "text", required: true, placeholder: "Media Team" },
+      { name: "description", label: "Description", type: "textarea", placeholder: "Optional description...", rows: 4, fullWidth: true },
+      { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
+      { name: "is_system", label: "System Role", type: "checkbox", defaultValue: false },
+      { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
+    ],
+    preview: [
+      { label: "Role Key", name: "role_key" },
+      { label: "Role Name", name: "name" },
+      { label: "Sort", name: "sort_order" },
+      { label: "System", name: "is_system" },
+      { label: "Active", name: "is_active" },
+    ],
+  },
+  {
+    key: "team-members",
+    label: "Team Members",
+    singularLabel: "Team Member",
+    description: "Create member records and flag superusers.",
+    icon: IconUsersGroup,
+    listEndpoint: "/api/admin/team-members?include_inactive=true&limit=300",
+    createEndpoint: "/api/admin/team-members",
+    itemEndpoint: (id) => `/api/admin/team-members/${id}`,
+    listKey: "teamMembers",
+    fields: [
+      { name: "username", label: "Username", type: "text", required: true, placeholder: "xrkr80hdadmin" },
+      { name: "full_name", label: "Full Name", type: "text", placeholder: "Display name" },
+      { name: "email", label: "Email", type: "text", placeholder: "name@example.com" },
+      { name: "phone", label: "Phone", type: "text", placeholder: "(###) ###-####" },
+      { name: "password", label: "Login Password", type: "password", placeholder: "Set password (min 8 chars)" },
+      { name: "notes", label: "Notes", type: "textarea", placeholder: "Optional notes...", rows: 4, fullWidth: true },
+      { name: "is_superuser", label: "Superuser", type: "checkbox", defaultValue: false },
+      { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
+    ],
+    preview: [
+      { label: "Username", name: "username" },
+      { label: "Name", name: "full_name" },
+      { label: "Email", name: "email" },
+      { label: "Superuser", name: "is_superuser" },
+      { label: "Last Login", name: "last_login_at", format: formatDateTime },
+      { label: "Active", name: "is_active" },
+    ],
+  },
+  {
+    key: "team-member-roles",
+    label: "Role Assignments",
+    singularLabel: "Role Assignment",
+    description: "Assign multiple roles to each member and mark team-level admins.",
+    icon: IconUsersGroup,
+    listEndpoint: "/api/admin/team-member-roles?limit=400",
+    createEndpoint: "/api/admin/team-member-roles",
+    itemEndpoint: (id) => `/api/admin/team-member-roles/${id}`,
+    listKey: "teamMemberRoles",
+    fields: [
+      { name: "member_id", label: "Member ID", type: "text", required: true, placeholder: "Paste Team Member UUID" },
+      { name: "role_id", label: "Role ID", type: "text", required: true, placeholder: "Paste Team Role UUID" },
+      { name: "is_role_admin", label: "Team Admin", type: "checkbox", defaultValue: false },
+      { name: "assigned_at", label: "Assigned At", type: "datetime", defaultValue: () => getNowDateTimeInput() },
+    ],
+    preview: [
+      { label: "Member ID", name: "member_id" },
+      { label: "Role ID", name: "role_id" },
+      { label: "Team Admin", name: "is_role_admin" },
+      { label: "Assigned", name: "assigned_at", format: formatDateTime },
+    ],
+  },
+  {
     key: "seasonal-features",
-    label: "Seasonal Features",
-    singularLabel: "Seasonal Feature",
-    description: "Seasonal hero/card content for holidays and themed moments.",
+    label: "Seasonal Card",
+    singularLabel: "Seasonal Card",
+    description: "Edit the homepage seasonal card header and content.",
     icon: IconCalendarEvent,
     listEndpoint: "/api/admin/seasonal-features?include_inactive=true&limit=120",
     createEndpoint: "/api/admin/seasonal-features",
     itemEndpoint: (id) => `/api/admin/seasonal-features/${id}`,
     listKey: "seasonalFeatures",
     fields: [
-      { name: "title", label: "Title", type: "text", required: true, placeholder: "He is Risen" },
-      { name: "body", label: "Thought", type: "textarea", placeholder: "Short seasonal thought...", rows: 6, fullWidth: true },
+      { name: "title", label: "Card Header", type: "text", placeholder: "Seasonal Reflection" },
+      { name: "body", label: "Card Content", type: "textarea", placeholder: "Short seasonal thought...", rows: 6, fullWidth: true },
       { name: "scripture_reference", label: "Scripture Reference", type: "text", placeholder: "Isaiah 9:6" },
       { name: "scripture_text", label: "Scripture Text", type: "textarea", placeholder: "For unto us a child is born...", rows: 8, fullWidth: true },
-      { name: "media_url", label: "Media URL", type: "text", placeholder: "https://.../seasonal.mp4" },
+      {
+        name: "media_url",
+        label: "Media URL",
+        type: "text",
+        placeholder: "https://.../seasonal.mp4",
+        upload: {
+          folder: "seasonal",
+          accept: "video/*,image/*",
+          helperText: "Drag/drop a video or image to upload and auto-fill this URL.",
+        },
+      },
       {
         name: "media_type",
         label: "Media Type",
@@ -195,12 +282,112 @@ const CONTENT_RESOURCES = [
       { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
     ],
     preview: [
-      { label: "Title", name: "title" },
+      { label: "Header", name: "title" },
       { label: "Tag", name: "season_tag" },
       { label: "Media", name: "media_type" },
       { label: "Starts", name: "starts_at", format: formatDateTime },
       { label: "Ends", name: "ends_at", format: formatDateTime },
       { label: "Active", name: "is_active" },
+    ],
+  },
+  {
+    key: "photo-albums",
+    label: "Photo Albums",
+    singularLabel: "Photo Album",
+    description: "Create album names and dates for youth and church photo galleries.",
+    icon: IconPhoto,
+    listEndpoint: "/api/admin/photo-albums?include_unpublished=true&limit=200",
+    createEndpoint: "/api/admin/photo-albums",
+    itemEndpoint: (id) => `/api/admin/photo-albums/${id}`,
+    listKey: "photoAlbums",
+    fields: [
+      { name: "title", label: "Album Title", type: "text", required: true, placeholder: "Youth Get Together" },
+      { name: "album_date", label: "Album Date", type: "date", defaultValue: () => getNowDateInput() },
+      { name: "description", label: "Description", type: "textarea", placeholder: "Optional album summary...", rows: 5, fullWidth: true },
+      { name: "cover_photo_url", label: "Cover Photo URL", type: "text", placeholder: "https://.../cover.jpg" },
+      { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
+      { name: "is_published", label: "Published", type: "checkbox", defaultValue: true },
+    ],
+    preview: [
+      { label: "Title", name: "title" },
+      { label: "Date", name: "album_date", format: formatDate },
+      { label: "Sort", name: "sort_order" },
+      { label: "Published", name: "is_published" },
+    ],
+  },
+  {
+    key: "album-photos",
+    label: "Album Photos",
+    singularLabel: "Album Photo",
+    description: "Add unlimited photos to any album by album ID.",
+    icon: IconPhoto,
+    listEndpoint: "/api/admin/album-photos?include_unpublished=true&limit=300",
+    createEndpoint: "/api/admin/album-photos",
+    itemEndpoint: (id) => `/api/admin/album-photos/${id}`,
+    listKey: "albumPhotos",
+    fields: [
+      { name: "album_id", label: "Album ID", type: "text", required: true, placeholder: "Paste album UUID from Photo Albums" },
+      {
+        name: "photo_url",
+        label: "Photo URL",
+        type: "text",
+        required: true,
+        placeholder: "https://.../photo.jpg",
+        upload: {
+          folder: "albums/photos",
+          accept: "image/*",
+          helperText: "Drag/drop an image to upload and auto-fill this URL.",
+        },
+      },
+      { name: "caption", label: "Caption", type: "textarea", placeholder: "Optional caption", rows: 4, fullWidth: true },
+      { name: "taken_on", label: "Photo Date", type: "date" },
+      { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
+      { name: "is_published", label: "Published", type: "checkbox", defaultValue: true },
+    ],
+    preview: [
+      { label: "Album ID", name: "album_id" },
+      { label: "Photo URL", name: "photo_url" },
+      { label: "Date", name: "taken_on", format: formatDate },
+      { label: "Sort", name: "sort_order" },
+      { label: "Published", name: "is_published" },
+    ],
+  },
+  {
+    key: "gallery-videos",
+    label: "Gallery Videos",
+    singularLabel: "Gallery Video",
+    description: "Store separate video links for youth/church gallery playback.",
+    icon: IconPlayerPlay,
+    listEndpoint: "/api/admin/gallery-videos?include_unpublished=true&limit=200",
+    createEndpoint: "/api/admin/gallery-videos",
+    itemEndpoint: (id) => `/api/admin/gallery-videos/${id}`,
+    listKey: "galleryVideos",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true, placeholder: "Wednesday Night Recap" },
+      {
+        name: "video_url",
+        label: "Video URL",
+        type: "text",
+        required: true,
+        placeholder: "https://.../video.mp4 or youtube link",
+        upload: {
+          folder: "gallery/videos",
+          accept: "video/*",
+          helperText: "Drag/drop a video to upload and auto-fill this URL.",
+        },
+      },
+      { name: "thumbnail_url", label: "Thumbnail URL", type: "text", placeholder: "https://.../thumb.jpg" },
+      { name: "description", label: "Description", type: "textarea", placeholder: "Optional details...", rows: 5, fullWidth: true },
+      { name: "recorded_on", label: "Recorded On", type: "date" },
+      { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
+      { name: "is_published", label: "Published", type: "checkbox", defaultValue: true },
+    ],
+    preview: [
+      { label: "Title", name: "title" },
+      { label: "Video URL", name: "video_url" },
+      { label: "Recorded", name: "recorded_on", format: formatDate },
+      { label: "Sort", name: "sort_order" },
+      { label: "Published", name: "is_published" },
     ],
   },
   {
@@ -450,6 +637,10 @@ function resolvePrimaryLabel(item) {
 function FieldInput({ field, value, onChange, idPrefix }) {
   const inputId = `${idPrefix}-${field.name}`;
   const fieldClassName = field.fullWidth ? `${styles.field} ${styles.fieldWide}` : styles.field;
+  const uploadInputRef = useRef(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
 
   if (field.type === "textarea") {
     return (
@@ -500,9 +691,116 @@ function FieldInput({ field, value, onChange, idPrefix }) {
     date: "date",
     datetime: "datetime-local",
     number: "number",
+    password: "password",
     text: "text",
   };
   const inputType = typeMap[field.type] || "text";
+  const uploadConfig = field.upload || null;
+
+  async function uploadFile(file) {
+    if (!file || !uploadConfig) {
+      return;
+    }
+    setUploadError("");
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (uploadConfig.folder) {
+        formData.append("folder", uploadConfig.folder);
+      }
+      if (uploadConfig.bucket) {
+        formData.append("bucket", uploadConfig.bucket);
+      }
+
+      const response = await fetch("/api/admin/uploads", {
+        method: "POST",
+        body: formData,
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload?.url) {
+        throw new Error(getErrorMessage(payload, "Unable to upload file."));
+      }
+
+      onChange(field.name, payload.url);
+    } catch (error) {
+      setUploadError(error.message || "Unable to upload file.");
+    } finally {
+      setIsUploading(false);
+      setIsDraggingFile(false);
+    }
+  }
+
+  function onFileInputChange(event) {
+    const file = event.target.files?.[0];
+    if (file) {
+      uploadFile(file);
+    }
+    event.target.value = "";
+  }
+
+  function onDrop(event) {
+    event.preventDefault();
+    const file = event.dataTransfer?.files?.[0];
+    if (file) {
+      uploadFile(file);
+    } else {
+      setIsDraggingFile(false);
+    }
+  }
+
+  if (inputType === "text" && uploadConfig) {
+    return (
+      <div className={fieldClassName}>
+        <span>{field.label}</span>
+        <input
+          id={inputId}
+          type="text"
+          value={value}
+          required={Boolean(field.required)}
+          placeholder={field.placeholder || ""}
+          onChange={(event) => onChange(field.name, event.target.value)}
+        />
+        <div className={styles.uploadGroup}>
+          <div
+            className={`${styles.uploadDropzone} ${isDraggingFile ? styles.uploadDropzoneDragging : ""}`}
+            onDragOver={(event) => {
+              event.preventDefault();
+              setIsDraggingFile(true);
+            }}
+            onDragLeave={(event) => {
+              event.preventDefault();
+              setIsDraggingFile(false);
+            }}
+            onDrop={onDrop}
+          >
+            Drag and drop file here
+          </div>
+          <div className={styles.uploadActions}>
+            <input
+              ref={uploadInputRef}
+              id={`${inputId}-upload`}
+              type="file"
+              accept={uploadConfig.accept || "*/*"}
+              className={styles.uploadHiddenInput}
+              onChange={onFileInputChange}
+            />
+            <button
+              type="button"
+              className={styles.secondaryBtn}
+              onClick={() => uploadInputRef.current?.click()}
+              disabled={isUploading}
+            >
+              {isUploading ? "Uploading..." : "Choose File"}
+            </button>
+            {uploadConfig.helperText ? <p className={styles.uploadHint}>{uploadConfig.helperText}</p> : null}
+          </div>
+          {uploadError ? <p className={styles.uploadError}>{uploadError}</p> : null}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <label className={fieldClassName} htmlFor={inputId}>
@@ -897,16 +1195,12 @@ export function AdminDashboard({ username }) {
   return (
     <div className={styles.shell}>
       <header className={styles.topBar}>
-        <div>
-          <p className={styles.kicker}>
-            <IconShieldCheck size={15} stroke={1.9} aria-hidden="true" />
-            Secure Admin
-          </p>
+        <div className={styles.brandBlock}>
+          <p className={styles.kicker}>Administration</p>
           <h1>
-            <IconLayoutDashboard size={24} stroke={1.9} aria-hidden="true" />
-            Liberty Church Content Manager
+            Liberty Church Administration
           </h1>
-          <p className={styles.metaLine}>Signed in as {username}</p>
+          <p className={styles.metaLine}>Signed in: {username}</p>
         </div>
 
         <div className={styles.topActions}>
@@ -937,8 +1231,8 @@ export function AdminDashboard({ username }) {
 
       <section className={styles.panel}>
         <div className={styles.panelHeader}>
-          <h2>Content CRUD</h2>
-          <p>Create, edit, and delete content powering homepage, youth, live, and sermons pages.</p>
+          <h2>Content Management</h2>
+          <p>Update website content for homepage, youth, livestream, and sermons pages.</p>
         </div>
 
         {isNavOpen ? (

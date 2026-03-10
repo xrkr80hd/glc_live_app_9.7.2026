@@ -95,6 +95,15 @@
   gap: 0.45rem;
 }
 
+.success {
+  margin: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(127, 212, 173, 0.48);
+  background: rgba(22, 71, 52, 0.68);
+  color: #e6fff3;
+  padding: 0.68rem 0.78rem;
+}
+
 .submitBtn {
   appearance: none;
   border: 1px solid rgba(112, 208, 160, 0.65);
@@ -116,3 +125,9 @@
   cursor: wait;
 }
 
+.secondaryLink {
+  font-size: 0.9rem;
+  color: #bcd6f3;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
