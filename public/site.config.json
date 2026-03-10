@@ -1,0 +1,26 @@
+{
+  "church": {
+    "name": "Liberty Church",
+    "address": "100 McKeithen Dr, Alexandria, LA 71303"
+  },
+  "links": {
+    "youtube": "https://www.youtube.com/@GoLibertyChurch",
+    "facebook": "https://www.facebook.com/GoLibertyChurch",
+    "instagram": "https://www.instagram.com/golibertychurch/",
+    "maps": "https://www.google.com/maps?q=100%20McKeithen%20Dr%2C%20Alexandria%2C%20LA%2071303"
+  },
+  "livestream": {
+    "provider": "youtube",
+    "auto": true,
+    "channelId": "UC3OOjkWTTRf0fKDK5Z2o93A",
+    "apiKey": "",
+    "videoIdOrUrl": ""
+  },
+  "serviceTimes": [
+    "Sundays @ 9:20 AM – Youth Devotion",
+    "Sundays @ 10:00 AM – Worship Service"
+  ],
+  "contact": {
+    "email": "GoLibertyChurch@gmail.com"
+  }
+}

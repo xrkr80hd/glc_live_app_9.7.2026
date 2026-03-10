@@ -1,6 +1,23 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+function isValidVideoId(id) {
+  return /^[A-Za-z0-9_-]{11}$/.test(String(id || ""));
+}
+
+function embedFromVideo(video) {
+  if (!video) {
+    return "";
+  }
+  if (video.embedUrl) {
+    return video.embedUrl;
+  }
+  if (isValidVideoId(video.id)) {
+    return `https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`;
+  }
+  return "";
+}
 
 function formatDate(value) {
   if (!value) {
@@ -13,70 +30,231 @@ function formatDate(value) {
   return date.toLocaleDateString();
 }
 
-export function SermonsClient({ videos }) {
-  const [activeVideoId, setActiveVideoId] = useState(videos?.[0]?.id || "");
+export function SermonsClient({ videos = [] }) {
+  const [selectedId, setSelectedId] = useState(videos[0]?.id || "");
+  const [recentShown, setRecentShown] = useState(6);
+  const [playlists, setPlaylists] = useState([]);
+  const [playlistShown, setPlaylistShown] = useState({});
+  const [openPlaylistIds, setOpenPlaylistIds] = useState({});
+  const [archived, setArchived] = useState([]);
+  const [showArchived, setShowArchived] = useState(false);
 
-  const activeVideo = useMemo(
-    () => videos.find((video) => video.id === activeVideoId) || videos[0] || null,
-    [videos, activeVideoId],
-  );
+  useEffect(() => {
+    let active = true;
 
-  if (!videos.length) {
-    return (
-      <article className="card">
-        <h2>No sermons available yet</h2>
-        <p>
-          Add a YouTube API key/channel or publish sermon records in Supabase, then this page
-          will auto-populate.
-        </p>
-      </article>
-    );
-  }
+    async function loadLocalData() {
+      try {
+        const [sermonsRes, archivedRes] = await Promise.all([
+          fetch("/assets/data/sermons.json", { cache: "no-store" }),
+          fetch("/assets/data/archived.json", { cache: "no-store" }),
+        ]);
+
+        if (active && sermonsRes.ok) {
+          const sermonsData = await sermonsRes.json();
+          const nextPlaylists = Array.isArray(sermonsData?.playlists) ? sermonsData.playlists : [];
+          setPlaylists(nextPlaylists);
+          const shownMap = {};
+          for (const playlist of nextPlaylists) {
+            shownMap[playlist.id] = 8;
+          }
+          setPlaylistShown(shownMap);
+        }
+
+        if (active && archivedRes.ok) {
+          const archivedData = await archivedRes.json();
+          setArchived(Array.isArray(archivedData) ? archivedData : []);
+        }
+      } catch {
+        // Keep existing fallback states.
+      }
+    }
+
+    loadLocalData();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const selectedVideo = useMemo(() => {
+    return videos.find((video) => video.id === selectedId) || videos[0] || null;
+  }, [videos, selectedId]);
+
+  const selectedEmbed = useMemo(() => embedFromVideo(selectedVideo), [selectedVideo]);
+
+  const recentVideos = useMemo(() => videos.slice(0, recentShown), [videos, recentShown]);
+  const canLoadMoreRecent = videos.length > recentShown;
+  const canCollapseRecent = recentShown > 6;
 
   return (
-    <div className="stack-lg">
-      <div className="video-wrap">
-        {activeVideo?.embedUrl ? (
-          <iframe
-            src={activeVideo.embedUrl}
-            title={activeVideo.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          />
-        ) : (
-          <div className="video-empty">This sermon does not have a playable video.</div>
-        )}
-      </div>
-
-      <article className="card">
-        <h2>{activeVideo?.title || "Sermon"}</h2>
-        {activeVideo?.publishedAt ? (
-          <p className="muted-text">{formatDate(activeVideo.publishedAt)}</p>
-        ) : null}
-        {activeVideo?.description ? <p>{activeVideo.description}</p> : null}
-      </article>
-
-      <div className="cards sermons-grid">
-        {videos.map((video) => (
-          <button
-            type="button"
-            key={video.id}
-            className={`sermon-card ${video.id === activeVideo?.id ? "sermon-card-active" : ""}`}
-            onClick={() => setActiveVideoId(video.id)}
-          >
-            {video.thumbnail ? (
-              <img src={video.thumbnail} alt="" loading="lazy" />
+    <>
+      <section className="section">
+        <div className="container">
+          <div className="section-head">
+            <h1>Messages</h1>
+            <p className="muted">Watch recent uploads, browse series, or view archived sermons. Tap any card to play below.</p>
+          </div>
+          <div className="embed aspect-16x9" id="sermonPlayer">
+            {selectedEmbed ? (
+              <div className="content">
+                <iframe
+                  src={selectedEmbed}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                  title={selectedVideo?.title || "Sermon"}
+                />
+              </div>
             ) : (
-              <div className="sermon-thumb-empty">No Thumbnail</div>
+              <div className="content placeholder" style={{ padding: 28 }}>
+                No sermons available yet.
+              </div>
             )}
-            <span className="sermon-title">{video.title}</span>
-            {video.publishedAt ? (
-              <span className="sermon-date">{formatDate(video.publishedAt)}</span>
-            ) : null}
-          </button>
-        ))}
-      </div>
-    </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section alt">
+        <div className="container">
+          <h2>Recently Uploaded</h2>
+          <div className="cards" id="recentGrid">
+            {recentVideos.map((video) => (
+              <article
+                key={video.id}
+                className="card"
+                data-id={video.id}
+                onClick={() => setSelectedId(video.id)}
+                style={{ cursor: "pointer" }}
+              >
+                {video.thumbnail ? (
+                  <img src={video.thumbnail} alt="" style={{ width: "100%", height: "auto", borderRadius: 10 }} loading="lazy" />
+                ) : null}
+                <h3>{video.title || "Untitled"}</h3>
+                <p className="muted">{formatDate(video.publishedAt)}</p>
+              </article>
+            ))}
+          </div>
+          {(canLoadMoreRecent || canCollapseRecent) ? (
+            <div className="btn-group mt-16" id="recentControls">
+              {canLoadMoreRecent ? (
+                <button
+                  id="btnMoreRecent"
+                  className="btn small"
+                  type="button"
+                  onClick={() => setRecentShown((current) => Math.min(current + 6, videos.length))}
+                >
+                  Load more
+                </button>
+              ) : null}
+              {canCollapseRecent ? (
+                <button
+                  id="btnCollapseRecent"
+                  className="btn ghost small"
+                  type="button"
+                  onClick={() => setRecentShown(6)}
+                >
+                  Collapse
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <h2>Series</h2>
+          <div id="seriesList">
+            {playlists.length ? (
+              playlists.map((playlist) => {
+                const shownCount = playlistShown[playlist.id] || 8;
+                const items = Array.isArray(playlist.items) ? playlist.items : [];
+                const shownItems = items.slice(0, shownCount);
+                const isOpen = Boolean(openPlaylistIds[playlist.id]);
+                return (
+                  <div key={playlist.id} className="series-item">
+                    <button
+                      className="series-toggle"
+                      type="button"
+                      aria-expanded={isOpen}
+                      onClick={() =>
+                        setOpenPlaylistIds((current) => ({
+                          ...current,
+                          [playlist.id]: !current[playlist.id],
+                        }))
+                      }
+                    >
+                      <span className="series-title">{playlist.title || "Series"}</span>
+                      <span className="series-meta">
+                        <span>{playlist.itemCount || items.length} messages</span>
+                        <span className="chevron" aria-hidden="true" />
+                      </span>
+                    </button>
+                    <div className="series-panel" hidden={!isOpen}>
+                      <ul className="list">
+                        {shownItems.map((item) => (
+                          <li key={`${playlist.id}-${item.id}`}>
+                            <button className="btn ghost" type="button" onClick={() => setSelectedId(item.id)}>
+                              {item.title || "Untitled"}
+                            </button>{" "}
+                            <span className="muted">{formatDate(item.publishedAt)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {shownCount < items.length ? (
+                        <button
+                          className="btn small"
+                          type="button"
+                          onClick={() =>
+                            setPlaylistShown((current) => ({
+                              ...current,
+                              [playlist.id]: Math.min((current[playlist.id] || 8) + 10, items.length),
+                            }))
+                          }
+                        >
+                          Load more ({items.length - shownCount})
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="muted">Series list coming soon.</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="section alt">
+        <div className="container">
+          <h2>Archived Sermons</h2>
+          <p className="muted">Older messages curated by our team.</p>
+          <div className="card">
+            <button
+              id="toggleArchived"
+              className="btn ghost"
+              type="button"
+              aria-expanded={showArchived}
+              aria-controls="archivedList"
+              onClick={() => setShowArchived((current) => !current)}
+            >
+              {showArchived ? "Hide archived" : "Show archived"}
+            </button>
+            <div id="archivedList" className="mt-12" hidden={!showArchived}>
+              <ul className="list" id="archivedUl">
+                {archived.map((item, index) => (
+                  <li key={`${item.id || item.title || "archived"}-${index}`}>
+                    <button className="btn ghost" type="button" onClick={() => setSelectedId(item.id)}>
+                      {item.title || "Untitled"}
+                    </button>{" "}
+                    <span className="muted">{formatDate(item.publishedAt || item.date || item.preachedOn)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
