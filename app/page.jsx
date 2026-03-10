@@ -1,6 +1,7 @@
 import Script from "next/script";
 import { ChurchHeader } from "@/components/ChurchHeader";
 import { ChurchSiteFooter } from "@/components/ChurchSiteFooter";
+import { HighlightShowcaseCard } from "@/components/HighlightShowcaseCard";
 import { getHomepageContent } from "@/lib/content";
 import {
   IconCalendarEvent,
@@ -16,7 +17,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const { announcements, ministries, seasonalFeature, scripture } = await getHomepageContent();
+  const { announcements, ministries, highlightCards } = await getHomepageContent();
 
   return (
     <>
@@ -56,77 +57,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {seasonalFeature ? (
-        <section className="section">
-          <div className="container">
-            <article className="seasonal-card">
-              {seasonalFeature.media_url ? (
-                <div className="seasonal-media" aria-hidden="true">
-                  {seasonalFeature.media_type === "video" ? (
-                    <video autoPlay muted loop playsInline preload="metadata">
-                      <source src={seasonalFeature.media_url} />
-                    </video>
-                  ) : (
-                    <img src={seasonalFeature.media_url} alt="" loading="lazy" />
-                  )}
-                </div>
-              ) : null}
-              <div className="seasonal-overlay" />
-              <div className="seasonal-content">
-                {seasonalFeature.title ? <h2>{seasonalFeature.title}</h2> : null}
-                {seasonalFeature.body ? <p>{seasonalFeature.body}</p> : null}
-                {seasonalFeature.scripture_text ? (
-                  <blockquote>{seasonalFeature.scripture_text}</blockquote>
-                ) : null}
-                {seasonalFeature.scripture_reference ? (
-                  <p className="scripture-ref">{seasonalFeature.scripture_reference}</p>
-                ) : null}
-                {seasonalFeature.cta_label && seasonalFeature.cta_url ? (
-                  <a className="btn ghost" href={seasonalFeature.cta_url}>
-                    <IconCalendarEvent size={18} stroke={1.9} aria-hidden="true" />
-                    {seasonalFeature.cta_label}
-                  </a>
-                ) : null}
-              </div>
-            </article>
-          </div>
-        </section>
-      ) : null}
+      <section className="section">
+        <div className="container">
+          <HighlightShowcaseCard cards={highlightCards} />
+        </div>
+      </section>
 
       <section className="section alt">
         <div className="container">
-          <h2>Our Ministries and Service Times</h2>
-          <p className="sub">Below are our ministry highlights and service times; see announcements for updates.</p>
+          <h2>Our Ministries</h2>
+          <p className="sub">Ministry highlights and opportunities to get connected.</p>
           <div className="ann-list" id="ministries">
             {ministries.map((item) => (
               <div key={item.id} className="ann-item">
                 <strong>{item.title}</strong> — {item.body}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section announcements">
-        <div className="container">
-          <h2>
-            <span className="heading-inline">
-              <IconInfoCircle size={28} stroke={1.8} aria-hidden="true" />
-              <span>Announcements &amp; Events</span>
-            </span>
-          </h2>
-          <p className="sub">Stay updated with the latest news and upcoming events at Liberty Church.</p>
-          <div className="announcements-container">
-            <article className="ann-item">
-              <h3>Scripture of the Week</h3>
-              <blockquote>{scripture.verse_text}</blockquote>
-              <p className="scripture-ref">{scripture.reference}</p>
-            </article>
-            {announcements.map((item) => (
-              <article key={item.id} className="ann-item">
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-              </article>
             ))}
           </div>
         </div>
@@ -159,6 +104,44 @@ export default async function HomePage() {
                 />
               </figure>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section alt">
+        <div className="container">
+          <h2>Service Times</h2>
+          <p className="sub">Join us each week.</p>
+          <div className="ann-list">
+            <div className="ann-item">
+              <strong>Sunday</strong> — 9:20 AM (Youth Devotion)
+            </div>
+            <div className="ann-item">
+              <strong>Sunday</strong> — 10:00 AM (Worship Service)
+            </div>
+            <div className="ann-item">
+              <strong>Wednesday</strong> — 6:30 PM (Youth Service)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section announcements">
+        <div className="container">
+          <h2>
+            <span className="heading-inline">
+              <IconInfoCircle size={28} stroke={1.8} aria-hidden="true" />
+              <span>Announcements &amp; Events</span>
+            </span>
+          </h2>
+          <p className="sub">Stay updated with the latest news and upcoming events at Liberty Church.</p>
+          <div className="announcements-container">
+            {announcements.map((item) => (
+              <article key={item.id} className="ann-item">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>

@@ -472,13 +472,54 @@ body.youth .hero .content .h1{color:#e6ebff;text-shadow:0 3px 14px rgba(0,0,0,.5
 body.youth .hero .content .sub{color:#c0c8e6}
 
 /* Youth brand title (header) */
-body.youth .brand-title{display:inline-flex;align-items:baseline;gap:8px;font-weight:800}
-body.youth .brand-title .brand-plain{color:#fff}
+body.youth .brand{
+	gap:12px;
+}
+
+body.youth .brand img{
+	height:30px;
+	width:auto;
+}
+
+body.youth .brand-title{
+	display:inline-flex;
+	flex-direction:column;
+	align-items:flex-start;
+	gap:0;
+	line-height:1.05;
+	font-weight:800;
+}
+
+body.youth .brand-title .brand-plain{
+	color:#fff;
+	font-size:clamp(1.2rem,2.1vw,1.55rem);
+	white-space:nowrap;
+	letter-spacing:.01em;
+}
+
 body.youth .brand-title .youth-mark{
-	background:linear-gradient(90deg,#4fc3ff,#7a5cff);
-	-webkit-background-clip:text;background-clip:text;
+	display:block;
+	margin-top:2px;
+	font-size:.86rem;
+	font-weight:900;
+	letter-spacing:.22em;
+	text-transform:uppercase;
+	background:linear-gradient(90deg,#7fd7ff,#5ab8ff);
+	-webkit-background-clip:text;
+	background-clip:text;
 	color:transparent;
-	text-shadow:0 0 18px rgba(122,92,255,.35), 0 0 6px rgba(79,195,255,.55);
+	text-shadow:0 0 12px rgba(90,184,255,.35);
+}
+
+@media (max-width: 640px){
+	body.youth .brand-title .brand-plain{
+		font-size:1.16rem;
+	}
+
+	body.youth .brand-title .youth-mark{
+		font-size:.74rem;
+		letter-spacing:.18em;
+	}
 }
 
 /* Embeds (players) with a subtle gradient border */

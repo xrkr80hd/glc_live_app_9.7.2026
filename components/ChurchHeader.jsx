@@ -68,7 +68,7 @@ export function ChurchHeader({ active = "", youthBrand = false }) {
       <div className="container nav">
         {youthBrand ? (
           <a className="brand" href="/">
-            <img src="/assets/LC_YOUTH_LOGO.png" alt="LC Youth logo" />
+            <img src="/assets/logo.png" alt="Liberty Church logo" />
             <span className="brand-title">
               <span className="brand-plain">Liberty Church</span>
               <span className="youth-mark">YOUTH</span>

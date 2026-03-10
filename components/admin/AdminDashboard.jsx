@@ -8,6 +8,8 @@ import {
   IconArchive,
   IconBible,
   IconBroadcast,
+  IconChevronDown,
+  IconChevronUp,
   IconDeviceFloppy,
   IconLogout2,
   IconMapPin,
@@ -238,28 +240,26 @@ const CONTENT_RESOURCES = [
   },
   {
     key: "seasonal-features",
-    label: "Seasonal Card",
-    singularLabel: "Seasonal Card",
-    description: "Edit the homepage seasonal card header and content.",
+    label: "Homepage Highlight Cards",
+    singularLabel: "Highlight Card",
+    description: "Stack as many cards as you need. Set each card timer, media, and optional audio controls.",
     icon: IconCalendarEvent,
     listEndpoint: "/api/admin/seasonal-features?include_inactive=true&limit=120",
     createEndpoint: "/api/admin/seasonal-features",
     itemEndpoint: (id) => `/api/admin/seasonal-features/${id}`,
     listKey: "seasonalFeatures",
     fields: [
-      { name: "title", label: "Card Header", type: "text", placeholder: "Seasonal Reflection" },
-      { name: "body", label: "Card Content", type: "textarea", placeholder: "Short seasonal thought...", rows: 6, fullWidth: true },
-      { name: "scripture_reference", label: "Scripture Reference", type: "text", placeholder: "Isaiah 9:6" },
-      { name: "scripture_text", label: "Scripture Text", type: "textarea", placeholder: "For unto us a child is born...", rows: 8, fullWidth: true },
+      { name: "title", label: "Card Heading", type: "text", placeholder: "Community Worship Night" },
+      { name: "body", label: "Card Message", type: "textarea", placeholder: "Share event details, reminder text, or seasonal thought...", rows: 6, fullWidth: true },
       {
         name: "media_url",
         label: "Media URL",
         type: "text",
-        placeholder: "https://.../seasonal.mp4",
+        placeholder: "https://.../highlight.mp4",
         upload: {
           folder: "seasonal",
           accept: "video/*,image/*",
-          helperText: "Drag/drop a video or image to upload and auto-fill this URL.",
+          helperText: "Drag/drop a video or image to upload, or paste an external URL.",
         },
       },
       {
@@ -273,18 +273,23 @@ const CONTENT_RESOURCES = [
         ],
         defaultValue: "",
       },
+      { name: "display_seconds", label: "Display Seconds", type: "number", defaultValue: 12 },
+      { name: "enable_audio", label: "Allow Audio Controls", type: "checkbox", defaultValue: false },
+      { name: "volume_percent", label: "Default Volume (0-100)", type: "number", defaultValue: 25 },
       { name: "cta_label", label: "CTA Label", type: "text", placeholder: "Learn More" },
       { name: "cta_url", label: "CTA URL", type: "text", placeholder: "/sermons" },
-      { name: "season_tag", label: "Season Tag", type: "text", placeholder: "Easter 2026" },
+      { name: "season_tag", label: "Tag (Optional)", type: "text", placeholder: "Spring 2026" },
       { name: "starts_at", label: "Starts At", type: "datetime", defaultValue: () => getNowDateTimeInput() },
       { name: "ends_at", label: "Ends At", type: "datetime" },
       { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
       { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
     ],
     preview: [
-      { label: "Header", name: "title" },
-      { label: "Tag", name: "season_tag" },
+      { label: "Heading", name: "title" },
       { label: "Media", name: "media_type" },
+      { label: "Display (sec)", name: "display_seconds" },
+      { label: "Audio", name: "enable_audio" },
+      { label: "Volume", name: "volume_percent" },
       { label: "Starts", name: "starts_at", format: formatDateTime },
       { label: "Ends", name: "ends_at", format: formatDateTime },
       { label: "Active", name: "is_active" },
@@ -852,6 +857,7 @@ export function AdminDashboard({ username }) {
   );
   const [editDrafts, setEditDrafts] = useState({});
   const [editingIdByResource, setEditingIdByResource] = useState({});
+  const [expandedItemIdByResource, setExpandedItemIdByResource] = useState({});
   const [prayerStatusDrafts, setPrayerStatusDrafts] = useState({});
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [busyAction, setBusyAction] = useState("");
@@ -1017,6 +1023,10 @@ export function AdminDashboard({ username }) {
       ...prev,
       [resource.key]: itemToDraft(resource.fields, item),
     }));
+    setExpandedItemIdByResource((prev) => ({
+      ...prev,
+      [resource.key]: item.id,
+    }));
   }
 
   function cancelEdit(resourceKey) {
@@ -1027,6 +1037,13 @@ export function AdminDashboard({ username }) {
     setEditDrafts((prev) => ({
       ...prev,
       [resourceKey]: {},
+    }));
+  }
+
+  function toggleItemExpanded(resourceKey, itemId) {
+    setExpandedItemIdByResource((prev) => ({
+      ...prev,
+      [resourceKey]: prev[resourceKey] === itemId ? "" : itemId,
     }));
   }
 
@@ -1189,8 +1206,10 @@ export function AdminDashboard({ username }) {
     error: "",
   };
   const editingId = editingIdByResource[activeResource.key] || "";
+  const expandedId = expandedItemIdByResource[activeResource.key] || "";
   const createDraft = createDrafts[activeResource.key] || getInitialDraft(activeResource.fields);
   const editDraft = editDrafts[activeResource.key] || {};
+  const useAccordionCards = activeResource.key === "seasonal-features";
 
   return (
     <div className={styles.shell}>
@@ -1232,7 +1251,7 @@ export function AdminDashboard({ username }) {
       <section className={styles.panel}>
         <div className={styles.panelHeader}>
           <h2>Content Management</h2>
-          <p>Update website content for homepage, youth, livestream, and sermons pages.</p>
+          <p>Create, review, update, and delete website content for homepage, youth, livestream, and sermons pages.</p>
         </div>
 
         {isNavOpen ? (
@@ -1324,6 +1343,7 @@ export function AdminDashboard({ username }) {
 
               {activeState.items.map((item) => {
                 const itemIsEditing = editingId === item.id;
+                const itemIsExpanded = useAccordionCards ? expandedId === item.id || itemIsEditing : true;
                 return (
                   <article key={item.id} className={styles.itemCard}>
                     <div className={styles.itemTop}>
@@ -1332,6 +1352,21 @@ export function AdminDashboard({ username }) {
                         <p className={styles.itemId}>ID: {item.id}</p>
                       </div>
                       <div className={styles.rowActions}>
+                        {useAccordionCards ? (
+                          <button
+                            type="button"
+                            className={styles.secondaryBtn}
+                            onClick={() => toggleItemExpanded(activeResource.key, item.id)}
+                            disabled={Boolean(busyAction)}
+                          >
+                            {itemIsExpanded ? (
+                              <IconChevronUp size={16} stroke={1.9} aria-hidden="true" />
+                            ) : (
+                              <IconChevronDown size={16} stroke={1.9} aria-hidden="true" />
+                            )}
+                            {itemIsExpanded ? "Collapse" : "Open"}
+                          </button>
+                        ) : null}
                         <button
                           type="button"
                           className={styles.secondaryBtn}
@@ -1353,35 +1388,49 @@ export function AdminDashboard({ username }) {
                       </div>
                     </div>
 
-                    {itemIsEditing ? (
-                      <form
-                        className={styles.form}
-                        onSubmit={(event) => {
-                          event.preventDefault();
-                          saveItem(activeResource, item.id);
-                        }}
-                      >
-                        <div className={styles.fieldsGrid}>
-                          {activeResource.fields.map((field) => (
-                            <FieldInput
-                              key={`edit-${item.id}-${field.name}`}
-                              field={field}
-                              value={editDraft[field.name]}
-                              onChange={(fieldName, nextValue) => onEditDraftChange(activeResource.key, fieldName, nextValue)}
-                              idPrefix={`edit-${item.id}`}
-                            />
-                          ))}
+                    {itemIsExpanded ? (
+                      itemIsEditing ? (
+                        <form
+                          className={styles.form}
+                          onSubmit={(event) => {
+                            event.preventDefault();
+                            saveItem(activeResource, item.id);
+                          }}
+                        >
+                          <div className={styles.fieldsGrid}>
+                            {activeResource.fields.map((field) => (
+                              <FieldInput
+                                key={`edit-${item.id}-${field.name}`}
+                                field={field}
+                                value={editDraft[field.name]}
+                                onChange={(fieldName, nextValue) => onEditDraftChange(activeResource.key, fieldName, nextValue)}
+                                idPrefix={`edit-${item.id}`}
+                              />
+                            ))}
+                          </div>
+                          <div className={styles.formActions}>
+                            <button type="submit" className={styles.primaryBtn} disabled={Boolean(busyAction)}>
+                              <IconDeviceFloppy size={16} stroke={1.9} aria-hidden="true" />
+                              Save Changes
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <div className={styles.previewGrid}>
+                          {activeResource.preview.map((entry) => {
+                            const raw = item[entry.name];
+                            const value = entry.format ? entry.format(raw) : formatValue(raw);
+                            return (
+                              <p key={`${item.id}-${entry.name}`}>
+                                <strong>{entry.label}:</strong> {value}
+                              </p>
+                            );
+                          })}
                         </div>
-                        <div className={styles.formActions}>
-                          <button type="submit" className={styles.primaryBtn} disabled={Boolean(busyAction)}>
-                            <IconDeviceFloppy size={16} stroke={1.9} aria-hidden="true" />
-                            Save Changes
-                          </button>
-                        </div>
-                      </form>
+                      )
                     ) : (
                       <div className={styles.previewGrid}>
-                        {activeResource.preview.map((entry) => {
+                        {activeResource.preview.slice(0, 3).map((entry) => {
                           const raw = item[entry.name];
                           const value = entry.format ? entry.format(raw) : formatValue(raw);
                           return (

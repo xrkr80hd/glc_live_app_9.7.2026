@@ -24,8 +24,16 @@ create table if not exists public.seasonal_features (
   ends_at timestamptz,
   sort_order integer not null default 0,
   is_active boolean not null default true,
+  display_seconds integer not null default 12 check (display_seconds between 5 and 120),
+  enable_audio boolean not null default false,
+  volume_percent integer not null default 25 check (volume_percent between 0 and 100),
   created_at timestamptz not null default timezone('utc', now())
 );
+
+alter table if exists public.seasonal_features
+  add column if not exists display_seconds integer not null default 12,
+  add column if not exists enable_audio boolean not null default false,
+  add column if not exists volume_percent integer not null default 25;
 
 create table if not exists public.prayer_requests (
   id uuid primary key default gen_random_uuid(),

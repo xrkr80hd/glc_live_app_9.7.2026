@@ -42,7 +42,7 @@ export async function GET(request, context) {
   const { data, error } = await supabase
     .from("seasonal_features")
     .select(
-      "id, title, body, scripture_reference, scripture_text, media_url, media_type, cta_label, cta_url, season_tag, starts_at, ends_at, sort_order, is_active, created_at",
+      "id, title, body, scripture_reference, scripture_text, media_url, media_type, cta_label, cta_url, season_tag, starts_at, ends_at, sort_order, is_active, display_seconds, enable_audio, volume_percent, created_at",
     )
     .eq("id", id)
     .maybeSingle();
@@ -159,6 +159,18 @@ export async function PATCH(request, context) {
     update.is_active = parseBoolean(payload.is_active, true);
   }
 
+  if (payload?.display_seconds !== undefined) {
+    update.display_seconds = parseInteger(payload.display_seconds, 12, 5, 120);
+  }
+
+  if (payload?.enable_audio !== undefined) {
+    update.enable_audio = parseBoolean(payload.enable_audio, false);
+  }
+
+  if (payload?.volume_percent !== undefined) {
+    update.volume_percent = parseInteger(payload.volume_percent, 25, 0, 100);
+  }
+
   if (!Object.keys(update).length) {
     return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
   }
@@ -168,7 +180,7 @@ export async function PATCH(request, context) {
     .update(update)
     .eq("id", id)
     .select(
-      "id, title, body, scripture_reference, scripture_text, media_url, media_type, cta_label, cta_url, season_tag, starts_at, ends_at, sort_order, is_active, created_at",
+      "id, title, body, scripture_reference, scripture_text, media_url, media_type, cta_label, cta_url, season_tag, starts_at, ends_at, sort_order, is_active, display_seconds, enable_audio, volume_percent, created_at",
     )
     .maybeSingle();
 

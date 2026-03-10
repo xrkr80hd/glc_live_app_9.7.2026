@@ -347,6 +347,127 @@ a {
   font-style: italic;
 }
 
+.theater-card {
+  min-height: 320px;
+  border: 1px solid rgba(208, 173, 95, 0.4);
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgba(212, 176, 102, 0.24), transparent 48%),
+    linear-gradient(180deg, #152f28 0%, #1d3e34 55%, #122721 100%);
+}
+
+.theater-media {
+  opacity: 0.2;
+}
+
+.theater-overlay {
+  background:
+    linear-gradient(180deg, rgba(8, 18, 15, 0.58) 0%, rgba(12, 30, 24, 0.82) 100%),
+    radial-gradient(70% 45% at 50% 0%, rgba(218, 180, 95, 0.13), transparent 70%);
+}
+
+.theater-content {
+  min-height: 320px;
+  display: grid;
+  align-content: center;
+  gap: 0.9rem;
+  max-width: 860px;
+}
+
+.theater-kicker {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(236, 219, 174, 0.92);
+}
+
+.theater-message {
+  display: grid;
+  gap: 0.8rem;
+  animation: theaterFadeIn 540ms ease;
+}
+
+.theater-card-actions {
+  margin-top: 0.4rem;
+}
+
+.theater-message h2 {
+  margin: 0;
+  color: #f5f0df;
+  font-size: clamp(1.35rem, 2.4vw, 2.25rem);
+}
+
+.theater-message p {
+  margin: 0;
+  color: #deebdf;
+  line-height: 1.65;
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+}
+
+.theater-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  margin-top: 0.15rem;
+}
+
+.theater-dots .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(203, 222, 214, 0.35);
+}
+
+.theater-dots .dot-active {
+  background: rgba(222, 188, 107, 0.95);
+}
+
+.theater-audio-controls {
+  position: absolute;
+  right: 0.95rem;
+  bottom: 0.95rem;
+  z-index: 4;
+  display: grid;
+  justify-items: end;
+  gap: 0.32rem;
+  padding: 0.4rem 0.45rem;
+  border-radius: 12px;
+  border: 1px solid rgba(197, 220, 207, 0.36);
+  background: rgba(7, 18, 16, 0.56);
+  backdrop-filter: blur(2px);
+}
+
+.theater-audio-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(204, 229, 217, 0.44);
+  background: rgba(10, 24, 20, 0.84);
+  color: #e3efe7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.theater-audio-range {
+  width: 108px;
+  accent-color: #d8b968;
+}
+
+@keyframes theaterFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 640px) {
   .seasonal-card {
     min-height: 260px;
@@ -355,5 +476,23 @@ a {
 
   .seasonal-content {
     padding: 0.9rem;
+  }
+
+  .theater-card,
+  .theater-content {
+    min-height: 270px;
+  }
+
+  .theater-message h2 {
+    font-size: 1.35rem;
+  }
+
+  .theater-audio-controls {
+    right: 0.7rem;
+    bottom: 0.7rem;
+  }
+
+  .theater-audio-range {
+    width: 86px;
   }
 }
