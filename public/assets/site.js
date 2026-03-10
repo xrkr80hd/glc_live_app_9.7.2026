@@ -13,9 +13,9 @@ function youtubeEmbed(urlOrId, autoplay=false){
 	const m=/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/.exec(raw);
 	const id=m?m[1]:raw;
 	if(!/^[A-Za-z0-9_-]{11}$/.test(id)) return '';
-	if(isRickAstley(id)) {
-		return `<div style="padding: 2rem; text-align: center; background: #f3f4f6; border-radius: 8px;"><p>🙅‍♂️ This content is not available for playback.</p><p><em>Content has been filtered.</em></p></div>`;
-	}
+		if(isRickAstley(id)) {
+			return `<div style="padding: 2rem; text-align: center; background: #f3f4f6; border-radius: 8px;"><p>This content is not available for playback.</p><p><em>Content has been filtered.</em></p></div>`;
+		}
 	const params = new URLSearchParams({rel:'0',modestbranding:'1'});
 	if(autoplay) params.set('autoplay','1');
 	const src=`https://www.youtube.com/embed/${id}?${params.toString()}`;
@@ -210,8 +210,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 	const primary=document.getElementById('primaryNav');
 	const legacy=document.getElementById('mainNav');
 	const nav = primary || legacy;
+	const navManagedByReact = !!(toggle && toggle.getAttribute('data-managed-nav') === 'react');
 	function closeNav(){ if(!nav) return; nav.classList.remove('open'); if(toggle) toggle.setAttribute('aria-expanded','false'); }
-	if(toggle && nav){
+	if(toggle && nav && !navManagedByReact){
 		toggle.addEventListener('click', e=>{
 			e.stopPropagation();
 			const exp = toggle.getAttribute('aria-expanded')==='true';

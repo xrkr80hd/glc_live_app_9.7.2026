@@ -1,6 +1,7 @@
 import { ChurchHeader } from "@/components/ChurchHeader";
 import { ChurchSimpleFooter } from "@/components/ChurchSimpleFooter";
 import { getLivestreamContent } from "@/lib/content";
+import { IconBroadcast, IconMessageCircleHeart, IconPlayerPlay } from "@tabler/icons-react";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,12 @@ export default async function LivePage() {
         <section className="section">
           <div className="container">
             <div className="section-head">
-              <h1>Live Stream</h1>
+              <h1>
+                <span className="title-inline">
+                  <IconBroadcast size={32} stroke={1.8} aria-hidden="true" />
+                  <span>Live Stream</span>
+                </span>
+              </h1>
               <p className="muted">Join us Sundays at 10:00 AM.</p>
             </div>
 
@@ -55,9 +61,11 @@ export default async function LivePage() {
             <p className="sub">Catch up on recent sermons and services.</p>
             <div className="cta-row">
               <a className="btn" href="/sermons">
+                <IconPlayerPlay size={18} stroke={1.9} aria-hidden="true" />
                 Watch Sermons
               </a>
               <a className="btn ghost" href="/prayer">
+                <IconMessageCircleHeart size={18} stroke={1.9} aria-hidden="true" />
                 Submit Prayer Request
               </a>
             </div>

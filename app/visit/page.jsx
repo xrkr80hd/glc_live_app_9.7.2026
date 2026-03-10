@@ -1,6 +1,7 @@
 import Script from "next/script";
 import { ChurchHeader } from "@/components/ChurchHeader";
 import { ChurchSiteFooter } from "@/components/ChurchSiteFooter";
+import { IconCompass, IconMapPin, IconSend } from "@tabler/icons-react";
 
 export default function VisitPage() {
   return (
@@ -10,8 +11,13 @@ export default function VisitPage() {
       <main>
         <section className="section">
           <div className="container">
-            <div className="section-head">
-              <h1>Plan Your Visit</h1>
+          <div className="section-head">
+              <h1>
+                <span className="title-inline">
+                  <IconMapPin size={32} stroke={1.8} aria-hidden="true" />
+                  <span>Plan Your Visit</span>
+                </span>
+              </h1>
               <p className="muted">We can&apos;t wait to meet you.</p>
             </div>
             <form className="form" id="visitForm">
@@ -65,6 +71,7 @@ export default function VisitPage() {
               </label>
               <div>
                 <button className="btn" type="submit">
+                  <IconSend size={18} stroke={1.9} aria-hidden="true" />
                   Send
                 </button>
               </div>
@@ -75,7 +82,12 @@ export default function VisitPage() {
 
         <section className="section">
           <div className="container">
-            <h2>Find Us</h2>
+            <h2>
+              <span className="heading-inline">
+                <IconCompass size={28} stroke={1.8} aria-hidden="true" />
+                <span>Find Us</span>
+              </span>
+            </h2>
             <div className="map">
               <iframe
                 title="Map to Liberty Church"

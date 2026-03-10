@@ -72,19 +72,31 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  gap: 0.45rem;
+  border-radius: 0 0 10px 0;
   padding: 0.64rem 1rem;
   font-weight: 700;
-  border: 1px solid var(--brand);
-  background: var(--brand);
-  color: #fff;
+  border: 0;
+  border-left: 3px solid var(--brand);
+  border-bottom: 3px solid var(--brand);
+  background: #fff;
+  color: var(--brand);
   cursor: pointer;
 }
 
+.btn svg {
+  width: 1rem;
+  height: 1rem;
+  stroke: currentColor;
+  fill: none;
+  flex: 0 0 auto;
+}
+
 .btn.ghost {
-  border-color: var(--brand);
+  border-left-color: var(--brand);
+  border-bottom-color: var(--brand);
   color: var(--brand);
-  background: #fff;
+  background: transparent;
 }
 
 .btn.small {
@@ -272,5 +284,75 @@ a {
 
   .admin-sidebar {
     position: static;
+  }
+}
+
+.seasonal-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  min-height: 300px;
+  border: 1px solid rgba(224, 233, 249, 0.2);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(120, 200, 158, 0.18), transparent 45%),
+    linear-gradient(140deg, #17202f 0%, #141a28 55%, #102234 100%);
+  box-shadow: 0 24px 52px rgba(5, 10, 19, 0.45);
+}
+
+.seasonal-media {
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+}
+
+.seasonal-media video,
+.seasonal-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.seasonal-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(7, 13, 21, 0.85) 5%, rgba(10, 22, 34, 0.42) 70%);
+}
+
+.seasonal-content {
+  position: relative;
+  z-index: 2;
+  padding: clamp(1rem, 2.5vw, 2rem);
+  max-width: 780px;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.seasonal-content h2 {
+  margin: 0;
+  color: #f7fbff;
+}
+
+.seasonal-content p {
+  margin: 0;
+  color: #dce8f9;
+  line-height: 1.6;
+}
+
+.seasonal-content blockquote {
+  margin: 0;
+  border-left: 3px solid rgba(135, 231, 181, 0.8);
+  padding-left: 0.75rem;
+  color: #eaf6ff;
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .seasonal-card {
+    min-height: 260px;
+    border-radius: 14px;
+  }
+
+  .seasonal-content {
+    padding: 0.9rem;
   }
 }

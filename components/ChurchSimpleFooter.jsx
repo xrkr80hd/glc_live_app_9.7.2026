@@ -1,10 +1,22 @@
+import {
+  IconBrandFacebook,
+  IconBrandInstagram,
+  IconBrandYoutube,
+  IconClockHour10,
+  IconMapPin,
+  IconUsersGroup,
+} from "@tabler/icons-react";
+
 export function ChurchSimpleFooter() {
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer-content">
           <div className="footer-section">
-            <h4>Service Times</h4>
+            <h4 className="footer-title">
+              <IconClockHour10 size={18} stroke={1.9} aria-hidden="true" />
+              <span>Service Times</span>
+            </h4>
             <p>
               Sundays @ 10:00 AM
               <br />
@@ -12,7 +24,10 @@ export function ChurchSimpleFooter() {
             </p>
           </div>
           <div className="footer-section">
-            <h4>Location</h4>
+            <h4 className="footer-title">
+              <IconMapPin size={18} stroke={1.9} aria-hidden="true" />
+              <span>Location</span>
+            </h4>
             <p>
               100 McKeithen Dr
               <br />
@@ -20,15 +35,21 @@ export function ChurchSimpleFooter() {
             </p>
           </div>
           <div className="footer-section">
-            <h4>Connect</h4>
+            <h4 className="footer-title">
+              <IconUsersGroup size={18} stroke={1.9} aria-hidden="true" />
+              <span>Connect</span>
+            </h4>
             <div className="social-links">
               <a href="https://www.youtube.com/@GoLibertyChurch" target="_blank" rel="noopener">
+                <IconBrandYoutube size={16} stroke={1.9} aria-hidden="true" />
                 YouTube
               </a>
               <a href="https://www.facebook.com/GoLibertyChurch" target="_blank" rel="noopener">
+                <IconBrandFacebook size={16} stroke={1.9} aria-hidden="true" />
                 Facebook
               </a>
               <a href="https://www.instagram.com/golibertychurch/" target="_blank" rel="noopener">
+                <IconBrandInstagram size={16} stroke={1.9} aria-hidden="true" />
                 Instagram
               </a>
             </div>

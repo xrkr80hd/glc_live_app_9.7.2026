@@ -14,6 +14,15 @@ async function readPayload(request) {
     };
   }
 
+  if (
+    !contentType.includes("multipart/form-data") &&
+    !contentType.includes("application/x-www-form-urlencoded")
+  ) {
+    const error = new Error("Unsupported content type");
+    error.name = "UnsupportedContentType";
+    throw error;
+  }
+
   const formData = await request.formData();
   return {
     name: String(formData.get("name") || "").trim(),
@@ -34,7 +43,27 @@ function normalizeEmail(value) {
 }
 
 export async function POST(request) {
-  const payload = await readPayload(request);
+  let payload;
+  try {
+    payload = await readPayload(request);
+  } catch (error) {
+    if (error?.name === "UnsupportedContentType") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Unsupported content type. Use JSON or form data.",
+        },
+        { status: 415 },
+      );
+    }
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Invalid request payload.",
+      },
+      { status: 400 },
+    );
+  }
 
   if (!payload.requestText) {
     return NextResponse.json(

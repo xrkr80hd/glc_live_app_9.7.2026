@@ -2,11 +2,21 @@ import Script from "next/script";
 import { ChurchHeader } from "@/components/ChurchHeader";
 import { ChurchSiteFooter } from "@/components/ChurchSiteFooter";
 import { getHomepageContent } from "@/lib/content";
+import {
+  IconCalendarEvent,
+  IconCompass,
+  IconInfoCircle,
+  IconMapPin,
+  IconMessageCircleHeart,
+  IconPlayerPlay,
+  IconSend,
+  IconUsersGroup,
+} from "@tabler/icons-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const { announcements, scripture } = await getHomepageContent();
+  const { announcements, ministries, seasonalFeature, scripture } = await getHomepageContent();
 
   return (
     <>
@@ -29,44 +39,82 @@ export default async function HomePage() {
           </p>
           <div className="cta-row">
             <a className="btn" href="#visit">
+              <IconCalendarEvent size={18} stroke={1.9} aria-hidden="true" />
               Plan Your Visit
             </a>
             <a className="btn ghost" href="/sermons">
+              <IconPlayerPlay size={18} stroke={1.9} aria-hidden="true" />
               Watch Sermons
             </a>
           </div>
           <div className="mt-12">
             <button id="reopenWelcome" className="btn ghost" type="button">
+              <IconMessageCircleHeart size={18} stroke={1.9} aria-hidden="true" />
               A welcome message from Pastor Andrew Stokes
             </button>
           </div>
         </div>
       </section>
 
+      {seasonalFeature ? (
+        <section className="section">
+          <div className="container">
+            <article className="seasonal-card">
+              {seasonalFeature.media_url ? (
+                <div className="seasonal-media" aria-hidden="true">
+                  {seasonalFeature.media_type === "video" ? (
+                    <video autoPlay muted loop playsInline preload="metadata">
+                      <source src={seasonalFeature.media_url} />
+                    </video>
+                  ) : (
+                    <img src={seasonalFeature.media_url} alt="" loading="lazy" />
+                  )}
+                </div>
+              ) : null}
+              <div className="seasonal-overlay" />
+              <div className="seasonal-content">
+                <h2>{seasonalFeature.title}</h2>
+                {seasonalFeature.body ? <p>{seasonalFeature.body}</p> : null}
+                {seasonalFeature.scripture_text ? (
+                  <blockquote>{seasonalFeature.scripture_text}</blockquote>
+                ) : null}
+                {seasonalFeature.scripture_reference ? (
+                  <p className="scripture-ref">{seasonalFeature.scripture_reference}</p>
+                ) : null}
+                {seasonalFeature.cta_label && seasonalFeature.cta_url ? (
+                  <a className="btn ghost" href={seasonalFeature.cta_url}>
+                    <IconCalendarEvent size={18} stroke={1.9} aria-hidden="true" />
+                    {seasonalFeature.cta_label}
+                  </a>
+                ) : null}
+              </div>
+            </article>
+          </div>
+        </section>
+      ) : null}
+
       <section className="section alt">
         <div className="container">
           <h2>Our Ministries and Service Times</h2>
           <p className="sub">Below are our ministry highlights and service times; see announcements for updates.</p>
           <div className="ann-list" id="ministries">
-            <div className="ann-item">
-              <strong>Men&apos;s Fellowship</strong> — First Thursday each month, 6:00 PM. Come hang out, build friendships, dinner and fellowship.
-            </div>
-            <div className="ann-item">
-              <strong>Children&apos;s Church</strong> — Is offered during the sermon each Sunday, except for the last Sunday of the month.
-            </div>
-            <div className="ann-item">
-              <strong>Join a Serve Team</strong> — Media, worship, greeters, and kids teams are growing. Ask at the Info Table.
-            </div>
-            <div className="ann-item">
-              <strong>Nursery Available!</strong> — We&apos;d love to care for your little ones! Our nursery is open during every service, offering a safe and loving place for them while you worship.
-            </div>
+            {ministries.map((item) => (
+              <div key={item.id} className="ann-item">
+                <strong>{item.title}</strong> — {item.body}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       <section className="section announcements">
         <div className="container">
-          <h2>📢 Announcements &amp; Events</h2>
+          <h2>
+            <span className="heading-inline">
+              <IconInfoCircle size={28} stroke={1.8} aria-hidden="true" />
+              <span>Announcements &amp; Events</span>
+            </span>
+          </h2>
           <p className="sub">Stay updated with the latest news and upcoming events at Liberty Church.</p>
           <div className="announcements-container">
             <article className="ann-item">
@@ -88,7 +136,12 @@ export default async function HomePage() {
         <div className="container">
           <div className="pastor-wrap">
             <div className="pastor-text">
-              <h2>Meet Our Pastor</h2>
+              <h2>
+                <span className="heading-inline">
+                  <IconUsersGroup size={32} stroke={1.8} aria-hidden="true" />
+                  <span>Meet Our Pastor</span>
+                </span>
+              </h2>
               <p>
                 Pastor Andrew Stokes has led our church family since October 2013. He and his wife, Erin—our worship leader—serve side by side with their daughters,
                 Ellington and Emery, who are active in media and worship. Though both Andrew and Erin are bi-vocational, their hearts are fully committed to the church
@@ -112,7 +165,12 @@ export default async function HomePage() {
 
       <section className="section" id="visit">
         <div className="container">
-          <h2>Plan Your Visit</h2>
+          <h2>
+            <span className="heading-inline">
+              <IconMapPin size={28} stroke={1.8} aria-hidden="true" />
+              <span>Plan Your Visit</span>
+            </span>
+          </h2>
           <p className="sub">We can&apos;t wait to meet you! Tell us when you&apos;re coming and we&apos;ll save you a seat and show you around.</p>
           <form className="form" id="visitForm" data-endpoint="/api/visit/">
             <div className="row">
@@ -165,6 +223,7 @@ export default async function HomePage() {
             </label>
             <div>
               <button className="btn" type="submit">
+                <IconSend size={18} stroke={1.9} aria-hidden="true" />
                 Send
               </button>
             </div>
@@ -175,7 +234,12 @@ export default async function HomePage() {
 
       <section className="section">
         <div className="container">
-          <h2>Find Us</h2>
+          <h2>
+            <span className="heading-inline">
+              <IconCompass size={28} stroke={1.8} aria-hidden="true" />
+              <span>Find Us</span>
+            </span>
+          </h2>
           <div className="map">
             <iframe
               title="Map to Liberty Church"
@@ -217,10 +281,10 @@ export default async function HomePage() {
               const res = await fetch('/api/visit', { method: 'POST', body: fd });
               const json = await res.json().catch(() => ({ success: false }));
               if (res.ok && json.success) {
-                msg.textContent = '✅ Thanks! Your visit request has been received.';
+                msg.textContent = 'Thanks! Your visit request has been received.';
                 form.reset();
               } else {
-                msg.textContent = '❌ ' + (json.message || 'Unable to send. Please try again.');
+                msg.textContent = json.message || 'Unable to send. Please try again.';
               }
             } catch (err) {
               msg.textContent = 'Network error sending request.';

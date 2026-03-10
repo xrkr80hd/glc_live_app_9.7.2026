@@ -1,6 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  IconBook2,
+  IconChevronDown,
+  IconChevronUp,
+  IconClock,
+  IconDeviceTv,
+  IconEye,
+  IconEyeOff,
+  IconPlayerPlay,
+  IconVideo,
+} from "@tabler/icons-react";
 
 function isValidVideoId(id) {
   return /^[A-Za-z0-9_-]{11}$/.test(String(id || ""));
@@ -90,7 +101,12 @@ export function SermonsClient({ videos = [] }) {
       <section className="section">
         <div className="container">
           <div className="section-head">
-            <h1>Messages</h1>
+            <h1>
+              <span className="title-inline">
+                <IconDeviceTv size={32} stroke={1.8} aria-hidden="true" />
+                <span>Messages</span>
+              </span>
+            </h1>
             <p className="muted">Watch recent uploads, browse series, or view archived sermons. Tap any card to play below.</p>
           </div>
           <div className="embed aspect-16x9" id="sermonPlayer">
@@ -115,7 +131,12 @@ export function SermonsClient({ videos = [] }) {
 
       <section className="section alt">
         <div className="container">
-          <h2>Recently Uploaded</h2>
+          <h2>
+            <span className="heading-inline">
+              <IconVideo size={28} stroke={1.8} aria-hidden="true" />
+              <span>Recently Uploaded</span>
+            </span>
+          </h2>
           <div className="cards" id="recentGrid">
             {recentVideos.map((video) => (
               <article
@@ -142,6 +163,7 @@ export function SermonsClient({ videos = [] }) {
                   type="button"
                   onClick={() => setRecentShown((current) => Math.min(current + 6, videos.length))}
                 >
+                  <IconChevronDown size={16} stroke={1.9} aria-hidden="true" />
                   Load more
                 </button>
               ) : null}
@@ -152,6 +174,7 @@ export function SermonsClient({ videos = [] }) {
                   type="button"
                   onClick={() => setRecentShown(6)}
                 >
+                  <IconChevronUp size={16} stroke={1.9} aria-hidden="true" />
                   Collapse
                 </button>
               ) : null}
@@ -162,7 +185,12 @@ export function SermonsClient({ videos = [] }) {
 
       <section className="section">
         <div className="container">
-          <h2>Series</h2>
+          <h2>
+            <span className="heading-inline">
+              <IconBook2 size={28} stroke={1.8} aria-hidden="true" />
+              <span>Series</span>
+            </span>
+          </h2>
           <div id="seriesList">
             {playlists.length ? (
               playlists.map((playlist) => {
@@ -186,7 +214,7 @@ export function SermonsClient({ videos = [] }) {
                       <span className="series-title">{playlist.title || "Series"}</span>
                       <span className="series-meta">
                         <span>{playlist.itemCount || items.length} messages</span>
-                        <span className="chevron" aria-hidden="true" />
+                        <IconChevronDown className="series-chevron-icon" size={14} stroke={2.1} aria-hidden="true" />
                       </span>
                     </button>
                     <div className="series-panel" hidden={!isOpen}>
@@ -194,6 +222,7 @@ export function SermonsClient({ videos = [] }) {
                         {shownItems.map((item) => (
                           <li key={`${playlist.id}-${item.id}`}>
                             <button className="btn ghost" type="button" onClick={() => setSelectedId(item.id)}>
+                              <IconPlayerPlay size={16} stroke={1.9} aria-hidden="true" />
                               {item.title || "Untitled"}
                             </button>{" "}
                             <span className="muted">{formatDate(item.publishedAt)}</span>
@@ -211,6 +240,7 @@ export function SermonsClient({ videos = [] }) {
                             }))
                           }
                         >
+                          <IconChevronDown size={16} stroke={1.9} aria-hidden="true" />
                           Load more ({items.length - shownCount})
                         </button>
                       ) : null}
@@ -227,7 +257,12 @@ export function SermonsClient({ videos = [] }) {
 
       <section className="section alt">
         <div className="container">
-          <h2>Archived Sermons</h2>
+          <h2>
+            <span className="heading-inline">
+              <IconClock size={28} stroke={1.8} aria-hidden="true" />
+              <span>Archived Sermons</span>
+            </span>
+          </h2>
           <p className="muted">Older messages curated by our team.</p>
           <div className="card">
             <button
@@ -238,6 +273,7 @@ export function SermonsClient({ videos = [] }) {
               aria-controls="archivedList"
               onClick={() => setShowArchived((current) => !current)}
             >
+              {showArchived ? <IconEyeOff size={16} stroke={1.9} aria-hidden="true" /> : <IconEye size={16} stroke={1.9} aria-hidden="true" />}
               {showArchived ? "Hide archived" : "Show archived"}
             </button>
             <div id="archivedList" className="mt-12" hidden={!showArchived}>
@@ -245,6 +281,7 @@ export function SermonsClient({ videos = [] }) {
                 {archived.map((item, index) => (
                   <li key={`${item.id || item.title || "archived"}-${index}`}>
                     <button className="btn ghost" type="button" onClick={() => setSelectedId(item.id)}>
+                      <IconPlayerPlay size={16} stroke={1.9} aria-hidden="true" />
                       {item.title || "Untitled"}
                     </button>{" "}
                     <span className="muted">{formatDate(item.publishedAt || item.date || item.preachedOn)}</span>

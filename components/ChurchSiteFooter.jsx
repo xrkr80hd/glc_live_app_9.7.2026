@@ -1,4 +1,5 @@
 import { ChurchSocialIcons } from "@/components/ChurchSocialIcons";
+import { IconMapPin, IconUsersGroup } from "@tabler/icons-react";
 
 export function ChurchSiteFooter() {
   return (
@@ -25,11 +26,17 @@ export function ChurchSiteFooter() {
           </p>
         </div>
         <div>
-          <h4>Visit</h4>
+          <h4 className="footer-title">
+            <IconMapPin size={18} stroke={1.9} aria-hidden="true" />
+            <span>Visit</span>
+          </h4>
           <address id="footerAddress">100 McKeithen Dr, Alexandria, LA 71303</address>
         </div>
         <div>
-          <h4>Connect</h4>
+          <h4 className="footer-title">
+            <IconUsersGroup size={18} stroke={1.9} aria-hidden="true" />
+            <span>Connect</span>
+          </h4>
           <ChurchSocialIcons />
         </div>
       </div>

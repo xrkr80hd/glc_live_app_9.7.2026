@@ -1,6 +1,7 @@
 import Script from "next/script";
 import { ChurchHeader } from "@/components/ChurchHeader";
 import { ChurchSiteFooter } from "@/components/ChurchSiteFooter";
+import { IconPray, IconSend } from "@tabler/icons-react";
 
 export default function PrayerPage() {
   return (
@@ -9,7 +10,12 @@ export default function PrayerPage() {
 
       <section className="section alt">
         <div className="container flow">
-          <h2>Prayer Requests</h2>
+          <h2>
+            <span className="heading-inline">
+              <IconPray size={28} stroke={1.8} aria-hidden="true" />
+              <span>Prayer Requests</span>
+            </span>
+          </h2>
           <p className="lede">
             We believe in the power of prayer. Share your request and our team will lift it before the Lord. If you&apos;d like follow-up, include your email.
           </p>
@@ -19,7 +25,12 @@ export default function PrayerPage() {
       <section className="section">
         <div className="container">
           <div className="card prayer-form-card">
-            <h3>Share Your Prayer Request</h3>
+            <h3>
+              <span className="heading-inline small">
+                <IconPray size={22} stroke={1.8} aria-hidden="true" />
+                <span>Share Your Prayer Request</span>
+              </span>
+            </h3>
             <p className="muted">
               Every request goes straight to our pastoral care team. We only share publicly if you give us permission.
             </p>
@@ -55,6 +66,7 @@ export default function PrayerPage() {
               <p className="note">We monitor prayer requests daily and someone will reach out if you include your contact details.</p>
               <div>
                 <button className="btn" type="submit">
+                  <IconSend size={18} stroke={1.9} aria-hidden="true" />
                   Send Request
                 </button>
               </div>

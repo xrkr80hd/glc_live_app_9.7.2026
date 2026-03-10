@@ -2,12 +2,14 @@ import { BodyClass } from "@/components/BodyClass";
 import { ChurchHeader } from "@/components/ChurchHeader";
 import { ChurchSimpleFooter } from "@/components/ChurchSimpleFooter";
 import { getYouthPageContent } from "@/lib/content";
+import { IconBible, IconCalendarEvent, IconVideo } from "@tabler/icons-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function YouthPage() {
   const { youthAnnouncements, youthScripture, youthBanner } = await getYouthPageContent();
-  const tickerText = youthBanner?.subtitle || "Sundays @ 9:20 AM — Youth Devotion | Pop-Up Events — Check back for more info";
+  const tickerTextRaw = youthBanner?.subtitle || "Sundays @ 9:20 AM — Youth Devotion | Pop-Up Events — Check back for more info";
+  const tickerText = tickerTextRaw.replace(/\p{Extended_Pictographic}/gu, "").replace(/\s{2,}/g, " ").trim();
 
   return (
     <>
@@ -40,7 +42,12 @@ export default async function YouthPage() {
         <div className="container">
           <div className="section-head">
             <span className="eyebrow">Here&apos;s what&apos;s speaking to us</span>
-            <h2>Scripture of the Week + Devotional</h2>
+            <h2>
+              <span className="heading-inline">
+                <IconBible size={28} stroke={1.8} aria-hidden="true" />
+                <span>Scripture of the Week + Devotional</span>
+              </span>
+            </h2>
             <p className="sub">Each week we rally around a verse and a short devo crafted by our youth team.</p>
           </div>
           <div className="youth-scripture-grid">
@@ -73,7 +80,12 @@ export default async function YouthPage() {
         <div className="container">
           <div className="section-head">
             <span className="eyebrow">Don&apos;t miss out</span>
-            <h2>Announcements &amp; Events</h2>
+            <h2>
+              <span className="heading-inline">
+                <IconCalendarEvent size={28} stroke={1.8} aria-hidden="true" />
+                <span>Announcements &amp; Events</span>
+              </span>
+            </h2>
             <p className="sub">Fresh updates, pop-up hangs, and everything happening next.</p>
           </div>
           <div className="announcements-grid" id="announcements-grid">
@@ -97,7 +109,12 @@ export default async function YouthPage() {
         <div className="container">
           <div className="section-head">
             <span className="eyebrow">Memories in motion</span>
-            <h2>Check out our past hangouts</h2>
+            <h2>
+              <span className="heading-inline">
+                <IconVideo size={28} stroke={1.8} aria-hidden="true" />
+                <span>Check out our past hangouts</span>
+              </span>
+            </h2>
             <p className="sub">Choose an album to explore highlight photos and videos.</p>
           </div>
           <div className="gallery-controls">
@@ -123,39 +140,19 @@ export default async function YouthPage() {
         dangerouslySetInnerHTML={{
           __html: `
             .youth-ticker {
-              background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
-              background-size: 200% 100%;
-              animation: gradientShift 8s ease infinite;
-              padding: 1.2rem 0;
+              background: linear-gradient(90deg, #172034 0%, #21314f 50%, #172034 100%);
+              border-top: 1px solid rgba(102, 228, 158, 0.35);
+              border-bottom: 1px solid rgba(102, 228, 158, 0.35);
+              padding: 0.95rem 0;
               overflow: hidden;
               position: relative;
-              box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-            }
-
-            .youth-ticker::before,
-            .youth-ticker::after {
-              content: "";
-              position: absolute;
-              left: 0;
-              right: 0;
-              height: 2px;
-              background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-              animation: shimmer 2s ease-in-out infinite;
-            }
-
-            .youth-ticker::before {
-              top: 0;
-            }
-
-            .youth-ticker::after {
-              bottom: 0;
-              animation-direction: reverse;
+              box-shadow: 0 12px 32px rgba(2, 8, 22, 0.4);
             }
 
             .ticker-track {
               display: flex;
-              animation: tickerScroll 25s linear infinite;
-              will-change: transform;
+              min-width: max-content;
+              animation: tickerScroll 28s linear infinite;
             }
 
             .ticker-track:hover {
@@ -167,52 +164,10 @@ export default async function YouthPage() {
               font-size: 1.1rem;
               font-weight: 600;
               white-space: nowrap;
-              padding: 0 4rem;
+              padding: 0 2.5rem;
               display: flex;
               align-items: center;
-              text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-              letter-spacing: 0.5px;
-              animation: textGlow 3s ease-in-out infinite;
-            }
-
-            .ticker-item::before,
-            .ticker-item::after {
-              content: "⚡";
-              font-size: 1.3rem;
-              animation: pulse 1.5s ease-in-out infinite;
-            }
-
-            .ticker-item::before {
-              margin-right: 1rem;
-            }
-
-            .ticker-item::after {
-              margin-left: 1rem;
-              animation-delay: 0.75s;
-            }
-
-            @keyframes gradientShift {
-              0%,
-              100% {
-                background-position: 0% 50%;
-              }
-              50% {
-                background-position: 100% 50%;
-              }
-            }
-
-            @keyframes shimmer {
-              0%,
-              100% {
-                transform: translateX(-100%);
-                opacity: 0;
-              }
-              50% {
-                opacity: 1;
-              }
-              100% {
-                transform: translateX(100%);
-              }
+              letter-spacing: 0.04em;
             }
 
             @keyframes tickerScroll {
@@ -224,20 +179,14 @@ export default async function YouthPage() {
               }
             }
 
-            @keyframes textGlow {
-              0%,
-              100% {
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.2);
-              }
-              50% {
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 255, 255, 0.4);
-              }
-            }
-
             @media (max-width: 768px) {
+              .youth-ticker {
+                padding: 0.8rem 0;
+              }
+
               .ticker-item {
                 font-size: 0.95rem;
-                padding: 0 2rem;
+                padding: 0 1.5rem;
               }
             }
           `,

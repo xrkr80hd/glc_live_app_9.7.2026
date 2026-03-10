@@ -1,0 +1,485 @@
+.shell {
+  min-height: 100dvh;
+  background:
+    radial-gradient(1200px 420px at 0% -12%, rgba(10, 106, 65, 0.15), transparent 66%),
+    radial-gradient(900px 520px at 100% 0%, rgba(10, 54, 105, 0.17), transparent 70%),
+    #0e1420;
+  color: #f4f7ff;
+  padding: 1.25rem;
+}
+
+.topBar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  border: 1px solid rgba(132, 151, 184, 0.3);
+  background: rgba(21, 30, 45, 0.92);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.kicker {
+  margin: 0 0 0.35rem;
+  color: #9adbc2;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.topBar h1 {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: clamp(1.08rem, 1.7vw, 1.45rem);
+}
+
+.metaLine {
+  margin: 0.55rem 0 0;
+  color: #b8c3d9;
+}
+
+.topActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: flex-end;
+}
+
+.panel {
+  border: 1px solid rgba(132, 151, 184, 0.3);
+  background: rgba(18, 26, 39, 0.95);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panelHeader h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.panelHeader p {
+  margin: 0.35rem 0 0.9rem;
+  color: #b7c2d8;
+}
+
+.managerLayout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 0.95rem;
+}
+
+.resourceNav {
+  display: grid;
+  align-content: start;
+  gap: 0.18rem;
+  border-right: 1px solid rgba(122, 141, 170, 0.35);
+  padding-right: 0.6rem;
+}
+
+.resourceMain {
+  min-width: 0;
+}
+
+.navBtn,
+.navBtnActive {
+  border: 0;
+  border-left: 3px solid transparent;
+  border-radius: 0;
+  padding: 0.62rem 0.55rem;
+  text-align: left;
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.44rem;
+  cursor: pointer;
+  background: transparent;
+  color: #d4deef;
+}
+
+.navBtn:hover {
+  background: rgba(46, 62, 90, 0.4);
+}
+
+.navBtnActive {
+  border-left-color: rgba(113, 218, 170, 0.9);
+  background: rgba(21, 110, 70, 0.2);
+  color: #ecfff5;
+}
+
+.mobileMenuRow {
+  display: none;
+}
+
+.navBackdrop {
+  display: none;
+}
+
+.resourceMeta h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.resourceMeta p {
+  margin: 0.25rem 0 0.9rem;
+  color: #bac5dc;
+}
+
+.form {
+  border: 1px solid rgba(117, 136, 166, 0.35);
+  border-radius: 12px;
+  padding: 0.85rem;
+  background: rgba(12, 19, 30, 0.84);
+  margin-bottom: 0.9rem;
+}
+
+.fieldsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.6rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.36rem;
+}
+
+.field span {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #d5deef;
+}
+
+.field input,
+.field textarea,
+.field select {
+  border: 1px solid rgba(121, 139, 171, 0.52);
+  border-radius: 8px;
+  background: rgba(9, 14, 25, 0.95);
+  color: #f4f8ff;
+  padding: 0.52rem 0.62rem;
+  font-size: 0.93rem;
+  width: 100%;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 160px;
+}
+
+.fieldWide {
+  grid-column: 1 / -1;
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible,
+.field select:focus-visible,
+.checkboxField input:focus-visible {
+  outline: 2px solid rgba(111, 209, 164, 0.6);
+  outline-offset: 1px;
+}
+
+.checkboxField {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid rgba(126, 145, 176, 0.46);
+  align-self: end;
+}
+
+.checkboxField span {
+  font-size: 0.9rem;
+  color: #d5deef;
+}
+
+.formActions {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.ghostBtn,
+.dangerBtn {
+  border-radius: 8px;
+  padding: 0.48rem 0.65rem;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.primaryBtn {
+  color: #eafff4;
+  background: linear-gradient(180deg, rgba(33, 126, 82, 0.98), rgba(20, 93, 58, 0.98));
+  border-color: rgba(110, 210, 161, 0.62);
+}
+
+.secondaryBtn {
+  color: #e4edff;
+  background: rgba(42, 57, 83, 0.95);
+  border-color: rgba(127, 146, 178, 0.62);
+}
+
+.ghostBtn {
+  color: #f3f6ff;
+  background: rgba(25, 35, 55, 0.8);
+  border-color: rgba(121, 138, 168, 0.5);
+}
+
+.dangerBtn {
+  color: #ffe8e8;
+  background: rgba(107, 20, 24, 0.88);
+  border-color: rgba(232, 111, 116, 0.66);
+}
+
+.primaryBtn:disabled,
+.secondaryBtn:disabled,
+.ghostBtn:disabled,
+.dangerBtn:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.listWrap {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.itemCard {
+  border: 1px solid rgba(121, 139, 169, 0.4);
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: rgba(13, 20, 31, 0.88);
+}
+
+.itemTop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.itemTop h4 {
+  margin: 0;
+  font-size: 1.02rem;
+}
+
+.itemId {
+  margin: 0.3rem 0 0;
+  color: #9fb0cd;
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+.rowActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.previewGrid {
+  margin-top: 0.55rem;
+  display: grid;
+  gap: 0.34rem;
+}
+
+.previewGrid p {
+  margin: 0;
+  color: #d4deef;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+.noticeSuccess,
+.noticeError {
+  margin: 0 0 1rem;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid transparent;
+}
+
+.noticeSuccess {
+  background: rgba(20, 94, 59, 0.24);
+  border-color: rgba(104, 208, 160, 0.6);
+  color: #e3fff2;
+}
+
+.noticeError,
+.tableError {
+  background: rgba(95, 19, 24, 0.3);
+  border-color: rgba(235, 124, 129, 0.6);
+  color: #ffe0e0;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  margin: 0 0 0.8rem;
+}
+
+.loading,
+.empty {
+  margin: 0;
+  color: #b8c4dc;
+}
+
+.monitorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+
+.monitorCard {
+  border: 1px solid rgba(122, 141, 172, 0.4);
+  border-radius: 12px;
+  padding: 0.72rem;
+  background: rgba(12, 19, 30, 0.88);
+}
+
+.monitorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.monitorHeader h3 {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  font-size: 1rem;
+}
+
+.monitorList {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.monitorItem {
+  border: 1px solid rgba(120, 138, 167, 0.42);
+  border-radius: 10px;
+  padding: 0.6rem;
+  background: rgba(18, 27, 40, 0.9);
+}
+
+.monitorItemHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin-bottom: 0.42rem;
+}
+
+.monitorItemHeader h4 {
+  margin: 0;
+  font-size: 0.96rem;
+}
+
+.monitorItem p {
+  margin: 0 0 0.28rem;
+  color: #d2dbee;
+  overflow-wrap: anywhere;
+}
+
+.inlineControls {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.42rem;
+}
+
+.inlineControls label {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #d3dcef;
+}
+
+.inlineControls select {
+  border: 1px solid rgba(121, 139, 169, 0.52);
+  border-radius: 8px;
+  background: rgba(9, 14, 25, 0.95);
+  color: #f4f8ff;
+  padding: 0.42rem 0.5rem;
+}
+
+@media (max-width: 980px) {
+  .managerLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .resourceNav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: min(330px, 88vw);
+    transform: translateX(-105%);
+    transition: transform 0.22s ease;
+    z-index: 41;
+    border-right: 1px solid rgba(124, 142, 170, 0.42);
+    background: rgba(14, 22, 35, 0.98);
+    backdrop-filter: blur(6px);
+    padding: 1rem 0.75rem;
+    overflow-y: auto;
+  }
+
+  .resourceNavOpen {
+    transform: translateX(0);
+  }
+
+  .mobileMenuRow {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 0.7rem;
+  }
+
+  .navBackdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    border: 0;
+    background: rgba(7, 12, 18, 0.62);
+    z-index: 40;
+  }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    padding: 0.8rem;
+  }
+
+  .topBar,
+  .panel {
+    padding: 0.8rem;
+  }
+
+  .topActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .primaryBtn,
+  .secondaryBtn,
+  .ghostBtn,
+  .dangerBtn {
+    font-size: 0.86rem;
+  }
+}
