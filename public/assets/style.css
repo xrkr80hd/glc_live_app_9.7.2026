@@ -462,7 +462,7 @@ body.youth .hero{
 	padding-top:10px;
 }
 body.youth .hero video{opacity:.12}
-body.youth .hero .content{padding:32px 0 44px}
+body.youth .hero .content{padding-top:32px;padding-bottom:44px}
 body.youth .btn{border-left-color:var(--brand);border-bottom-color:var(--brand);color:var(--brand);background:transparent}
 body.youth .btn:hover{background:var(--brand);color:#0f1320;border-left-color:var(--brand);border-bottom-color:var(--brand)}
 /* Make youth hero writing slightly darker for better tone */
@@ -896,7 +896,7 @@ body.youth .section{border-top-color:rgba(102,228,158,.14)}
 body.youth .title-inline svg,body.youth .heading-inline svg{color:var(--brand)}
 body.youth .youth-hero{min-height:clamp(300px,66vh,520px);padding-top:0;padding-bottom:26px}
 body.youth .youth-hero video{opacity:.22;object-fit:cover;object-position:center}
-body.youth .youth-hero .content{padding:34px 0 36px}
+body.youth .youth-hero .content{padding-top:34px;padding-bottom:36px}
 .youth-hero .hero-subtitle{display:inline-block;font-size:.78rem;letter-spacing:.28em;text-transform:uppercase;font-weight:700;color:rgba(202,214,246,.84);margin-bottom:8px}
 .youth-hero .hero-title{margin:0 0 8px;font-size:clamp(2.4rem,6vw,4rem);line-height:1.02;color:#ecf1ff}
 .youth-hero .hero-tagline{margin:0 0 6px;font-size:1.05rem;color:rgba(210,222,250,.92);font-weight:600}
@@ -1083,7 +1083,7 @@ body.youth .eyebrow{color:rgba(231,236,255,.65)}
 	.title-inline,.heading-inline{gap:8px;align-items:flex-start}
 	.title-inline svg,.heading-inline svg{margin-top:1px}
 	body.youth .youth-hero{min-height:clamp(280px,62vh,420px);padding-bottom:20px}
-	body.youth .youth-hero .content{padding:24px 0 30px}
+	body.youth .youth-hero .content{padding-top:24px;padding-bottom:30px}
 	.youth-hero .hero-title{font-size:clamp(2rem,10vw,2.8rem)}
 	.youth-hero .hero-tagline{font-size:.98rem}
 	.youth-hero .hero-description{font-size:.95rem}
