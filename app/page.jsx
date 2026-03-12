@@ -68,10 +68,36 @@ export default async function HomePage() {
           <h2>Our Ministries</h2>
           <p className="sub">Ministry highlights and opportunities to get connected.</p>
           <div className="ann-list" id="ministries">
-            {ministries.map((item) => (
-              <div key={item.id} className="ann-item">
-                <strong>{item.title}</strong> — {item.body}
+            {ministries.length ? (
+              ministries.map((item) => (
+                <div key={item.id} className="ann-item">
+                  <strong>{item.title}</strong> — {item.body}
+                </div>
+              ))
+            ) : (
+              <div className="ann-item">
+                <strong>Ministries are being updated.</strong> Check back soon for the latest service highlights.
               </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="section announcements">
+        <div className="container">
+          <h2>
+            <span className="heading-inline">
+              <IconInfoCircle size={28} stroke={1.8} aria-hidden="true" />
+              <span>Announcements &amp; Events</span>
+            </span>
+          </h2>
+          <p className="sub">Stay updated with the latest news and upcoming events at Liberty Church.</p>
+          <div className="announcements-container">
+            {announcements.map((item) => (
+              <article key={item.id} className="ann-item">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </article>
             ))}
           </div>
         </div>
@@ -104,44 +130,6 @@ export default async function HomePage() {
                 />
               </figure>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section alt">
-        <div className="container">
-          <h2>Service Times</h2>
-          <p className="sub">Join us each week.</p>
-          <div className="ann-list">
-            <div className="ann-item">
-              <strong>Sunday</strong> — 9:20 AM (Youth Devotion)
-            </div>
-            <div className="ann-item">
-              <strong>Sunday</strong> — 10:00 AM (Worship Service)
-            </div>
-            <div className="ann-item">
-              <strong>Wednesday</strong> — 6:30 PM (Youth Service)
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section announcements">
-        <div className="container">
-          <h2>
-            <span className="heading-inline">
-              <IconInfoCircle size={28} stroke={1.8} aria-hidden="true" />
-              <span>Announcements &amp; Events</span>
-            </span>
-          </h2>
-          <p className="sub">Stay updated with the latest news and upcoming events at Liberty Church.</p>
-          <div className="announcements-container">
-            {announcements.map((item) => (
-              <article key={item.id} className="ann-item">
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-              </article>
-            ))}
           </div>
         </div>
       </section>

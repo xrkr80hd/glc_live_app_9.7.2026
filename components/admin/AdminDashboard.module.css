@@ -140,6 +140,16 @@
   color: #bac5dc;
 }
 
+.readOnlyHint {
+  margin: 0.2rem 0 0.85rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid rgba(109, 205, 164, 0.45);
+  border-radius: 8px;
+  color: #dff9ed;
+  background: rgba(18, 84, 58, 0.26);
+  font-size: 0.84rem;
+}
+
 .form {
   border: 1px solid rgba(117, 136, 166, 0.35);
   border-radius: 12px;
@@ -186,18 +196,22 @@
   grid-column: 1 / -1;
 }
 
+.fieldCompact {
+  max-width: 230px;
+}
+
 .uploadGroup {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.35rem;
 }
 
 .uploadDropzone {
   border: 1px dashed rgba(137, 157, 189, 0.62);
   border-radius: 10px;
-  padding: 0.62rem 0.72rem;
+  padding: 0.46rem 0.6rem;
   color: #d4deef;
   background: rgba(15, 22, 35, 0.72);
-  font-size: 0.84rem;
+  font-size: 0.8rem;
 }
 
 .uploadDropzoneDragging {
@@ -218,7 +232,7 @@
 
 .uploadHint {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #aebbd5;
 }
 
@@ -317,6 +331,10 @@
   background: rgba(13, 20, 31, 0.88);
 }
 
+.itemCardCompact {
+  padding: 0.58rem 0.62rem;
+}
+
 .itemTop {
   display: flex;
   flex-wrap: wrap;
@@ -330,6 +348,10 @@
   font-size: 1.02rem;
 }
 
+.itemCardCompact .itemTop h4 {
+  font-size: 0.95rem;
+}
+
 .itemId {
   margin: 0.3rem 0 0;
   color: #9fb0cd;
@@ -341,6 +363,22 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
+}
+
+.compactMetaRow {
+  margin-top: 0.36rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.36rem;
+}
+
+.compactMetaPill {
+  border: 1px solid rgba(125, 147, 184, 0.48);
+  border-radius: 999px;
+  padding: 0.17rem 0.5rem;
+  font-size: 0.75rem;
+  color: #d5e2f8;
+  background: rgba(22, 33, 50, 0.82);
 }
 
 .previewGrid {
@@ -530,5 +568,9 @@
   .ghostBtn,
   .dangerBtn {
     font-size: 0.86rem;
+  }
+
+  .fieldCompact {
+    max-width: 100%;
   }
 }

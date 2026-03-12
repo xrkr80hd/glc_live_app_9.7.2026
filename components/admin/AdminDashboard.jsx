@@ -15,6 +15,7 @@ import {
   IconMapPin,
   IconMenu2,
   IconMessageCircleHeart,
+  IconMusic,
   IconPencil,
   IconPhoto,
   IconPlayerPlay,
@@ -141,7 +142,7 @@ const CONTENT_RESOURCES = [
     key: "ministries",
     label: "Ministries & Service Times",
     singularLabel: "Ministry/Service Item",
-    description: "Homepage ministry rows like Men's group and nursery.",
+    description: "Homepage ministry rows and service highlights. Fully editable from this panel.",
     icon: IconCalendarEvent,
     listEndpoint: "/api/admin/ministries?include_unpublished=true&limit=120",
     createEndpoint: "/api/admin/ministries",
@@ -162,7 +163,7 @@ const CONTENT_RESOURCES = [
   },
   {
     key: "team-roles",
-    label: "Team Roles",
+    label: "Teams & Permissions",
     singularLabel: "Team Role",
     description: "Create roles like Media Team, Worship Team, FOH Sound, Children's, and Youth.",
     icon: IconUsersGroup,
@@ -171,7 +172,6 @@ const CONTENT_RESOURCES = [
     itemEndpoint: (id) => `/api/admin/team-roles/${id}`,
     listKey: "teamRoles",
     fields: [
-      { name: "role_key", label: "Role Key", type: "text", required: true, placeholder: "media_team" },
       { name: "name", label: "Role Name", type: "text", required: true, placeholder: "Media Team" },
       { name: "description", label: "Description", type: "textarea", placeholder: "Optional description...", rows: 4, fullWidth: true },
       { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
@@ -188,7 +188,7 @@ const CONTENT_RESOURCES = [
   },
   {
     key: "team-members",
-    label: "Team Members",
+    label: "User Accounts",
     singularLabel: "Team Member",
     description: "Create member records and flag superusers.",
     icon: IconUsersGroup,
@@ -217,7 +217,7 @@ const CONTENT_RESOURCES = [
   },
   {
     key: "team-member-roles",
-    label: "Role Assignments",
+    label: "Team Access",
     singularLabel: "Role Assignment",
     description: "Assign multiple roles to each member and mark team-level admins.",
     icon: IconUsersGroup,
@@ -226,23 +226,80 @@ const CONTENT_RESOURCES = [
     itemEndpoint: (id) => `/api/admin/team-member-roles/${id}`,
     listKey: "teamMemberRoles",
     fields: [
-      { name: "member_id", label: "Member ID", type: "text", required: true, placeholder: "Paste Team Member UUID" },
-      { name: "role_id", label: "Role ID", type: "text", required: true, placeholder: "Paste Team Role UUID" },
+      {
+        name: "member_id",
+        label: "Team Member",
+        type: "relation",
+        relationResourceKey: "team-members",
+        relationLabelKeys: ["full_name", "username", "email"],
+        required: true,
+        placeholderOptionLabel: "Select team member",
+      },
+      {
+        name: "role_id",
+        label: "Team Role",
+        type: "relation",
+        relationResourceKey: "team-roles",
+        relationLabelKeys: ["name", "role_key"],
+        required: true,
+        placeholderOptionLabel: "Select team role",
+      },
       { name: "is_role_admin", label: "Team Admin", type: "checkbox", defaultValue: false },
       { name: "assigned_at", label: "Assigned At", type: "datetime", defaultValue: () => getNowDateTimeInput() },
     ],
     preview: [
-      { label: "Member ID", name: "member_id" },
-      { label: "Role ID", name: "role_id" },
+      { label: "Member", name: "member_label" },
+      { label: "Role", name: "role_label" },
       { label: "Team Admin", name: "is_role_admin" },
       { label: "Assigned", name: "assigned_at", format: formatDateTime },
+    ],
+  },
+  {
+    key: "service-song-lists",
+    label: "Service Song Lists",
+    singularLabel: "Service Song List",
+    description:
+      "Plan sermon titles and song sets for FOH, worship, and media teams. Enter one song per line.",
+    icon: IconMusic,
+    listEndpoint: "/api/admin/service-song-lists?include_inactive=true&limit=300",
+    createEndpoint: "/api/admin/service-song-lists",
+    itemEndpoint: (id) => `/api/admin/service-song-lists/${id}`,
+    listKey: "serviceSongLists",
+    fields: [
+      {
+        name: "role_id",
+        label: "Team",
+        type: "relation",
+        relationResourceKey: "team-roles",
+        relationLabelKeys: ["name", "role_key"],
+        placeholderOptionLabel: "All teams",
+      },
+      { name: "service_date", label: "Service Date", type: "date", required: true, defaultValue: () => getNowDateInput(), compact: true },
+      { name: "title", label: "Sermon / Plan Title", type: "text", required: true, placeholder: "Sunday Morning Service", compact: true },
+      {
+        name: "songs_text",
+        label: "Song List",
+        type: "textarea",
+        placeholder: "One song per line\nOpen the Eyes of My Heart\nGoodness of God\nWay Maker",
+        rows: 6,
+        fullWidth: true,
+      },
+      { name: "notes", label: "Notes for Teams", type: "textarea", placeholder: "Slides, transitions, scripture cues, media notes...", rows: 4, fullWidth: true },
+      { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
+    ],
+    preview: [
+      { label: "Date", name: "service_date", format: formatDate },
+      { label: "Team", name: "role_label" },
+      { label: "Title", name: "title" },
+      { label: "Songs", name: "songs_count" },
+      { label: "Active", name: "is_active" },
     ],
   },
   {
     key: "seasonal-features",
     label: "Homepage Highlight Cards",
     singularLabel: "Highlight Card",
-    description: "Stack as many cards as you need. Set each card timer, media, and optional audio controls.",
+    description: "Create a stacked rotation of homepage highlight cards with timing, media, and default video volume.",
     icon: IconCalendarEvent,
     listEndpoint: "/api/admin/seasonal-features?include_inactive=true&limit=120",
     createEndpoint: "/api/admin/seasonal-features",
@@ -250,22 +307,25 @@ const CONTENT_RESOURCES = [
     listKey: "seasonalFeatures",
     fields: [
       { name: "title", label: "Card Heading", type: "text", placeholder: "Community Worship Night" },
-      { name: "body", label: "Card Message", type: "textarea", placeholder: "Share event details, reminder text, or seasonal thought...", rows: 6, fullWidth: true },
+      { name: "body", label: "Card Message", type: "textarea", placeholder: "Share event details, reminder text, or seasonal thought...", rows: 4, fullWidth: true },
       {
         name: "media_url",
         label: "Media URL",
         type: "text",
-        placeholder: "https://.../highlight.mp4",
+        compact: true,
+        placeholder: "",
         upload: {
           folder: "seasonal",
           accept: "video/*,image/*",
-          helperText: "Drag/drop a video or image to upload, or paste an external URL.",
+          helperText: "Drag/drop or choose a local video/image file to upload.",
+          uploadOnly: true,
         },
       },
       {
         name: "media_type",
         label: "Media Type",
         type: "select",
+        compact: true,
         options: [
           { value: "", label: "None" },
           { value: "video", label: "Video" },
@@ -273,9 +333,8 @@ const CONTENT_RESOURCES = [
         ],
         defaultValue: "",
       },
-      { name: "display_seconds", label: "Display Seconds", type: "number", defaultValue: 12 },
-      { name: "enable_audio", label: "Allow Audio Controls", type: "checkbox", defaultValue: false },
-      { name: "volume_percent", label: "Default Volume (0-100)", type: "number", defaultValue: 25 },
+      { name: "display_seconds", label: "Display Seconds", type: "number", defaultValue: 12, compact: true, min: 5, max: 120 },
+      { name: "volume_percent", label: "Default Volume (0-100)", type: "number", defaultValue: 25, compact: true, min: 0, max: 100 },
       { name: "cta_label", label: "CTA Label", type: "text", placeholder: "Learn More" },
       { name: "cta_url", label: "CTA URL", type: "text", placeholder: "/sermons" },
       { name: "season_tag", label: "Tag (Optional)", type: "text", placeholder: "Spring 2026" },
@@ -288,7 +347,6 @@ const CONTENT_RESOURCES = [
       { label: "Heading", name: "title" },
       { label: "Media", name: "media_type" },
       { label: "Display (sec)", name: "display_seconds" },
-      { label: "Audio", name: "enable_audio" },
       { label: "Volume", name: "volume_percent" },
       { label: "Starts", name: "starts_at", format: formatDateTime },
       { label: "Ends", name: "ends_at", format: formatDateTime },
@@ -306,10 +364,20 @@ const CONTENT_RESOURCES = [
     itemEndpoint: (id) => `/api/admin/photo-albums/${id}`,
     listKey: "photoAlbums",
     fields: [
-      { name: "title", label: "Album Title", type: "text", required: true, placeholder: "Youth Get Together" },
+      { name: "title", label: "Album Title", type: "text", required: true, placeholder: "Youth Get Together", compact: true },
       { name: "album_date", label: "Album Date", type: "date", defaultValue: () => getNowDateInput() },
       { name: "description", label: "Description", type: "textarea", placeholder: "Optional album summary...", rows: 5, fullWidth: true },
-      { name: "cover_photo_url", label: "Cover Photo URL", type: "text", placeholder: "https://.../cover.jpg" },
+      {
+        name: "cover_photo_url",
+        label: "Cover Photo",
+        type: "text",
+        upload: {
+          folder: "albums/covers",
+          accept: "image/*",
+          helperText: "Upload a local image file for the album cover.",
+          uploadOnly: true,
+        },
+      },
       { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
       { name: "is_published", label: "Published", type: "checkbox", defaultValue: true },
     ],
@@ -324,33 +392,42 @@ const CONTENT_RESOURCES = [
     key: "album-photos",
     label: "Album Photos",
     singularLabel: "Album Photo",
-    description: "Add unlimited photos to any album by album ID.",
+    description: "Add unlimited photos to an album and select the album from the list.",
     icon: IconPhoto,
     listEndpoint: "/api/admin/album-photos?include_unpublished=true&limit=300",
     createEndpoint: "/api/admin/album-photos",
     itemEndpoint: (id) => `/api/admin/album-photos/${id}`,
     listKey: "albumPhotos",
     fields: [
-      { name: "album_id", label: "Album ID", type: "text", required: true, placeholder: "Paste album UUID from Photo Albums" },
+      {
+        name: "album_id",
+        label: "Album",
+        type: "relation",
+        relationResourceKey: "photo-albums",
+        relationLabelKeys: ["title", "album_date"],
+        required: true,
+        compact: true,
+        placeholderOptionLabel: "Select album",
+      },
       {
         name: "photo_url",
-        label: "Photo URL",
+        label: "Photo File",
         type: "text",
         required: true,
-        placeholder: "https://.../photo.jpg",
         upload: {
           folder: "albums/photos",
           accept: "image/*",
-          helperText: "Drag/drop an image to upload and auto-fill this URL.",
+          helperText: "Upload a local image file. URL is filled automatically.",
+          uploadOnly: true,
         },
       },
-      { name: "caption", label: "Caption", type: "textarea", placeholder: "Optional caption", rows: 4, fullWidth: true },
+      { name: "caption", label: "Caption", type: "textarea", placeholder: "Optional caption", rows: 3, fullWidth: true },
       { name: "taken_on", label: "Photo Date", type: "date" },
       { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
       { name: "is_published", label: "Published", type: "checkbox", defaultValue: true },
     ],
     preview: [
-      { label: "Album ID", name: "album_id" },
+      { label: "Album", name: "album_title" },
       { label: "Photo URL", name: "photo_url" },
       { label: "Date", name: "taken_on", format: formatDate },
       { label: "Sort", name: "sort_order" },
@@ -368,20 +445,30 @@ const CONTENT_RESOURCES = [
     itemEndpoint: (id) => `/api/admin/gallery-videos/${id}`,
     listKey: "galleryVideos",
     fields: [
-      { name: "title", label: "Title", type: "text", required: true, placeholder: "Wednesday Night Recap" },
+      { name: "title", label: "Title", type: "text", required: true, placeholder: "Wednesday Night Recap", compact: true },
       {
         name: "video_url",
-        label: "Video URL",
+        label: "Video File",
         type: "text",
         required: true,
-        placeholder: "https://.../video.mp4 or youtube link",
         upload: {
           folder: "gallery/videos",
           accept: "video/*",
-          helperText: "Drag/drop a video to upload and auto-fill this URL.",
+          helperText: "Upload a local video file. URL is filled automatically.",
+          uploadOnly: true,
         },
       },
-      { name: "thumbnail_url", label: "Thumbnail URL", type: "text", placeholder: "https://.../thumb.jpg" },
+      {
+        name: "thumbnail_url",
+        label: "Thumbnail",
+        type: "text",
+        upload: {
+          folder: "gallery/thumbnails",
+          accept: "image/*",
+          helperText: "Optional: upload a local thumbnail image.",
+          uploadOnly: true,
+        },
+      },
       { name: "description", label: "Description", type: "textarea", placeholder: "Optional details...", rows: 5, fullWidth: true },
       { name: "recorded_on", label: "Recorded On", type: "date" },
       { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
@@ -399,7 +486,7 @@ const CONTENT_RESOURCES = [
     key: "scriptures",
     label: "Scriptures",
     singularLabel: "Scripture",
-    description: "Main and youth scripture of the week.",
+    description: "Youth scripture of the week.",
     icon: IconBible,
     listEndpoint: "/api/admin/scriptures?include_unpublished=true&limit=120",
     createEndpoint: "/api/admin/scriptures",
@@ -411,11 +498,11 @@ const CONTENT_RESOURCES = [
         label: "Audience",
         type: "select",
         options: [
-          { value: "main", label: "Main" },
+          { value: "main", label: "Main (unused on homepage)" },
           { value: "youth", label: "Youth" },
         ],
         required: true,
-        defaultValue: "main",
+        defaultValue: "youth",
       },
       { name: "reference", label: "Scripture Reference", type: "text", required: true, placeholder: "John 3:16" },
       { name: "verse_text", label: "Verse Text", type: "textarea", required: true, placeholder: "Verse text...", rows: 9, fullWidth: true },
@@ -444,7 +531,17 @@ const CONTENT_RESOURCES = [
     fields: [
       { name: "title", label: "Title", type: "text", required: true, placeholder: "Banner title" },
       { name: "subtitle", label: "Subtitle", type: "textarea", placeholder: "Subtitle / ticker text", rows: 5, fullWidth: true },
-      { name: "image_url", label: "Image URL", type: "text", placeholder: "https://..." },
+      {
+        name: "image_url",
+        label: "Banner Image",
+        type: "text",
+        upload: {
+          folder: "youth/banners",
+          accept: "image/*",
+          helperText: "Upload a local image file for the youth hero/banner.",
+          uploadOnly: true,
+        },
+      },
       { name: "cta_label", label: "CTA Label", type: "text", placeholder: "Plan a Visit" },
       { name: "cta_url", label: "CTA URL", type: "text", placeholder: "/visit" },
       { name: "starts_at", label: "Starts At", type: "datetime", defaultValue: () => getNowDateTimeInput() },
@@ -473,7 +570,17 @@ const CONTENT_RESOURCES = [
     fields: [
       { name: "title", label: "Title", type: "text", required: true, placeholder: "Sunday Service Live" },
       { name: "embed_url", label: "Embed URL", type: "text", required: true, placeholder: "https://www.youtube.com/embed/..." },
-      { name: "fallback_video_url", label: "Fallback Video URL", type: "text", placeholder: "https://..." },
+      {
+        name: "fallback_video_url",
+        label: "Fallback Video",
+        type: "text",
+        upload: {
+          folder: "livestream/fallback",
+          accept: "video/*",
+          helperText: "Upload a local fallback video file.",
+          uploadOnly: true,
+        },
+      },
       { name: "watch_cta_label", label: "Watch CTA Label", type: "text", defaultValue: "Watch Live Now" },
       { name: "starts_at", label: "Starts At", type: "datetime" },
       { name: "ends_at", label: "Ends At", type: "datetime" },
@@ -491,18 +598,16 @@ const CONTENT_RESOURCES = [
     key: "sermons",
     label: "Sermons",
     singularLabel: "Sermon",
-    description: "Featured YouTube sermon links.",
+    description: "API-fed from YouTube channel settings. Manual URL entry is disabled.",
     icon: IconPlayerPlay,
+    readOnly: true,
     listEndpoint: "/api/admin/sermons?include_unpublished=true&limit=120",
     createEndpoint: "/api/admin/sermons",
     itemEndpoint: (id) => `/api/admin/sermons/${id}`,
     listKey: "sermons",
-    fields: [
-      { name: "title", label: "Title", type: "text", required: true, placeholder: "Sermon title" },
-      { name: "video_url", label: "Video URL", type: "text", required: true, placeholder: "https://www.youtube.com/watch?v=..." },
-      { name: "preached_on", label: "Preached On", type: "date", defaultValue: () => getNowDateInput() },
-      { name: "is_published", label: "Published", type: "checkbox", defaultValue: true },
-    ],
+    readOnlyMessage:
+      "Sermons on the public page are loaded from YouTube API. Manage channel/API settings instead of entering URLs here.",
+    fields: [],
     preview: [
       { label: "Title", name: "title" },
       { label: "Video URL", name: "video_url" },
@@ -629,7 +734,16 @@ function getSingularLabel(resource) {
 }
 
 function resolvePrimaryLabel(item) {
-  const priority = ["title", "reference", "name", "email"];
+  const priority = [
+    "title",
+    "member_label",
+    "role_label",
+    "album_title",
+    "reference",
+    "name",
+    "email",
+    "username",
+  ];
   for (const key of priority) {
     const value = String(item?.[key] || "").trim();
     if (value) {
@@ -639,9 +753,29 @@ function resolvePrimaryLabel(item) {
   return item?.id || "Untitled";
 }
 
-function FieldInput({ field, value, onChange, idPrefix }) {
+function buildRelationLabel(item, field) {
+  const keys = Array.isArray(field?.relationLabelKeys) ? field.relationLabelKeys : [];
+  const values = keys
+    .map((key) => String(item?.[key] ?? "").trim())
+    .filter(Boolean);
+  if (values.length > 1) {
+    return `${values[0]} (${values.slice(1).join(" • ")})`;
+  }
+  if (values.length === 1) {
+    return values[0];
+  }
+  return String(item?.id || "Unknown");
+}
+
+function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) {
   const inputId = `${idPrefix}-${field.name}`;
-  const fieldClassName = field.fullWidth ? `${styles.field} ${styles.fieldWide}` : styles.field;
+  const fieldClassName = [
+    styles.field,
+    field.fullWidth ? styles.fieldWide : "",
+    field.compact ? styles.fieldCompact : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   const uploadInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
@@ -657,6 +791,7 @@ function FieldInput({ field, value, onChange, idPrefix }) {
           required={Boolean(field.required)}
           placeholder={field.placeholder || ""}
           rows={field.rows || 5}
+          style={{ minHeight: `${Math.max(84, (field.rows || 5) * 18)}px` }}
           onChange={(event) => onChange(field.name, event.target.value)}
         />
       </label>
@@ -669,6 +804,41 @@ function FieldInput({ field, value, onChange, idPrefix }) {
         <span>{field.label}</span>
         <select id={inputId} value={value} required={Boolean(field.required)} onChange={(event) => onChange(field.name, event.target.value)}>
           {(field.options || []).map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  }
+
+  if (field.type === "relation") {
+    const normalizedValue = value == null ? "" : String(value);
+    const hasSelectedOption = relationOptions.some(
+      (option) => String(option.value) === normalizedValue,
+    );
+    const fallbackOption =
+      normalizedValue && !hasSelectedOption
+        ? [{ value: normalizedValue, label: `Current selection (${normalizedValue.slice(0, 8)}...)` }]
+        : [];
+
+    return (
+      <label className={fieldClassName} htmlFor={inputId}>
+        <span>{field.label}</span>
+        <select
+          id={inputId}
+          value={normalizedValue}
+          required={Boolean(field.required)}
+          onChange={(event) => onChange(field.name, event.target.value)}
+        >
+          <option value="">{field.placeholderOptionLabel || "Select an option"}</option>
+          {fallbackOption.map((option) => (
+            <option key={`fallback-${option.value}`} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+          {relationOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -701,6 +871,7 @@ function FieldInput({ field, value, onChange, idPrefix }) {
   };
   const inputType = typeMap[field.type] || "text";
   const uploadConfig = field.upload || null;
+  const uploadOnly = Boolean(uploadConfig?.uploadOnly);
 
   async function uploadFile(file) {
     if (!file || !uploadConfig) {
@@ -764,8 +935,17 @@ function FieldInput({ field, value, onChange, idPrefix }) {
           type="text"
           value={value}
           required={Boolean(field.required)}
-          placeholder={field.placeholder || ""}
-          onChange={(event) => onChange(field.name, event.target.value)}
+          placeholder={
+            uploadOnly
+              ? "Upload a file below to auto-fill this field"
+              : field.placeholder || ""
+          }
+          readOnly={uploadOnly}
+          onChange={(event) => {
+            if (!uploadOnly) {
+              onChange(field.name, event.target.value);
+            }
+          }}
         />
         <div className={styles.uploadGroup}>
           <div
@@ -817,6 +997,8 @@ function FieldInput({ field, value, onChange, idPrefix }) {
         required={Boolean(field.required)}
         placeholder={field.placeholder || ""}
         step={field.type === "number" ? "1" : undefined}
+        min={field.type === "number" && field.min !== undefined ? field.min : undefined}
+        max={field.type === "number" && field.max !== undefined ? field.max : undefined}
         onChange={(event) => onChange(field.name, event.target.value)}
       />
     </label>
@@ -868,6 +1050,12 @@ export function AdminDashboard({ username }) {
     () => CONTENT_RESOURCES.find((resource) => resource.key === activeResourceKey) || CONTENT_RESOURCES[0],
     [activeResourceKey],
   );
+  const activeRelationResourceKeys = useMemo(() => {
+    const keys = activeResource.fields
+      .filter((field) => field.type === "relation" && field.relationResourceKey)
+      .map((field) => field.relationResourceKey);
+    return Array.from(new Set(keys));
+  }, [activeResource]);
 
   const loadContentResource = useCallback(async (resource) => {
     setContentState((prev) => ({
@@ -967,6 +1155,19 @@ export function AdminDashboard({ username }) {
   }, [activeResourceKey, contentState, loadContentResource]);
 
   useEffect(() => {
+    for (const resourceKey of activeRelationResourceKeys) {
+      const dependency = CONTENT_RESOURCES.find((entry) => entry.key === resourceKey);
+      if (!dependency) {
+        continue;
+      }
+      const dependencyState = contentState[resourceKey];
+      if (dependencyState && !dependencyState.loaded && !dependencyState.loading) {
+        loadContentResource(dependency);
+      }
+    }
+  }, [activeRelationResourceKeys, contentState, loadContentResource]);
+
+  useEffect(() => {
     for (const resource of MONITOR_RESOURCES) {
       loadMonitorResource(resource);
     }
@@ -1002,6 +1203,25 @@ export function AdminDashboard({ username }) {
         [fieldName]: nextValue,
       },
     }));
+  }
+
+  function getRelationOptionsForField(field) {
+    if (field.type !== "relation" || !field.relationResourceKey) {
+      return [];
+    }
+    const sourceItems = contentState[field.relationResourceKey]?.items || [];
+    return sourceItems
+      .map((item) => {
+        const id = String(item?.id || "").trim();
+        if (!id) {
+          return null;
+        }
+        return {
+          value: id,
+          label: buildRelationLabel(item, field),
+        };
+      })
+      .filter(Boolean);
   }
 
   function onEditDraftChange(resourceKey, fieldName, nextValue) {
@@ -1067,10 +1287,20 @@ export function AdminDashboard({ username }) {
         throw new Error(getErrorMessage(body, `Unable to create ${resource.label}.`));
       }
 
-      setCreateDrafts((prev) => ({
-        ...prev,
-        [resource.key]: getInitialDraft(resource.fields),
-      }));
+      setCreateDrafts((prev) => {
+        const nextDraft = getInitialDraft(resource.fields);
+        if (resource.key === "album-photos") {
+          nextDraft.album_id = prev[resource.key]?.album_id || "";
+          nextDraft.taken_on = prev[resource.key]?.taken_on || "";
+        }
+        if (resource.key === "team-member-roles") {
+          nextDraft.member_id = prev[resource.key]?.member_id || "";
+        }
+        return {
+          ...prev,
+          [resource.key]: nextDraft,
+        };
+      });
       await loadContentResource(resource);
       setFormNotice(`${getSingularLabel(resource)} created successfully.`);
     } catch (error) {
@@ -1302,33 +1532,39 @@ export function AdminDashboard({ username }) {
             <div className={styles.resourceMeta}>
               <h3>{activeResource.label}</h3>
               <p>{activeResource.description}</p>
+              {activeResource.readOnlyMessage ? (
+                <p className={styles.readOnlyHint}>{activeResource.readOnlyMessage}</p>
+              ) : null}
             </div>
 
-            <form
-              className={styles.form}
-              onSubmit={(event) => {
-                event.preventDefault();
-                createItem(activeResource);
-              }}
-            >
-              <div className={styles.fieldsGrid}>
-                {activeResource.fields.map((field) => (
-                  <FieldInput
-                    key={`create-${activeResource.key}-${field.name}`}
-                    field={field}
-                    value={createDraft[field.name]}
-                    onChange={(fieldName, nextValue) => onCreateDraftChange(activeResource.key, fieldName, nextValue)}
-                    idPrefix={`create-${activeResource.key}`}
-                  />
-                ))}
-              </div>
-              <div className={styles.formActions}>
-                <button type="submit" className={styles.primaryBtn} disabled={Boolean(busyAction)}>
-                  <IconPlus size={17} stroke={1.9} aria-hidden="true" />
-                  Add {getSingularLabel(activeResource)}
-                </button>
-              </div>
-            </form>
+            {!activeResource.readOnly ? (
+              <form
+                className={styles.form}
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  createItem(activeResource);
+                }}
+              >
+                <div className={styles.fieldsGrid}>
+                  {activeResource.fields.map((field) => (
+                    <FieldInput
+                      key={`create-${activeResource.key}-${field.name}`}
+                      field={field}
+                      value={createDraft[field.name]}
+                      relationOptions={getRelationOptionsForField(field)}
+                      onChange={(fieldName, nextValue) => onCreateDraftChange(activeResource.key, fieldName, nextValue)}
+                      idPrefix={`create-${activeResource.key}`}
+                    />
+                  ))}
+                </div>
+                <div className={styles.formActions}>
+                  <button type="submit" className={styles.primaryBtn} disabled={Boolean(busyAction)}>
+                    <IconPlus size={17} stroke={1.9} aria-hidden="true" />
+                    Add {getSingularLabel(activeResource)}
+                  </button>
+                </div>
+              </form>
+            ) : null}
 
             {activeState.error ? (
               <p className={styles.tableError} role="alert">
@@ -1344,12 +1580,14 @@ export function AdminDashboard({ username }) {
               {activeState.items.map((item) => {
                 const itemIsEditing = editingId === item.id;
                 const itemIsExpanded = useAccordionCards ? expandedId === item.id || itemIsEditing : true;
+                const compactMediaType = String(item.media_type || "none").toLowerCase() || "none";
+                const compactSeconds = Number.parseInt(String(item.display_seconds ?? 12), 10) || 12;
+                const compactVolume = Number.parseInt(String(item.volume_percent ?? 25), 10) || 25;
                 return (
-                  <article key={item.id} className={styles.itemCard}>
+                  <article key={item.id} className={useAccordionCards ? `${styles.itemCard} ${styles.itemCardCompact}` : styles.itemCard}>
                     <div className={styles.itemTop}>
                       <div>
                         <h4>{resolvePrimaryLabel(item)}</h4>
-                        <p className={styles.itemId}>ID: {item.id}</p>
                       </div>
                       <div className={styles.rowActions}>
                         {useAccordionCards ? (
@@ -1367,26 +1605,39 @@ export function AdminDashboard({ username }) {
                             {itemIsExpanded ? "Collapse" : "Open"}
                           </button>
                         ) : null}
-                        <button
-                          type="button"
-                          className={styles.secondaryBtn}
-                          onClick={() => (itemIsEditing ? cancelEdit(activeResource.key) : startEdit(activeResource, item))}
-                          disabled={Boolean(busyAction)}
-                        >
-                          {itemIsEditing ? <IconX size={16} stroke={1.9} aria-hidden="true" /> : <IconPencil size={16} stroke={1.9} aria-hidden="true" />}
-                          {itemIsEditing ? "Cancel" : "Edit"}
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.dangerBtn}
-                          onClick={() => deleteItem(activeResource, item.id)}
-                          disabled={Boolean(busyAction)}
-                        >
-                          <IconTrash size={16} stroke={1.9} aria-hidden="true" />
-                          Delete
-                        </button>
+                        {!activeResource.readOnly ? (
+                          <>
+                            <button
+                              type="button"
+                              className={styles.secondaryBtn}
+                              onClick={() => (itemIsEditing ? cancelEdit(activeResource.key) : startEdit(activeResource, item))}
+                              disabled={Boolean(busyAction)}
+                            >
+                              {itemIsEditing ? <IconX size={16} stroke={1.9} aria-hidden="true" /> : <IconPencil size={16} stroke={1.9} aria-hidden="true" />}
+                              {itemIsEditing ? "Cancel" : "Edit"}
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.dangerBtn}
+                              onClick={() => deleteItem(activeResource, item.id)}
+                              disabled={Boolean(busyAction)}
+                            >
+                              <IconTrash size={16} stroke={1.9} aria-hidden="true" />
+                              Delete
+                            </button>
+                          </>
+                        ) : null}
                       </div>
                     </div>
+
+                    {useAccordionCards ? (
+                      <div className={styles.compactMetaRow}>
+                        <span className={styles.compactMetaPill}>Media: {compactMediaType}</span>
+                        <span className={styles.compactMetaPill}>Seconds: {compactSeconds}</span>
+                        <span className={styles.compactMetaPill}>Volume: {compactVolume}</span>
+                        <span className={styles.compactMetaPill}>{item.is_active ? "Active" : "Inactive"}</span>
+                      </div>
+                    ) : null}
 
                     {itemIsExpanded ? (
                       itemIsEditing ? (
@@ -1403,6 +1654,7 @@ export function AdminDashboard({ username }) {
                                 key={`edit-${item.id}-${field.name}`}
                                 field={field}
                                 value={editDraft[field.name]}
+                                relationOptions={getRelationOptionsForField(field)}
                                 onChange={(fieldName, nextValue) => onEditDraftChange(activeResource.key, fieldName, nextValue)}
                                 idPrefix={`edit-${item.id}`}
                               />
@@ -1429,17 +1681,19 @@ export function AdminDashboard({ username }) {
                         </div>
                       )
                     ) : (
-                      <div className={styles.previewGrid}>
-                        {activeResource.preview.slice(0, 3).map((entry) => {
-                          const raw = item[entry.name];
-                          const value = entry.format ? entry.format(raw) : formatValue(raw);
-                          return (
-                            <p key={`${item.id}-${entry.name}`}>
-                              <strong>{entry.label}:</strong> {value}
-                            </p>
-                          );
-                        })}
-                      </div>
+                      !useAccordionCards ? (
+                        <div className={styles.previewGrid}>
+                          {activeResource.preview.slice(0, 3).map((entry) => {
+                            const raw = item[entry.name];
+                            const value = entry.format ? entry.format(raw) : formatValue(raw);
+                            return (
+                              <p key={`${item.id}-${entry.name}`}>
+                                <strong>{entry.label}:</strong> {value}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      ) : null
                     )}
                   </article>
                 );

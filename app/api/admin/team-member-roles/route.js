@@ -9,6 +9,73 @@ import {
   requireAdminSupabase,
 } from "@/lib/admin-api";
 
+function formatMemberLabel(member, fallbackId) {
+  if (!member) {
+    return `Member ${String(fallbackId || "").slice(0, 8)}`;
+  }
+  const fullName = String(member.full_name || "").trim();
+  const username = String(member.username || "").trim();
+  const email = String(member.email || "").trim();
+  if (fullName && username) {
+    return `${fullName} (${username})`;
+  }
+  return fullName || username || email || `Member ${String(fallbackId || "").slice(0, 8)}`;
+}
+
+function formatRoleLabel(role, fallbackId) {
+  if (!role) {
+    return `Role ${String(fallbackId || "").slice(0, 8)}`;
+  }
+  const name = String(role.name || "").trim();
+  const roleKey = String(role.role_key || "").trim();
+  if (name && roleKey) {
+    return `${name} (${roleKey})`;
+  }
+  return name || roleKey || `Role ${String(fallbackId || "").slice(0, 8)}`;
+}
+
+async function hydrateRoleAssignments(supabase, rows) {
+  if (!Array.isArray(rows) || !rows.length) {
+    return [];
+  }
+
+  const memberIds = Array.from(
+    new Set(rows.map((row) => normalizeId(row.member_id)).filter(Boolean)),
+  );
+  const roleIds = Array.from(
+    new Set(rows.map((row) => normalizeId(row.role_id)).filter(Boolean)),
+  );
+
+  let memberMap = new Map();
+  let roleMap = new Map();
+
+  if (memberIds.length) {
+    const { data } = await supabase
+      .from("team_members")
+      .select("id, username, full_name, email")
+      .in("id", memberIds);
+    if (Array.isArray(data)) {
+      memberMap = new Map(data.map((item) => [item.id, item]));
+    }
+  }
+
+  if (roleIds.length) {
+    const { data } = await supabase
+      .from("team_roles")
+      .select("id, name, role_key")
+      .in("id", roleIds);
+    if (Array.isArray(data)) {
+      roleMap = new Map(data.map((item) => [item.id, item]));
+    }
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    member_label: formatMemberLabel(memberMap.get(row.member_id), row.member_id),
+    role_label: formatRoleLabel(roleMap.get(row.role_id), row.role_id),
+  }));
+}
+
 export async function GET(request) {
   const { error: authError } = requireAdminSession(request);
   if (authError) {
@@ -43,7 +110,8 @@ export async function GET(request) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  return NextResponse.json({ teamMemberRoles: data || [] });
+  const hydrated = await hydrateRoleAssignments(supabase, data || []);
+  return NextResponse.json({ teamMemberRoles: hydrated });
 }
 
 export async function POST(request) {
@@ -94,5 +162,6 @@ export async function POST(request) {
     return NextResponse.json({ error: insertError.message }, { status: 400 });
   }
 
-  return NextResponse.json({ teamMemberRole: data }, { status: 201 });
+  const hydrated = await hydrateRoleAssignments(supabase, data ? [data] : []);
+  return NextResponse.json({ teamMemberRole: hydrated[0] || null }, { status: 201 });
 }

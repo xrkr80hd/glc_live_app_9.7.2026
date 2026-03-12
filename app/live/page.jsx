@@ -10,7 +10,7 @@ export default async function LivePage() {
   const fallbackVideo =
     livestream.fallbackVideoUrl ||
     process.env.NEXT_PUBLIC_FALLBACK_STREAM_VIDEO_URL ||
-    "https://www.golibertychurch.com/assets/stream_fallback_loop/stream_fall_back_loop.mp4";
+    "/assets/stream_fallback_loop/stream_fall_back_loop.mp4";
 
   return (
     <>

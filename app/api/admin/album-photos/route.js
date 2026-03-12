@@ -11,6 +11,32 @@ import {
   requireAdminSupabase,
 } from "@/lib/admin-api";
 
+async function hydrateAlbumPhotos(supabase, rows) {
+  if (!Array.isArray(rows) || !rows.length) {
+    return [];
+  }
+
+  const albumIds = Array.from(
+    new Set(rows.map((row) => normalizeId(row.album_id)).filter(Boolean)),
+  );
+
+  let albumMap = new Map();
+  if (albumIds.length) {
+    const { data } = await supabase
+      .from("photo_albums")
+      .select("id, title")
+      .in("id", albumIds);
+    if (Array.isArray(data)) {
+      albumMap = new Map(data.map((item) => [item.id, item]));
+    }
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    album_title: albumMap.get(row.album_id)?.title || "Unknown album",
+  }));
+}
+
 export async function GET(request) {
   const { error: authError } = requireAdminSession(request);
   if (authError) {
@@ -48,7 +74,8 @@ export async function GET(request) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  return NextResponse.json({ albumPhotos: data || [] });
+  const hydrated = await hydrateAlbumPhotos(supabase, data || []);
+  return NextResponse.json({ albumPhotos: hydrated });
 }
 
 export async function POST(request) {
@@ -104,5 +131,6 @@ export async function POST(request) {
     return NextResponse.json({ error: insertError.message }, { status: 400 });
   }
 
-  return NextResponse.json({ albumPhoto: data }, { status: 201 });
+  const hydrated = await hydrateAlbumPhotos(supabase, data ? [data] : []);
+  return NextResponse.json({ albumPhoto: hydrated[0] || null }, { status: 201 });
 }

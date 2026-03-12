@@ -74,7 +74,7 @@ export function HighlightShowcaseCard({ cards }) {
   const mediaUrl = normalizeText(activeCard?.media_url);
   const mediaType = normalizeText(activeCard?.media_type).toLowerCase();
   const isVideo = Boolean(mediaUrl && mediaType === "video");
-  const audioEnabled = Boolean(isVideo && activeCard?.enable_audio);
+  const audioEnabled = isVideo;
 
   useEffect(() => {
     if (normalizedCards.length <= 1) {
@@ -152,6 +152,10 @@ export function HighlightShowcaseCard({ cards }) {
 
       <div className="seasonal-content theater-content">
         <div key={`message-${activeCard.id}-${index}`} className="theater-message">
+          <div
+            className="theater-message-inner"
+            style={{ "--theater-card-duration": `${clampInteger(activeCard?.display_seconds, 12, 5, 120)}s` }}
+          >
           {activeCard.title ? <h2>{activeCard.title}</h2> : null}
           {activeCard.body ? <p>{activeCard.body}</p> : null}
           {activeCard.cta_label && activeCard.cta_url ? (
@@ -161,6 +165,7 @@ export function HighlightShowcaseCard({ cards }) {
               </a>
             </div>
           ) : null}
+          </div>
         </div>
 
         {normalizedCards.length > 1 ? (
@@ -181,11 +186,11 @@ export function HighlightShowcaseCard({ cards }) {
             onClick={toggleMute}
           >
             {isMuted || volume <= 0 ? (
-              <IconVolumeOff size={16} stroke={1.9} aria-hidden="true" />
+              <IconVolumeOff size={14} stroke={1.9} aria-hidden="true" />
             ) : volumePercent < 55 ? (
-              <IconVolume size={16} stroke={1.9} aria-hidden="true" />
+              <IconVolume size={14} stroke={1.9} aria-hidden="true" />
             ) : (
-              <IconVolume2 size={16} stroke={1.9} aria-hidden="true" />
+              <IconVolume2 size={14} stroke={1.9} aria-hidden="true" />
             )}
           </button>
           <input
