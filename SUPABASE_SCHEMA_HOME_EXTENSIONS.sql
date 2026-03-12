@@ -157,6 +157,39 @@ create table if not exists public.service_song_lists (
   created_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.ministry_order_requests (
+  id uuid primary key default gen_random_uuid(),
+  role_id uuid not null references public.team_roles(id) on delete cascade,
+  requested_by_member_id uuid references public.team_members(id) on delete set null,
+  title text not null,
+  request_details text not null,
+  needed_by_date date,
+  estimated_cost numeric(12,2),
+  status text not null default 'new',
+  pastor_notes text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  constraint ministry_order_requests_status_chk check (
+    status in ('new', 'reviewing', 'ordered', 'fulfilled', 'declined')
+  )
+);
+
+create table if not exists public.bookkeeping_reports (
+  id uuid primary key default gen_random_uuid(),
+  report_date date not null default (timezone('utc', now()))::date,
+  entry_type text not null default 'offering',
+  title text not null,
+  amount numeric(12,2) not null,
+  notes text,
+  submitted_by_member_id uuid references public.team_members(id) on delete set null,
+  is_active boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  constraint bookkeeping_reports_entry_type_chk check (
+    entry_type in ('offering', 'tithe', 'expense', 'adjustment', 'other')
+  )
+);
+
 create table if not exists public.team_member_password_resets (
   id uuid primary key default gen_random_uuid(),
   member_id uuid not null references public.team_members(id) on delete cascade,
@@ -206,6 +239,15 @@ create index if not exists curriculum_library_lookup_idx
 create index if not exists service_song_lists_lookup_idx
   on public.service_song_lists (role_id, service_date desc, created_at desc);
 
+create index if not exists ministry_order_requests_lookup_idx
+  on public.ministry_order_requests (status, role_id, needed_by_date desc, created_at desc);
+
+create index if not exists ministry_order_requests_requester_idx
+  on public.ministry_order_requests (requested_by_member_id, created_at desc);
+
+create index if not exists bookkeeping_reports_lookup_idx
+  on public.bookkeeping_reports (report_date desc, entry_type, created_at desc);
+
 create index if not exists team_member_password_resets_lookup_idx
   on public.team_member_password_resets (member_id, requested_at desc);
 
@@ -224,6 +266,8 @@ alter table public.team_members enable row level security;
 alter table public.team_member_roles enable row level security;
 alter table public.curriculum_library enable row level security;
 alter table public.service_song_lists enable row level security;
+alter table public.ministry_order_requests enable row level security;
+alter table public.bookkeeping_reports enable row level security;
 alter table public.team_member_password_resets enable row level security;
 
 drop policy if exists ministries_public_read on public.ministries;
@@ -278,12 +322,28 @@ using (is_published = true);
 insert into public.team_roles (role_key, name, description, sort_order, is_system, is_active)
 values
   ('superuser', 'Superuser', 'Full platform access.', -100, true, true),
+  ('pastor', 'Pastor', 'Pastoral leadership and sermon coordination.', 0, true, true),
   ('media_team', 'Media Team', 'Media capture, editing, and publishing.', 10, true, true),
+  ('worship_leader', 'Worship Leader', 'Leads worship sets and team direction.', 15, true, true),
   ('worship_team', 'Worship Team', 'Music ministry planning and execution.', 20, true, true),
   ('foh_sound', 'FOH Sound', 'Front of house audio team.', 30, true, true),
-  ('childrens_church', 'Children''s Church Ministry', 'Children''s curriculum and classroom coordination.', 40, true, true),
-  ('youth_ministry', 'Youth Ministry', 'Youth curriculum and ministry operations.', 50, true, true)
+  ('kids_church', 'Kids Church', 'Kids church classroom and lesson support.', 40, true, true),
+  ('childrens_church', 'Children''s Church', 'Children''s curriculum and classroom coordination.', 45, true, true),
+  ('bookkeeper', 'Bookkeeper', 'Bookkeeping and offering reporting.', 47, true, true),
+  ('youth_minister', 'Youth Minister', 'Youth ministry leadership and planning.', 50, true, true),
+  ('youth_minister_assistant', 'Youth Minister Assistant', 'Supports youth ministry operations.', 55, true, true),
+  ('youth_ministry', 'Youth Ministry', 'Legacy role for youth ministry operations.', 60, true, true)
 on conflict (role_key) do nothing;
+
+update public.team_roles
+set name = 'Children''s Church'
+where role_key = 'childrens_church'
+  and name <> 'Children''s Church';
+
+update public.team_roles
+set name = 'Bookkeeper'
+where role_key = 'bookkeeper'
+  and name <> 'Bookkeeper';
 
 insert into public.team_members (username, full_name, is_superuser, is_active, notes)
 values ('xrkr80hdadmin', 'Primary Superuser', true, true, 'Bootstrap superuser account.')

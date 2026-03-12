@@ -9,6 +9,20 @@ import {
   requireAdminSupabase,
 } from "@/lib/admin-api";
 
+const ROLE_CANONICAL_NAMES = {
+  foh_sound: "FOH Sound",
+  worship_leader: "Worship Leader",
+  worship_team: "Worship Team",
+  pastor: "Pastor",
+  media_team: "Media Team",
+  youth_minister: "Youth Minister",
+  youth_minister_assistant: "Youth Minister Assistant",
+  kids_church: "Kids Church",
+  childrens_church: "Children's Church",
+  bookkeeper: "Bookkeeper",
+  superuser: "Superuser",
+};
+
 function normalizeRoleKey(value) {
   return String(value || "")
     .trim()
@@ -16,6 +30,12 @@ function normalizeRoleKey(value) {
     .replace(/[^a-z0-9_-]+/g, "_")
     .replace(/_{2,}/g, "_")
     .replace(/^_+|_+$/g, "");
+}
+
+function normalizeRoleName(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
 }
 
 async function getIdFromContext(context) {
@@ -87,7 +107,7 @@ export async function PATCH(request, context) {
   }
 
   if (payload?.name !== undefined) {
-    const name = String(payload.name || "").trim();
+    const name = normalizeRoleName(payload.name);
     if (!name) {
       return NextResponse.json({ error: "name cannot be empty" }, { status: 400 });
     }
@@ -112,6 +132,24 @@ export async function PATCH(request, context) {
 
   if (!Object.keys(update).length) {
     return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
+  }
+
+  if (payload?.name !== undefined || payload?.role_key !== undefined) {
+    const { data: currentRole, error: currentRoleError } = await supabase
+      .from("team_roles")
+      .select("role_key")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (currentRoleError) {
+      return NextResponse.json({ error: currentRoleError.message }, { status: 400 });
+    }
+
+    const effectiveRoleKey = normalizeRoleKey(update.role_key || currentRole?.role_key);
+    const canonicalName = ROLE_CANONICAL_NAMES[effectiveRoleKey || ""];
+    if (canonicalName) {
+      update.name = canonicalName;
+    }
   }
 
   const { data, error: updateError } = await supabase

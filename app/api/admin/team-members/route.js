@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  normalizeId,
   normalizeOptionalText,
   parseBoolean,
   parsePaging,
@@ -20,6 +21,66 @@ function normalizeUsername(value) {
 function normalizeEmail(value) {
   const email = String(value || "").trim().toLowerCase();
   return email || null;
+}
+
+function normalizeRoleIds(value) {
+  const source = Array.isArray(value)
+    ? value
+    : String(value || "")
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+  return Array.from(new Set(source.map((entry) => normalizeId(entry)).filter(Boolean)));
+}
+
+async function hydrateTeamMembers(supabase, members) {
+  if (!Array.isArray(members) || !members.length) {
+    return [];
+  }
+
+  const memberIds = members.map((member) => normalizeId(member.id)).filter(Boolean);
+  const { data: assignments } = await supabase
+    .from("team_member_roles")
+    .select("member_id, role_id, is_role_admin")
+    .in("member_id", memberIds);
+
+  const roleIds = Array.from(
+    new Set((assignments || []).map((item) => normalizeId(item.role_id)).filter(Boolean)),
+  );
+
+  let roleMap = new Map();
+  if (roleIds.length) {
+    const { data: roles } = await supabase
+      .from("team_roles")
+      .select("id, role_key, name")
+      .in("id", roleIds);
+    roleMap = new Map((roles || []).map((role) => [role.id, role]));
+  }
+
+  const assignmentsByMember = new Map();
+  for (const assignment of assignments || []) {
+    const existing = assignmentsByMember.get(assignment.member_id) || [];
+    const role = roleMap.get(assignment.role_id) || null;
+    if (role) {
+      existing.push({
+        id: role.id,
+        role_key: role.role_key,
+        name: role.name,
+        is_role_admin: Boolean(assignment.is_role_admin),
+      });
+    }
+    assignmentsByMember.set(assignment.member_id, existing);
+  }
+
+  return members.map((member) => {
+    const roleAssignments = assignmentsByMember.get(member.id) || [];
+    return {
+      ...member,
+      role_ids: roleAssignments.map((item) => item.id),
+      roles: roleAssignments,
+      role_labels: roleAssignments.map((item) => item.name),
+    };
+  });
 }
 
 export async function GET(request) {
@@ -53,7 +114,8 @@ export async function GET(request) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  return NextResponse.json({ teamMembers: data || [] });
+  const hydrated = await hydrateTeamMembers(supabase, data || []);
+  return NextResponse.json({ teamMembers: hydrated });
 }
 
 export async function POST(request) {
@@ -79,6 +141,7 @@ export async function POST(request) {
   const notes = normalizeOptionalText(payload?.notes);
   const isSuperuser = parseBoolean(payload?.is_superuser, false);
   const isActive = parseBoolean(payload?.is_active, true);
+  const roleIds = normalizeRoleIds(payload?.role_ids);
   const passwordRaw = String(payload?.password || "");
   let passwordHash = null;
 
@@ -111,5 +174,20 @@ export async function POST(request) {
     return NextResponse.json({ error: insertError.message }, { status: 400 });
   }
 
-  return NextResponse.json({ teamMember: data }, { status: 201 });
+  if (roleIds.length) {
+    const { error: assignmentError } = await supabase.from("team_member_roles").insert(
+      roleIds.map((roleId) => ({
+        member_id: data.id,
+        role_id: roleId,
+        is_role_admin: false,
+      })),
+    );
+
+    if (assignmentError) {
+      return NextResponse.json({ error: assignmentError.message }, { status: 400 });
+    }
+  }
+
+  const hydrated = await hydrateTeamMembers(supabase, [data]);
+  return NextResponse.json({ teamMember: hydrated[0] || data }, { status: 201 });
 }

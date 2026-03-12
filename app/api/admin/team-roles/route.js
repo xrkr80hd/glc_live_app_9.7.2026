@@ -9,6 +9,20 @@ import {
   requireAdminSupabase,
 } from "@/lib/admin-api";
 
+const ROLE_CANONICAL_NAMES = {
+  foh_sound: "FOH Sound",
+  worship_leader: "Worship Leader",
+  worship_team: "Worship Team",
+  pastor: "Pastor",
+  media_team: "Media Team",
+  youth_minister: "Youth Minister",
+  youth_minister_assistant: "Youth Minister Assistant",
+  kids_church: "Kids Church",
+  childrens_church: "Children's Church",
+  bookkeeper: "Bookkeeper",
+  superuser: "Superuser",
+};
+
 function normalizeRoleKey(value) {
   return String(value || "")
     .trim()
@@ -16,6 +30,12 @@ function normalizeRoleKey(value) {
     .replace(/[^a-z0-9_-]+/g, "_")
     .replace(/_{2,}/g, "_")
     .replace(/^_+|_+$/g, "");
+}
+
+function normalizeRoleName(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
 }
 
 export async function GET(request) {
@@ -69,7 +89,7 @@ export async function POST(request) {
   }
 
   const roleKey = normalizeRoleKey(payload?.role_key || payload?.name);
-  const name = String(payload?.name || "").trim();
+  const name = normalizeRoleName(payload?.name);
   const description = normalizeOptionalText(payload?.description);
   const sortOrder = parseInteger(payload?.sort_order, 0);
   const isSystem = parseBoolean(payload?.is_system, false);
@@ -82,11 +102,13 @@ export async function POST(request) {
     return NextResponse.json({ error: "name is required" }, { status: 400 });
   }
 
+  const canonicalName = ROLE_CANONICAL_NAMES[roleKey] || name;
+
   const { data, error: insertError } = await supabase
     .from("team_roles")
     .insert({
       role_key: roleKey,
-      name,
+      name: canonicalName,
       description,
       sort_order: sortOrder,
       is_system: isSystem,

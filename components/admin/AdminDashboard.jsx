@@ -20,7 +20,9 @@ import {
   IconPhoto,
   IconPlayerPlay,
   IconPlus,
+  IconReceiptDollar,
   IconRefresh,
+  IconShoppingCart,
   IconSpeakerphone,
   IconTrash,
   IconUsersGroup,
@@ -93,6 +95,14 @@ function toDateTimeInput(value) {
 function formatValue(value) {
   if (value === null || value === undefined || value === "") {
     return "—";
+  }
+  if (Array.isArray(value)) {
+    if (!value.length) {
+      return "—";
+    }
+    return value
+      .map((entry) => (typeof entry === "string" ? entry : JSON.stringify(entry)))
+      .join(", ");
   }
   if (typeof value === "boolean") {
     return value ? "Yes" : "No";
@@ -175,14 +185,12 @@ const CONTENT_RESOURCES = [
       { name: "name", label: "Role Name", type: "text", required: true, placeholder: "Media Team" },
       { name: "description", label: "Description", type: "textarea", placeholder: "Optional description...", rows: 4, fullWidth: true },
       { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
-      { name: "is_system", label: "System Role", type: "checkbox", defaultValue: false },
       { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
     ],
     preview: [
       { label: "Role Key", name: "role_key" },
       { label: "Role Name", name: "name" },
       { label: "Sort", name: "sort_order" },
-      { label: "System", name: "is_system" },
       { label: "Active", name: "is_active" },
     ],
   },
@@ -205,11 +213,19 @@ const CONTENT_RESOURCES = [
       { name: "notes", label: "Notes", type: "textarea", placeholder: "Optional notes...", rows: 4, fullWidth: true },
       { name: "is_superuser", label: "Superuser", type: "checkbox", defaultValue: false },
       { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
+      {
+        name: "role_ids",
+        label: "Assign Roles",
+        type: "relation_multi",
+        relationResourceKey: "team-roles",
+        relationLabelKeys: ["name", "role_key"],
+      },
     ],
     preview: [
       { label: "Username", name: "username" },
       { label: "Name", name: "full_name" },
       { label: "Email", name: "email" },
+      { label: "Roles", name: "role_labels" },
       { label: "Superuser", name: "is_superuser" },
       { label: "Last Login", name: "last_login_at", format: formatDateTime },
       { label: "Active", name: "is_active" },
@@ -292,6 +308,111 @@ const CONTENT_RESOURCES = [
       { label: "Team", name: "role_label" },
       { label: "Title", name: "title" },
       { label: "Songs", name: "songs_count" },
+      { label: "Active", name: "is_active" },
+    ],
+  },
+  {
+    key: "ministry-order-requests",
+    label: "Ministry Order Requests",
+    singularLabel: "Order Request",
+    description:
+      "Each ministry can submit what they need. Pastor can review, approve, and track ordering status.",
+    icon: IconShoppingCart,
+    listEndpoint: "/api/admin/ministry-order-requests?include_closed=true&limit=300",
+    createEndpoint: "/api/admin/ministry-order-requests",
+    itemEndpoint: (id) => `/api/admin/ministry-order-requests/${id}`,
+    listKey: "ministryOrderRequests",
+    fields: [
+      {
+        name: "role_id",
+        label: "Ministry Role",
+        type: "relation",
+        relationResourceKey: "team-roles",
+        relationLabelKeys: ["name", "role_key"],
+        required: true,
+        placeholderOptionLabel: "Select ministry role",
+      },
+      { name: "title", label: "Request Title", type: "text", required: true, placeholder: "Quarterly communion supplies" },
+      {
+        name: "request_details",
+        label: "Request Details",
+        type: "textarea",
+        required: true,
+        rows: 5,
+        placeholder: "List exactly what is needed, quantity, and any product notes.",
+        fullWidth: true,
+      },
+      { name: "needed_by_date", label: "Needed By", type: "date" },
+      { name: "estimated_cost", label: "Estimated Cost ($)", type: "decimal", step: "0.01", min: 0 },
+      {
+        name: "status",
+        label: "Status",
+        type: "select",
+        defaultValue: "new",
+        options: [
+          { value: "new", label: "New" },
+          { value: "reviewing", label: "Reviewing" },
+          { value: "ordered", label: "Ordered" },
+          { value: "fulfilled", label: "Fulfilled" },
+          { value: "declined", label: "Declined" },
+        ],
+      },
+      {
+        name: "pastor_notes",
+        label: "Pastor Notes",
+        type: "textarea",
+        rows: 3,
+        placeholder: "Pastor decision notes (optional)",
+        fullWidth: true,
+      },
+    ],
+    preview: [
+      { label: "Role", name: "role_label" },
+      { label: "Requested By", name: "requester_label" },
+      { label: "Needed By", name: "needed_by_date", format: formatDate },
+      { label: "Estimated Cost", name: "estimated_cost" },
+      { label: "Status", name: "status" },
+    ],
+  },
+  {
+    key: "bookkeeping-reports",
+    label: "Bookkeeping Reports",
+    singularLabel: "Bookkeeping Report",
+    description:
+      "Restricted section for offering and finance reporting. Visible to Pastor and Bookkeeper only.",
+    requiredRoleKeys: ["pastor", "bookkeeper"],
+    icon: IconReceiptDollar,
+    listEndpoint: "/api/admin/bookkeeping-reports?include_inactive=true&limit=300",
+    createEndpoint: "/api/admin/bookkeeping-reports",
+    itemEndpoint: (id) => `/api/admin/bookkeeping-reports/${id}`,
+    listKey: "bookkeepingReports",
+    fields: [
+      { name: "report_date", label: "Report Date", type: "date", required: true, defaultValue: () => getNowDateInput() },
+      {
+        name: "entry_type",
+        label: "Entry Type",
+        type: "select",
+        required: true,
+        defaultValue: "offering",
+        options: [
+          { value: "offering", label: "Offering" },
+          { value: "tithe", label: "Tithe" },
+          { value: "expense", label: "Expense" },
+          { value: "adjustment", label: "Adjustment" },
+          { value: "other", label: "Other" },
+        ],
+      },
+      { name: "title", label: "Title", type: "text", required: true, placeholder: "Sunday AM Offering" },
+      { name: "amount", label: "Amount ($)", type: "decimal", required: true, step: "0.01", min: 0 },
+      { name: "notes", label: "Notes", type: "textarea", rows: 4, placeholder: "Optional notes...", fullWidth: true },
+      { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
+    ],
+    preview: [
+      { label: "Date", name: "report_date", format: formatDate },
+      { label: "Type", name: "entry_type" },
+      { label: "Title", name: "title" },
+      { label: "Amount", name: "amount" },
+      { label: "Submitted By", name: "submitted_by_label" },
       { label: "Active", name: "is_active" },
     ],
   },
@@ -645,6 +766,109 @@ const CONTENT_RESOURCES = [
   },
 ];
 
+const LIBERTY_ROLE_PRESETS = [
+  {
+    role_key: "foh_sound",
+    name: "FOH Sound",
+    description: "Front of house sound operations.",
+    sort_order: 10,
+  },
+  {
+    role_key: "worship_leader",
+    name: "Worship Leader",
+    description: "Leads worship sets and team flow.",
+    sort_order: 20,
+  },
+  {
+    role_key: "worship_team",
+    name: "Worship Team",
+    description: "Worship team members and support.",
+    sort_order: 30,
+  },
+  {
+    role_key: "pastor",
+    name: "Pastor",
+    description: "Pastoral leadership and sermon coordination.",
+    sort_order: 40,
+  },
+  {
+    role_key: "media_team",
+    name: "Media Team",
+    description: "Slides, livestream, and media operations.",
+    sort_order: 50,
+  },
+  {
+    role_key: "youth_minister",
+    name: "Youth Minister",
+    description: "Youth ministry leadership.",
+    sort_order: 60,
+  },
+  {
+    role_key: "youth_minister_assistant",
+    name: "Youth Minister Assistant",
+    description: "Supports youth minister activities.",
+    sort_order: 70,
+  },
+  {
+    role_key: "kids_church",
+    name: "Kids Church",
+    description: "Kids ministry and classes.",
+    sort_order: 80,
+  },
+  {
+    role_key: "childrens_church",
+    name: "Children's Church",
+    description: "Children's church ministry support.",
+    sort_order: 90,
+  },
+  {
+    role_key: "bookkeeper",
+    name: "Bookkeeper",
+    description: "Bookkeeping and offering reporting.",
+    sort_order: 100,
+  },
+];
+
+function normalizeRoleLookup(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function getRoleIconUrl(roleKey, roleName) {
+  const key = normalizeRoleLookup(roleKey);
+  const name = normalizeRoleLookup(roleName);
+  const role = key || name;
+
+  if (role.includes("foh")) {
+    return "/assets/roles_icons/FOH_sound.png";
+  }
+  if (role.includes("media")) {
+    return "/assets/roles_icons/media_team.png";
+  }
+  if (role.includes("worship_leader") || role.includes("music_minister")) {
+    return "/assets/roles_icons/music_minister.png";
+  }
+  if (role.includes("worship_team")) {
+    return "/assets/roles_icons/worship_team.png";
+  }
+  if (role.includes("pastor")) {
+    return "/assets/roles_icons/pastor.png";
+  }
+  if (role.includes("youth")) {
+    return "/assets/roles_icons/youth_minister.png";
+  }
+  if (role.includes("bookkeeper") || role.includes("book_keeper")) {
+    return "/assets/roles_icons/admin.png";
+  }
+  if (role.includes("kids") || role.includes("child")) {
+    return "/assets/roles_icons/admin.png";
+  }
+  return "/assets/roles_icons/admin.png";
+}
+
 const MONITOR_RESOURCES = [
   {
     key: "prayer-requests",
@@ -673,6 +897,10 @@ function getInitialDraft(fields) {
       draft[field.name] = field.defaultValue;
     } else if (field.type === "checkbox") {
       draft[field.name] = false;
+    } else if (field.type === "relation_multi") {
+      draft[field.name] = [];
+    } else if (field.type === "decimal") {
+      draft[field.name] = 0;
     } else if (field.type === "number") {
       draft[field.name] = 0;
     } else {
@@ -686,12 +914,29 @@ function itemToDraft(fields, item) {
   const draft = {};
   for (const field of fields) {
     const value = item?.[field.name];
+    if (field.type === "relation_multi") {
+      if (Array.isArray(value)) {
+        draft[field.name] = value.map((entry) => String(entry)).filter(Boolean);
+      } else {
+        draft[field.name] = [];
+      }
+      continue;
+    }
     if (field.type === "checkbox") {
       draft[field.name] = Boolean(value);
       continue;
     }
     if (field.type === "number") {
       draft[field.name] = value ?? 0;
+      continue;
+    }
+    if (field.type === "decimal") {
+      if (value === null || value === undefined || value === "") {
+        draft[field.name] = 0;
+      } else {
+        const parsed = Number.parseFloat(String(value));
+        draft[field.name] = Number.isFinite(parsed) ? parsed : 0;
+      }
       continue;
     }
     if (field.type === "date") {
@@ -711,12 +956,23 @@ function draftToPayload(fields, draft) {
   const payload = {};
   for (const field of fields) {
     const value = draft[field.name];
+    if (field.type === "relation_multi") {
+      payload[field.name] = Array.isArray(value)
+        ? value.map((entry) => String(entry)).filter(Boolean)
+        : [];
+      continue;
+    }
     if (field.type === "checkbox") {
       payload[field.name] = Boolean(value);
       continue;
     }
     if (field.type === "number") {
       const parsed = Number.parseInt(String(value ?? "0"), 10);
+      payload[field.name] = Number.isFinite(parsed) ? parsed : 0;
+      continue;
+    }
+    if (field.type === "decimal") {
+      const parsed = Number.parseFloat(String(value ?? "0"));
       payload[field.name] = Number.isFinite(parsed) ? parsed : 0;
       continue;
     }
@@ -848,6 +1104,54 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
     );
   }
 
+  if (field.type === "relation_multi") {
+    const selectedValues = Array.isArray(value)
+      ? value.map((entry) => String(entry))
+      : [];
+    const selectedSet = new Set(selectedValues);
+
+    function toggleValue(optionValue) {
+      const normalized = String(optionValue);
+      const nextSet = new Set(selectedSet);
+      if (nextSet.has(normalized)) {
+        nextSet.delete(normalized);
+      } else {
+        nextSet.add(normalized);
+      }
+      onChange(field.name, Array.from(nextSet));
+    }
+
+    return (
+      <div className={`${fieldClassName} ${styles.fieldWide}`}>
+        <span>{field.label}</span>
+        <div className={styles.rolePickerGrid}>
+          {relationOptions.map((option) => {
+            const isChecked = selectedSet.has(String(option.value));
+            return (
+              <button
+                key={option.value}
+                type="button"
+                className={isChecked ? `${styles.rolePickerOption} ${styles.rolePickerOptionActive}` : styles.rolePickerOption}
+                onClick={() => toggleValue(option.value)}
+              >
+                <input type="checkbox" checked={isChecked} readOnly />
+                {option.icon_url ? (
+                  <img
+                    src={option.icon_url}
+                    alt=""
+                    className={styles.rolePickerIcon}
+                    loading="lazy"
+                  />
+                ) : null}
+                <span>{option.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   if (field.type === "checkbox") {
     return (
       <label className={styles.checkboxField} htmlFor={inputId}>
@@ -864,6 +1168,7 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
 
   const typeMap = {
     date: "date",
+    decimal: "number",
     datetime: "datetime-local",
     number: "number",
     password: "password",
@@ -996,16 +1301,30 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
         value={value}
         required={Boolean(field.required)}
         placeholder={field.placeholder || ""}
-        step={field.type === "number" ? "1" : undefined}
-        min={field.type === "number" && field.min !== undefined ? field.min : undefined}
-        max={field.type === "number" && field.max !== undefined ? field.max : undefined}
+        step={
+          field.type === "number"
+            ? "1"
+            : field.type === "decimal"
+              ? field.step || "0.01"
+              : undefined
+        }
+        min={
+          (field.type === "number" || field.type === "decimal") && field.min !== undefined
+            ? field.min
+            : undefined
+        }
+        max={
+          (field.type === "number" || field.type === "decimal") && field.max !== undefined
+            ? field.max
+            : undefined
+        }
         onChange={(event) => onChange(field.name, event.target.value)}
       />
     </label>
   );
 }
 
-export function AdminDashboard({ username }) {
+export function AdminDashboard({ username, sessionInfo }) {
   const router = useRouter();
   const [activeResourceKey, setActiveResourceKey] = useState(CONTENT_RESOURCES[0].key);
   const [contentState, setContentState] = useState(
@@ -1045,17 +1364,66 @@ export function AdminDashboard({ username }) {
   const [busyAction, setBusyAction] = useState("");
   const [notice, setNotice] = useState("");
   const [noticeError, setNoticeError] = useState(false);
+  const normalizedSessionRoleKeys = useMemo(
+    () =>
+      (Array.isArray(sessionInfo?.roleKeys) ? sessionInfo.roleKeys : [])
+        .map((key) => String(key || "").trim().toLowerCase())
+        .filter(Boolean),
+    [sessionInfo?.roleKeys],
+  );
+  const isSessionSuperuser = Boolean(sessionInfo?.isSuperuser);
+
+  const visibleContentResources = useMemo(
+    () =>
+      CONTENT_RESOURCES.filter((resource) => {
+        if (!Array.isArray(resource.requiredRoleKeys) || !resource.requiredRoleKeys.length) {
+          return true;
+        }
+        if (isSessionSuperuser) {
+          return true;
+        }
+        const required = resource.requiredRoleKeys
+          .map((key) => String(key || "").trim().toLowerCase())
+          .filter(Boolean);
+        return required.some((requiredKey) =>
+          normalizedSessionRoleKeys.includes(requiredKey),
+        );
+      }),
+    [isSessionSuperuser, normalizedSessionRoleKeys],
+  );
 
   const activeResource = useMemo(
-    () => CONTENT_RESOURCES.find((resource) => resource.key === activeResourceKey) || CONTENT_RESOURCES[0],
-    [activeResourceKey],
+    () =>
+      visibleContentResources.find((resource) => resource.key === activeResourceKey) ||
+      visibleContentResources[0] ||
+      CONTENT_RESOURCES[0],
+    [activeResourceKey, visibleContentResources],
   );
   const activeRelationResourceKeys = useMemo(() => {
+    if (!activeResource) {
+      return [];
+    }
     const keys = activeResource.fields
-      .filter((field) => field.type === "relation" && field.relationResourceKey)
+      .filter(
+        (field) =>
+          (field.type === "relation" || field.type === "relation_multi") &&
+          field.relationResourceKey,
+      )
       .map((field) => field.relationResourceKey);
     return Array.from(new Set(keys));
   }, [activeResource]);
+
+  useEffect(() => {
+    if (!visibleContentResources.length) {
+      return;
+    }
+    const hasActive = visibleContentResources.some(
+      (resource) => resource.key === activeResourceKey,
+    );
+    if (!hasActive) {
+      setActiveResourceKey(visibleContentResources[0].key);
+    }
+  }, [activeResourceKey, visibleContentResources]);
 
   const loadContentResource = useCallback(async (resource) => {
     setContentState((prev) => ({
@@ -1207,7 +1575,9 @@ export function AdminDashboard({ username }) {
 
   function getRelationOptionsForField(field) {
     if (field.type !== "relation" || !field.relationResourceKey) {
-      return [];
+      if (field.type !== "relation_multi" || !field.relationResourceKey) {
+        return [];
+      }
     }
     const sourceItems = contentState[field.relationResourceKey]?.items || [];
     return sourceItems
@@ -1219,6 +1589,10 @@ export function AdminDashboard({ username }) {
         return {
           value: id,
           label: buildRelationLabel(item, field),
+          icon_url:
+            field.relationResourceKey === "team-roles"
+              ? getRoleIconUrl(item?.role_key, item?.name)
+              : "",
         };
       })
       .filter(Boolean);
@@ -1305,6 +1679,106 @@ export function AdminDashboard({ username }) {
       setFormNotice(`${getSingularLabel(resource)} created successfully.`);
     } catch (error) {
       setFormNotice(error.message || `Unable to create ${resource.label}.`, true);
+    } finally {
+      setBusyAction("");
+    }
+  }
+
+  async function applyLibertyRolePresets() {
+    const teamRolesResource = CONTENT_RESOURCES.find((resource) => resource.key === "team-roles");
+    if (!teamRolesResource || busyAction) {
+      return;
+    }
+
+    const actionKey = "seed:liberty-role-presets";
+    setBusyAction(actionKey);
+    setFormNotice("");
+
+    try {
+      const existingRoles = contentState["team-roles"]?.items || [];
+      const existingByKey = new Map(
+        existingRoles
+          .map((role) => [normalizeRoleLookup(role?.role_key), role])
+          .filter(([key]) => Boolean(key)),
+      );
+      const existingByName = new Set(
+        existingRoles
+          .map((role) => normalizeRoleLookup(role?.name))
+          .filter(Boolean),
+      );
+
+      let createdCount = 0;
+      let updatedCount = 0;
+      let skippedCount = 0;
+
+      for (const preset of LIBERTY_ROLE_PRESETS) {
+        const key = normalizeRoleLookup(preset.role_key);
+        const name = normalizeRoleLookup(preset.name);
+        const existingRole = existingByKey.get(key) || null;
+
+        if (existingRole?.id) {
+          const needsUpdate =
+            String(existingRole.name || "") !== String(preset.name || "") ||
+            String(existingRole.description || "") !== String(preset.description || "") ||
+            Number.parseInt(String(existingRole.sort_order ?? 0), 10) !==
+              Number.parseInt(String(preset.sort_order ?? 0), 10) ||
+            !Boolean(existingRole.is_active);
+
+          if (needsUpdate) {
+            const response = await fetch(teamRolesResource.itemEndpoint(existingRole.id), {
+              method: "PATCH",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                role_key: preset.role_key,
+                name: preset.name,
+                description: preset.description,
+                sort_order: preset.sort_order,
+                is_active: true,
+              }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+              throw new Error(getErrorMessage(payload, "Unable to sync Liberty role presets."));
+            }
+            updatedCount += 1;
+          } else {
+            skippedCount += 1;
+          }
+          continue;
+        }
+
+        if (existingByName.has(name)) {
+          skippedCount += 1;
+          continue;
+        }
+
+        const response = await fetch(teamRolesResource.createEndpoint, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            role_key: preset.role_key,
+            name: preset.name,
+            description: preset.description,
+            sort_order: preset.sort_order,
+            is_active: true,
+          }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(getErrorMessage(payload, "Unable to add Liberty role presets."));
+        }
+
+        createdCount += 1;
+        existingByKey.set(key, { id: "new", role_key: preset.role_key, name: preset.name });
+        existingByName.add(name);
+      }
+
+      await loadContentResource(teamRolesResource);
+      setFormNotice(
+        `Liberty roles synced. Created ${createdCount}, updated ${updatedCount}, skipped ${skippedCount}.`,
+      );
+    } catch (error) {
+      setFormNotice(error.message || "Unable to add Liberty role presets.", true);
     } finally {
       setBusyAction("");
     }
@@ -1495,7 +1969,7 @@ export function AdminDashboard({ username }) {
 
         <div className={styles.managerLayout}>
           <aside id="admin-resource-menu" className={`${styles.resourceNav} ${isNavOpen ? styles.resourceNavOpen : ""}`} aria-label="Content tables">
-            {CONTENT_RESOURCES.map((resource) => {
+            {visibleContentResources.map((resource) => {
               const Icon = resource.icon;
               const isActive = resource.key === activeResource.key;
               return (
@@ -1562,6 +2036,16 @@ export function AdminDashboard({ username }) {
                     <IconPlus size={17} stroke={1.9} aria-hidden="true" />
                     Add {getSingularLabel(activeResource)}
                   </button>
+                  {activeResource.key === "team-roles" ? (
+                    <button
+                      type="button"
+                      className={styles.secondaryBtn}
+                      onClick={applyLibertyRolePresets}
+                      disabled={Boolean(busyAction)}
+                    >
+                      Load Liberty Role Presets
+                    </button>
+                  ) : null}
                 </div>
               </form>
             ) : null}
@@ -1695,6 +2179,25 @@ export function AdminDashboard({ username }) {
                         </div>
                       ) : null
                     )}
+
+                    {activeResource.key === "team-members" &&
+                    !itemIsEditing &&
+                    Array.isArray(item.roles) &&
+                    item.roles.length ? (
+                      <div className={styles.memberRoleRow}>
+                        {item.roles.map((role) => (
+                          <span key={`${item.id}-role-${role.id || role.role_key || role.name}`} className={styles.memberRoleTag}>
+                            <img
+                              src={getRoleIconUrl(role.role_key, role.name)}
+                              alt=""
+                              className={styles.memberRoleIcon}
+                              loading="lazy"
+                            />
+                            <span>{role.name || role.role_key || "Role"}</span>
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </article>
                 );
               })}

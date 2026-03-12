@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminSessionFromRequest, isAdminAuthConfigured } from "@/lib/admin-auth";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getMemberRoles } from "@/lib/admin-role-access";
 
 export async function GET(request) {
   const session = getAdminSessionFromRequest(request);
@@ -14,6 +16,14 @@ export async function GET(request) {
     );
   }
 
+  let roles = [];
+  if (session.memberId) {
+    const supabase = createSupabaseAdminClient();
+    if (supabase) {
+      roles = await getMemberRoles(supabase, session.memberId);
+    }
+  }
+
   return NextResponse.json({
     authenticated: true,
     configured: true,
@@ -23,6 +33,10 @@ export async function GET(request) {
       memberId: session.memberId || null,
       isSuperuser: Boolean(session.isSuperuser),
       source: session.source || "env",
+      roles,
+      roleKeys: roles
+        .map((role) => String(role.role_key || "").trim().toLowerCase())
+        .filter(Boolean),
     },
   });
 }
