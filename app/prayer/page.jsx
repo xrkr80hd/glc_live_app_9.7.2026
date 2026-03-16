@@ -1,140 +1,100 @@
-import Script from "next/script";
-import { ChurchHeader } from "@/components/ChurchHeader";
-import { ChurchSiteFooter } from "@/components/ChurchSiteFooter";
-import { IconPray, IconSend } from "@tabler/icons-react";
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { AppShell } from "@/components/app-shell/AppShell";
+import { BackRow } from "@/components/app-shell/BackRow";
+import { ToastMessage } from "@/components/app-shell/ToastMessage";
+import { IconMessageCircleHeart, IconPray, IconSend } from "@tabler/icons-react";
+
+const destinations = [
+  "Pastor + Prayer Team (Private)",
+  "Prayer Wall (Church Can See After Approval)",
+];
 
 export default function PrayerPage() {
+  const [request, setRequest] = useState("");
+  const [destination, setDestination] = useState(destinations[0]);
+  const [postAnonymously, setPostAnonymously] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    setShowToast(true);
+  }
+
   return (
-    <>
-      <ChurchHeader active="prayer" />
-
-      <section className="section alt">
-        <div className="container flow">
-          <h2>
-            <span className="heading-inline">
-              <IconPray size={28} stroke={1.8} aria-hidden="true" />
-              <span>Prayer Requests</span>
-            </span>
-          </h2>
-          <p className="lede">
-            We believe in the power of prayer. Share your request and our team will lift it before the Lord. If you&apos;d like follow-up, include your email.
-          </p>
+    <AppShell navKey="prayer" title="Prayer" subtitle="Submit a prayer request and choose where it should go.">
+      {showToast ? (
+        <div className="lc-toast-wrap">
+          <ToastMessage
+            title="Prayer request submitted"
+            message="The success state is a toast on this route, not a separate page."
+            onClose={() => setShowToast(false)}
+          />
         </div>
-      </section>
+      ) : null}
 
-      <section className="section">
-        <div className="container">
-          <div className="card prayer-form-card">
-            <h3>
-              <span className="heading-inline small">
-                <IconPray size={22} stroke={1.8} aria-hidden="true" />
-                <span>Share Your Prayer Request</span>
-              </span>
-            </h3>
-            <p className="muted">
-              Every request goes straight to our pastoral care team. We only share publicly if you give us permission.
-            </p>
-            <form id="prayerForm" className="form" data-endpoint="/api/prayer-request/" noValidate>
-              <div className="row">
-                <div>
-                  <label htmlFor="prayerName">
-                    Name <span className="muted">(optional)</span>
-                  </label>
-                  <input id="prayerName" name="name" type="text" maxLength={120} placeholder="Your name" autoComplete="name" />
-                </div>
-                <div>
-                  <label htmlFor="prayerEmail">
-                    Email <span className="muted">(optional)</span>
-                  </label>
-                  <input id="prayerEmail" name="email" type="email" maxLength={160} placeholder="you@example.com" autoComplete="email" />
-                </div>
-              </div>
-              <label htmlFor="prayerRequest">
-                How can we pray with you?
-                <textarea
-                  id="prayerRequest"
-                  name="request"
-                  rows={5}
-                  required
-                  placeholder="Share whatever is on your heart — big or small."
-                />
-              </label>
-              <label className="prayer-checkbox">
-                <input type="checkbox" id="prayerShare" name="sharePermission" value="yes" />
-                <span>It&apos;s okay to share this request with the congregation (otherwise it stays with the pastoral team).</span>
-              </label>
-              <p className="note">We monitor prayer requests daily and someone will reach out if you include your contact details.</p>
-              <div>
-                <button className="btn" type="submit">
-                  <IconSend size={18} stroke={1.9} aria-hidden="true" />
-                  Send Request
-                </button>
-              </div>
-            </form>
-            <div id="prayerStatus" className="mt-12" role="status" aria-live="polite" />
+      <BackRow fallbackHref="/" />
+
+      <section className="lc-card">
+        <div className="lc-section-head">
+          <h2>Submit Prayer Request</h2>
+          <p className="lc-muted">Share a request privately or send it through for prayer wall review.</p>
+        </div>
+
+        <form className="lc-form-grid" onSubmit={handleSubmit}>
+          <div className="lc-form-field">
+            <label className="lc-field-label" htmlFor="prayer-request-text">Prayer Request</label>
+            <textarea
+              id="prayer-request-text"
+              className="lc-textarea"
+              value={request}
+              onChange={(event) => setRequest(event.target.value)}
+              placeholder="[PRAYER_REQUEST_TEXT]"
+            />
           </div>
-        </div>
+
+          <div className="lc-form-field">
+            <label className="lc-field-label" htmlFor="prayer-destination">Destination</label>
+            <select id="prayer-destination" className="lc-select" value={destination} onChange={(event) => setDestination(event.target.value)}>
+              {destinations.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <label className="lc-checkbox-row" htmlFor="post-anonymously">
+            <input
+              id="post-anonymously"
+              type="checkbox"
+              checked={postAnonymously}
+              onChange={(event) => setPostAnonymously(event.target.checked)}
+            />
+            <span>Post Anonymously</span>
+          </label>
+
+          <div className="lc-button-row">
+            <button type="submit" className="lc-action-btn primary">
+              <IconSend size={18} stroke={1.8} />
+              <span>Submit Prayer Request</span>
+            </button>
+            <Link href="/prayer/wall" className="lc-action-link ghost">
+              <IconMessageCircleHeart size={18} stroke={1.8} />
+              <span>View Prayer Wall</span>
+            </Link>
+          </div>
+        </form>
       </section>
 
-      <ChurchSiteFooter />
-
-      <Script id="prayer-submit" strategy="afterInteractive">{`
-        (function () {
-          const form = document.getElementById('prayerForm');
-          if (!form) return;
-          const statusEl = document.getElementById('prayerStatus');
-          const requestField = form.querySelector('[name="request"]');
-          const submitBtn = form.querySelector('button[type="submit"]');
-
-          const setStatus = (message, state) => {
-            if (!statusEl) return;
-            statusEl.textContent = message || '';
-            statusEl.classList.remove('pending', 'success', 'error');
-            if (state) statusEl.classList.add(state);
-          };
-
-          form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const formData = new FormData(form);
-            const payload = {
-              name: (formData.get('name') || '').toString().trim(),
-              email: (formData.get('email') || '').toString().trim(),
-              request: (formData.get('request') || '').toString().trim(),
-              sharePermission: !!formData.get('sharePermission')
-            };
-
-            if (!payload.request) {
-              setStatus('Please let us know how we can pray with you.', 'error');
-              if (requestField) requestField.focus();
-              return;
-            }
-
-            setStatus('Sending your request…', 'pending');
-            if (submitBtn) submitBtn.disabled = true;
-
-            try {
-              const response = await fetch('/api/prayer-request', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-              });
-
-              const result = await response.json().catch(() => ({}));
-              if (!response.ok || !result.success) {
-                throw new Error(result.message || 'Unable to send your request right now.');
-              }
-
-              setStatus('Thank you for sharing. Our prayer team is on it.', 'success');
-              form.reset();
-            } catch (error) {
-              console.error('Prayer request submission failed:', error);
-              setStatus(error.message || 'We could not send your request. Please try again soon.', 'error');
-            } finally {
-              if (submitBtn) submitBtn.disabled = false;
-            }
-          });
-        })();
-      `}</Script>
-    </>
+      <section className="lc-card alt">
+        <div className="lc-announcement-meta">
+          <IconPray size={16} stroke={1.8} />
+          <span>Prayer Wall submissions remain moderated before public display.</span>
+        </div>
+      </section>
+    </AppShell>
   );
 }

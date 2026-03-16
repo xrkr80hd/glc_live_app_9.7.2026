@@ -1,29 +1,32 @@
 import Script from "next/script";
+import { Manrope, Sora } from "next/font/google";
 import "./globals.css";
 
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const sora = Sora({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
+
 export const metadata = {
-  title: "Liberty Church | Alexandria, LA",
-  description:
-    "A thriving Spirit-filled church in Alexandria, LA. Join us Sundays for worship and the Word.",
+  title: "Liberty Church",
+  description: "Unified Liberty Church website and member app frontend.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap"
-          rel="stylesheet"
-        />
         <link rel="stylesheet" href="/assets/style.css" />
-        <link rel="stylesheet" href="/assets/live-indicator.css" />
         <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
       </head>
-      <body>
+      <body className={`${manrope.variable} ${sora.variable}`}>
         {children}
         <Script src="/assets/site.js" strategy="beforeInteractive" />
       </body>
