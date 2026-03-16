@@ -517,12 +517,12 @@ a {
     linear-gradient(180deg, #fbfcfb 0%, #f3f6f4 100%);
   --app-frame-bg: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
   --app-card-bg: #ffffff;
-  --app-card-alt-bg: #f9fcfa;
+  --app-card-alt-bg: #ffffff;
   --app-nav-bg: rgba(255, 255, 255, 0.94);
   --app-text: #13211b;
   --app-muted: #4e6258;
   --app-line: #d4e2da;
-  --app-line-strong: #b4ccbF;
+  --app-line-strong: #b4ccbf;
   --app-accent: #0f6a4f;
   --app-accent-strong: #0a4735;
   --app-accent-soft: #eef7f2;
@@ -631,7 +631,7 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--app-accent-strong);
+  color: var(--app-text);
 }
 
 .lc-brand-mark {
@@ -670,12 +670,12 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
 .lc-app-header-actions {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.45rem;
 }
 
 .lc-theme-toggle {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 0;
   border: 0;
   display: inline-flex;
@@ -806,7 +806,7 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
 .lc-stat-card,
 .lc-settings-row,
 .lc-media-placeholder {
-  background: var(--app-card-alt-bg);
+  background: var(--app-card-bg);
 }
 
 .lc-card.alt,
@@ -818,6 +818,12 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
   box-shadow:
     0 12px 28px rgba(13, 54, 39, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.lc-card.alt,
+.lc-stat-card,
+.lc-settings-row {
+  border-color: rgba(15, 106, 79, 0.12);
 }
 
 .lc-card.flat {
@@ -1014,8 +1020,9 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
 
 .lc-action-btn.secondary,
 .lc-action-link.secondary {
-  background: var(--app-accent-soft);
+  background: #ffffff;
   color: var(--app-accent-strong);
+  border-color: rgba(15, 106, 79, 0.2);
 }
 
 .lc-action-btn.ghost,
@@ -1178,19 +1185,19 @@ button.lc-announcement-card {
   background:
     radial-gradient(circle at top right, rgba(123, 115, 255, 0.2) 0%, transparent 36%),
     radial-gradient(circle at bottom left, rgba(76, 202, 255, 0.18) 0%, transparent 32%),
-    linear-gradient(145deg, rgba(10, 18, 31, 0.98) 0%, rgba(14, 23, 39, 0.98) 100%);
+    linear-gradient(145deg, rgba(248, 249, 255, 1) 0%, rgba(242, 247, 255, 1) 100%);
   border-color: rgba(115, 143, 255, 0.34);
-  color: #f5f7ff;
+  color: #1f2540;
 }
 
 .lc-settings-row.is-youth .lc-settings-row-copy span,
 .lc-settings-row.is-youth .lc-settings-row-arrow {
-  color: #d5dcff;
+  color: #58648b;
 }
 
 .lc-settings-row.is-youth .lc-settings-row-icon {
   background: rgba(123, 115, 255, 0.2);
-  color: #b9c4ff;
+  color: #5f63d8;
 }
 
 .lc-settings-row-copy {
@@ -1285,6 +1292,7 @@ button.lc-announcement-card {
   background: #ffffff;
   color: var(--app-text);
   font: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
 .theme-youth .lc-input,
@@ -1876,6 +1884,7 @@ button.lc-announcement-card {
     radial-gradient(circle at bottom left, rgba(76, 202, 255, 0.08) 0%, transparent 30%),
     linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
   border-color: rgba(124, 115, 255, 0.2);
+  box-shadow: 0 14px 28px rgba(74, 96, 177, 0.08);
 }
 
 html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-youth-gateway-card {
@@ -1884,6 +1893,10 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-youth-gateway-card {
     radial-gradient(circle at bottom left, rgba(76, 202, 255, 0.14) 0%, transparent 30%),
     linear-gradient(180deg, #15181d 0%, #101317 100%);
   border-color: rgba(124, 115, 255, 0.3);
+}
+
+.lc-youth-gateway-card .lc-muted {
+  color: #58648b;
 }
 
 .lc-hidden-note {

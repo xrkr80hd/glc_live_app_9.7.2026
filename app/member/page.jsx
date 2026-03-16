@@ -8,7 +8,6 @@ import {
   IconClockHour3,
   IconBible,
   IconMapPin,
-  IconSparkles,
   IconSpeakerphone,
 } from "@tabler/icons-react";
 
@@ -23,10 +22,6 @@ export default async function HomePage() {
   return (
     <AppShell navKey="home" title={null} subtitle={null}>
       <section className="lc-hero-card">
-        <span className="lc-home-kicker">
-          <IconSparkles size={15} stroke={1.9} />
-          Welcome
-        </span>
         <div className="lc-stack">
           <h1 className="lc-home-title">{`Welcome back, ${firstName}`}</h1>
           <p className="lc-muted">Worship, prayer, sermons, and church updates in one simple place.</p>
@@ -120,10 +115,6 @@ export default async function HomePage() {
       </section>
 
       <Link href="/member/youth" className="lc-card lc-youth-gateway-card">
-        <span className="lc-home-kicker">
-          <IconSparkles size={15} stroke={1.9} />
-          Youth
-        </span>
         <div className="lc-section-head">
           <h2>Youth! Go Here!</h2>
           <p className="lc-muted">Open the youth area for student devotion, updates, and upcoming events.</p>
