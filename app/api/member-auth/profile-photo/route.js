@@ -111,6 +111,8 @@ export async function POST(request) {
     data: {
       ...(user?.user_metadata || {}),
       profile_photo_url: photoUrl,
+      profilePhotoUrl: photoUrl,
+      avatar_url: photoUrl,
     },
   });
 

@@ -101,10 +101,13 @@ export default async function HomePage() {
       </section>
 
       <Link href="/member/youth" className="lc-card lc-youth-gateway-card">
-        <span className="lc-hero-eyebrow">LC Youth</span>
+        <div className="lc-youth-gateway-head">
+          <span className="lc-youth-gateway-kicker">LC YOUTH</span>
+          <span className="lc-youth-gateway-open">Open</span>
+        </div>
         <div className="lc-section-head">
-          <h2>Youth! Go Here!</h2>
-          <p className="lc-muted">Open the youth area for student devotion, updates, and upcoming events.</p>
+          <h2>Youth Devotional + Events</h2>
+          <p>Open the youth area for devotional content, updates, and upcoming events.</p>
         </div>
       </Link>
     </AppShell>

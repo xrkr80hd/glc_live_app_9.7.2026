@@ -21,14 +21,21 @@ export function AppHeader({ kicker, title, subtitle, theme = "member", showProfi
     photoUrl: "",
   });
   const [appTheme, setAppTheme] = useState("light");
+  const [photoLoadFailed, setPhotoLoadFailed] = useState(false);
 
   useEffect(() => {
+    if (theme !== "member") {
+      setAppTheme("light");
+      document.documentElement.dataset.appTheme = "light";
+      return;
+    }
+
     const storedTheme = window.localStorage.getItem("lc-app-theme");
     const resolvedTheme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : "light";
 
     setAppTheme(resolvedTheme);
     document.documentElement.dataset.appTheme = resolvedTheme;
-  }, []);
+  }, [theme]);
 
   useEffect(() => {
     let isMounted = true;
@@ -52,8 +59,9 @@ export function AppHeader({ kicker, title, subtitle, theme = "member", showProfi
 
         setProfileShortcut({
           fullName: payload.member?.fullName || "",
-          photoUrl: payload.member?.photoUrl || "",
+          photoUrl: payload.member?.photoUrl || payload.member?.profilePhotoUrl || "",
         });
+        setPhotoLoadFailed(false);
       } catch {
         // Keep the default icon if profile lookup fails.
       }
@@ -69,6 +77,10 @@ export function AppHeader({ kicker, title, subtitle, theme = "member", showProfi
   const initials = buildInitials(profileShortcut.fullName);
 
   function toggleTheme() {
+    if (theme !== "member") {
+      return;
+    }
+
     const nextTheme = appTheme === "dark" ? "light" : "dark";
     setAppTheme(nextTheme);
     document.documentElement.dataset.appTheme = nextTheme;
@@ -91,8 +103,13 @@ export function AppHeader({ kicker, title, subtitle, theme = "member", showProfi
           ) : null}
           {showProfileShortcut ? (
             <Link href="/member/profile" className="lc-profile-shortcut" aria-label="Open profile">
-              {profileShortcut.photoUrl ? (
-                <img src={profileShortcut.photoUrl} alt="Your profile" className="lc-profile-shortcut-image" />
+              {profileShortcut.photoUrl && !photoLoadFailed ? (
+                <img
+                  src={profileShortcut.photoUrl}
+                  alt="Your profile"
+                  className="lc-profile-shortcut-image"
+                  onError={() => setPhotoLoadFailed(true)}
+                />
               ) : initials ? (
                 <span className="lc-profile-shortcut-initials">{initials}</span>
               ) : (

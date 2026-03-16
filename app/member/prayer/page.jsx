@@ -109,16 +109,10 @@ export default function PrayerPage() {
             <span>Post Anonymously</span>
           </label>
 
-          <div className="lc-button-row">
-            <button type="submit" className="lc-action-btn primary" disabled={isSaving}>
-              <IconSend size={18} stroke={1.8} />
-              <span>{isSaving ? "Submitting..." : "Submit Prayer Request"}</span>
-            </button>
-            <Link href="/member/prayer/wall" className="lc-action-link ghost">
-              <IconMessageCircleHeart size={18} stroke={1.8} />
-              <span>View Prayer Wall</span>
-            </Link>
-          </div>
+          <button type="submit" className="lc-action-btn primary lc-prayer-submit-btn" disabled={isSaving}>
+            <IconSend size={18} stroke={1.8} />
+            <span>{isSaving ? "Submitting..." : "Submit Prayer Request"}</span>
+          </button>
         </form>
       </section>
 
@@ -127,6 +121,10 @@ export default function PrayerPage() {
           <IconPray size={16} stroke={1.8} />
           <span>Prayer Wall submissions remain moderated before public display.</span>
         </div>
+        <Link href="/member/prayer/wall" className="lc-action-link ghost lc-prayer-wall-link">
+          <IconMessageCircleHeart size={18} stroke={1.8} />
+          <span>View Prayer Wall</span>
+        </Link>
       </section>
     </AppShell>
   );

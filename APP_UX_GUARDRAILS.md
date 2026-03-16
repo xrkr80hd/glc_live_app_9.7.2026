@@ -30,3 +30,9 @@
 - Backend structure can be technical.
 - Frontend experience must feel simple, calm, and obvious.
 - This standard applies across the app, especially in member and ministry workflows.
+
+## Shape System Rule
+
+- Do not use pill-style rounded controls for app UI components.
+- Avoid `border-radius: 999px` or similar capsule styling for buttons, chips, toggles, tabs, badges, and clickable rows.
+- Default to clean, professional corner radii (for example `8px` to `14px`) unless a strict brand exception is explicitly approved.

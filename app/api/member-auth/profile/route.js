@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { readJsonBody } from "@/lib/admin-api";
-import { ensureMemberProfileForAuthUser, requireMemberSession } from "@/lib/member-auth";
+import { ensureMemberProfileForAuthUser, getMemberProfilePhotoUrl, requireMemberSession } from "@/lib/member-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function normalizeText(value) {
@@ -22,7 +22,7 @@ export async function GET() {
       fullName: member.full_name || user.user_metadata?.full_name || "",
       email: member.email || user.email || "",
       phone: member.phone || "",
-      photoUrl: user.user_metadata?.profile_photo_url || "",
+      photoUrl: getMemberProfilePhotoUrl(user),
       createdAt: member.created_at || null,
       lastLoginAt: member.last_login_at || null,
     },
@@ -101,7 +101,7 @@ export async function PATCH(request) {
       fullName: member.full_name || "",
       email: member.email || user.email || "",
       phone: member.phone || "",
-      photoUrl: user.user_metadata?.profile_photo_url || "",
+      photoUrl: getMemberProfilePhotoUrl(user),
     },
     message: "Your profile has been updated.",
   });
