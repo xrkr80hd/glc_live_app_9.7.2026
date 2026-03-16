@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { IconChevronRight } from "@tabler/icons-react";
 
-export function SettingsRow({ icon: Icon, label, description, href = null, disabled = false }) {
+export function SettingsRow({ icon: Icon, label, description, href = null, disabled = false, tone = "default" }) {
+  const rowClassName = `lc-settings-row${disabled ? " lc-empty-row" : ""}${tone !== "default" ? ` is-${tone}` : ""}`;
   const content = (
     <>
       <span className="lc-settings-row-icon" aria-hidden="true">
@@ -19,11 +20,11 @@ export function SettingsRow({ icon: Icon, label, description, href = null, disab
 
   if (href && !disabled) {
     return (
-      <Link href={href} className="lc-settings-row">
+      <Link href={href} className={rowClassName}>
         {content}
       </Link>
     );
   }
 
-  return <div className={`lc-settings-row${disabled ? " lc-empty-row" : ""}`}>{content}</div>;
+  return <div className={rowClassName}>{content}</div>;
 }

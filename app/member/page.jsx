@@ -5,52 +5,42 @@ import { getHomepageContent, getSermonsContent } from "@/lib/content";
 import { getCurrentMemberFromServerCookies } from "@/lib/member-auth";
 import { formatMemberDate, summarizeText } from "@/lib/member-page-data";
 import {
-  IconBroadcast,
   IconClockHour3,
-  IconHeartDollar,
+  IconBible,
   IconMapPin,
-  IconPlayerPlay,
-  IconPray,
   IconSparkles,
   IconSpeakerphone,
 } from "@tabler/icons-react";
 
 export default async function HomePage() {
   const currentMember = await getCurrentMemberFromServerCookies();
-  const [{ announcements, livestream }, { videos }] = await Promise.all([getHomepageContent(), getSermonsContent()]);
+  const [{ announcements, livestream, memberScripture }, { videos }] = await Promise.all([getHomepageContent(), getSermonsContent()]);
   const primaryAnnouncement = announcements[0] || null;
   const latestSermon = videos[0] || null;
   const memberName = currentMember?.member?.full_name || currentMember?.session?.fullName || "";
   const firstName = memberName.split(" ")?.[0] || "there";
-  const quickActions = [
-    {
-      label: "Watch Live",
-      href: "/member/live",
-      icon: IconBroadcast,
-      variant: "primary",
-    },
-    {
-      label: "Sermons",
-      href: "/member/sermons",
-      icon: IconPlayerPlay,
-      variant: "secondary",
-    },
-    {
-      label: "Prayer",
-      href: "/member/prayer",
-      icon: IconPray,
-      variant: "ghost",
-    },
-    {
-      label: "Give",
-      href: "/member/give",
-      icon: IconHeartDollar,
-      variant: "ghost",
-    },
-  ];
 
   return (
-    <AppShell navKey="home" title={null} subtitle={null}>
+    <AppShell
+      navKey="home"
+      title={null}
+      subtitle={null}
+      footerContent={
+        <div className="lc-footer-cta-wrap">
+          <ButtonRow
+            actions={[
+              {
+                label: "Youth! Go Here!",
+                href: "/member/youth",
+                icon: IconSparkles,
+                variant: "primary",
+              },
+            ]}
+            columns={1}
+          />
+        </div>
+      }
+    >
       <section className="lc-hero-card">
         <span className="lc-hero-eyebrow">
           <IconSparkles size={14} stroke={1.8} />
@@ -58,7 +48,7 @@ export default async function HomePage() {
         </span>
         <div className="lc-stack">
           <h1 className="lc-home-title">{`Welcome back, ${firstName}`}</h1>
-          <p className="lc-muted">Stay connected with Liberty Church through live worship, sermons, prayer, and church updates.</p>
+          <p className="lc-muted">Worship, prayer, sermons, and church updates in one simple place.</p>
         </div>
         <div className="lc-kpi-row">
           <div className="lc-stat-card">
@@ -70,26 +60,25 @@ export default async function HomePage() {
             <span>{livestream?.isLive ? "Streaming now" : "Offline right now"}</span>
           </div>
         </div>
-        <div className="lc-hero-note">
-          <div className="lc-announcement-meta">
-            <IconSpeakerphone size={16} stroke={1.8} />
-            <span>Today at a glance: worship, prayer, messages, and church updates in one place.</span>
-          </div>
-        </div>
       </section>
 
-      <section className="lc-card">
+      <section className="lc-card alt">
         <div className="lc-section-head">
-          <h2>Quick Access</h2>
-          <p className="lc-muted">Jump into the most-used areas of the app.</p>
+          <h2>Scripture of the Day</h2>
         </div>
-        <ButtonRow actions={quickActions} columns={2} />
+        <div className="lc-rich-copy">
+          <div className="lc-announcement-meta">
+            <IconBible size={16} stroke={1.8} />
+            <span>{memberScripture.reference}</span>
+          </div>
+          <blockquote>{memberScripture.verse_text}</blockquote>
+        </div>
       </section>
 
       <section className="lc-card alt">
         <div className="lc-section-head">
           <h2>Latest Sermon</h2>
-          <p className="lc-muted">Keep the newest message within easy reach from the member home screen.</p>
+          <p className="lc-muted">The newest message is ready when you are.</p>
         </div>
         {latestSermon ? (
           <AnnouncementCard
@@ -109,7 +98,7 @@ export default async function HomePage() {
       <section className="lc-stack">
         <div className="lc-section-head">
           <h2>Announcements</h2>
-          <p className="lc-muted">Preview the latest update, then open the full announcement list.</p>
+          <p className="lc-muted">The latest church update at a glance.</p>
         </div>
         {primaryAnnouncement ? (
           <AnnouncementCard
@@ -132,7 +121,6 @@ export default async function HomePage() {
       <section className="lc-card">
         <div className="lc-section-head">
           <h2>Service Times</h2>
-          <p className="lc-muted">Keep weekly gathering details visible at a glance.</p>
         </div>
         <div className="lc-stack">
           <div className="lc-announcement-meta">
@@ -147,13 +135,6 @@ export default async function HomePage() {
             <IconMapPin size={16} stroke={1.8} />
             <span>100 McKeithen Dr, Alexandria, LA</span>
           </div>
-        </div>
-      </section>
-
-      <section className="lc-card alt flat">
-        <div className="lc-announcement-meta">
-          <IconSpeakerphone size={16} stroke={1.8} />
-          <span>See the full list from the announcements screen.</span>
         </div>
       </section>
     </AppShell>

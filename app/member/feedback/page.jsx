@@ -79,7 +79,7 @@ export default function MemberFeedbackPage() {
   }
 
   return (
-    <AppShell navKey="more" title="Beta Feedback" subtitle="Report bugs, layout issues, or ideas while the test build is in use." showProfileShortcut={false}>
+    <AppShell navKey="more" title="Report a Problem or Suggestion" subtitle="Tell us what needs attention or what could be better." showProfileShortcut={false}>
       {toast ? (
         <div className="lc-toast-wrap">
           <ToastMessage
@@ -95,14 +95,14 @@ export default function MemberFeedbackPage() {
       <section className="lc-card alt">
         <div className="lc-announcement-meta">
           <IconBug size={16} stroke={1.8} />
-          <span>Use this screen to flag broken flows, visual issues, missing content, or tester ideas.</span>
+          <span>Use this page to report bugs, broken screens, confusing wording, or helpful suggestions.</span>
         </div>
       </section>
 
       <section className="lc-card">
         <div className="lc-section-head">
-          <h2>Send Test Feedback</h2>
-          <p className="lc-muted">Keep notes short and specific so we can fix things quickly.</p>
+          <h2>Send a Report</h2>
+          <p className="lc-muted">Keep it short and specific so we can fix it quickly.</p>
         </div>
 
         <form className="lc-form-grid" onSubmit={handleSubmit}>
@@ -124,7 +124,7 @@ export default function MemberFeedbackPage() {
               className="lc-input"
               value={form.route}
               onChange={(event) => updateField("route", event.target.value)}
-              placeholder="/member/profile or Home screen"
+              placeholder="/member/profile or Home"
             />
           </div>
 
@@ -159,14 +159,14 @@ export default function MemberFeedbackPage() {
               className="lc-textarea"
               value={form.message}
               onChange={(event) => updateField("message", event.target.value)}
-              placeholder="Example: the profile image uploader looks broken on iPhone Safari and the button falls out of alignment."
+              placeholder="Example: my profile photo saved, but it still did not show in the top-right corner."
               required
             />
           </div>
 
           <button type="submit" className="lc-action-btn primary" disabled={isSaving}>
             <IconSend size={18} stroke={1.8} />
-            <span>{isSaving ? "Saving..." : "Send Feedback"}</span>
+            <span>{isSaving ? "Saving..." : "Send Report"}</span>
           </button>
         </form>
       </section>

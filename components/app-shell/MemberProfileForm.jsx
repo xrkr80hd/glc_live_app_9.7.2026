@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { IconCheck } from "@tabler/icons-react";
+import { MemberAccordion } from "@/components/app-shell/MemberAccordion";
 import { ToastMessage } from "@/components/app-shell/ToastMessage";
 
 export function MemberProfileForm({ member }) {
@@ -62,14 +63,9 @@ export function MemberProfileForm({ member }) {
         </div>
       ) : null}
 
-      <section className="lc-card">
-        <form className="lc-form-grid" onSubmit={handleSubmit}>
-          <div className="lc-section-head">
-            <h2>Your Contact Details</h2>
-            <p className="lc-muted">Keep this simple and current so church leaders can reach you when needed.</p>
-          </div>
-
-          <div className="lc-form-grid two-up">
+      <section className="lc-stack">
+        <MemberAccordion title="Contact Details" description="Update the basic contact details connected to your account." defaultOpen>
+          <form className="lc-form-grid" onSubmit={handleSubmit}>
             <div className="lc-form-field">
               <label className="lc-field-label" htmlFor="edit-profile-name">Full Name</label>
               <input
@@ -90,40 +86,40 @@ export function MemberProfileForm({ member }) {
                 readOnly
                 aria-readonly="true"
               />
-              <span className="lc-muted">This is the email you use to sign in.</span>
+              <span className="lc-muted">Sign-in email</span>
             </div>
-          </div>
 
-          <div className="lc-form-field">
-            <label className="lc-field-label" htmlFor="edit-profile-phone">Phone</label>
-            <input
-              id="edit-profile-phone"
-              className="lc-input"
-              value={form.phone}
-              onChange={(event) => updateField("phone", event.target.value)}
-              placeholder="Optional phone number"
-            />
-          </div>
+            <div className="lc-form-field">
+              <label className="lc-field-label" htmlFor="edit-profile-phone">Phone</label>
+              <input
+                id="edit-profile-phone"
+                className="lc-input"
+                value={form.phone}
+                onChange={(event) => updateField("phone", event.target.value)}
+                placeholder="Phone number"
+              />
+            </div>
 
-          <div className="lc-button-row">
-            <Link href="/member/profile" className="lc-action-link ghost">
-              Cancel
-            </Link>
-            <button type="submit" className="lc-action-btn primary" disabled={isSaving}>
-              <IconCheck size={18} stroke={1.8} />
-              <span>{isSaving ? "Saving..." : "Save Profile"}</span>
-            </button>
-          </div>
+            <div className="lc-button-row">
+              <Link href="/member/profile" className="lc-action-link ghost">
+                Cancel
+              </Link>
+              <button type="submit" className="lc-action-btn primary" disabled={isSaving}>
+                <IconCheck size={18} stroke={1.8} />
+                <span>{isSaving ? "Saving..." : "Save Profile"}</span>
+              </button>
+            </div>
+          </form>
+        </MemberAccordion>
 
-          <div className="lc-inline-stack">
-            <Link href="/member/profile/photo" className="lc-action-link secondary">
-              Manage Profile Photo
-            </Link>
-            <Link href="/member/profile/change-password" className="lc-action-link ghost">
-              Change Password
-            </Link>
-          </div>
-        </form>
+        <div className="lc-inline-stack">
+          <Link href="/member/profile/photo" className="lc-action-link secondary">
+            Manage Profile Photo
+          </Link>
+          <Link href="/member/profile/change-password" className="lc-action-link ghost">
+            Change Password
+          </Link>
+        </div>
       </section>
     </>
   );

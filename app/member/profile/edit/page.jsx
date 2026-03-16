@@ -15,7 +15,7 @@ export default async function EditProfilePage() {
   };
 
   return (
-    <AppShell navKey="more" title="Edit Profile" subtitle="Update the member details the church uses to reach you." showProfileShortcut={false}>
+    <AppShell navKey="more" title="Edit Profile" subtitle="Keep your basic member details current." showProfileShortcut={false}>
       <BackRow fallbackHref="/member/profile" useHistory={false} />
 
       <ProfileCard

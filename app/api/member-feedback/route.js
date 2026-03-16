@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireMemberSession } from "@/lib/member-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function normalizeText(value, maxLength = 0) {
@@ -45,6 +46,11 @@ async function readPayload(request) {
 }
 
 export async function POST(request) {
+  const { member, user, error: sessionError } = await requireMemberSession();
+  if (sessionError) {
+    return sessionError;
+  }
+
   let payload;
 
   try {
@@ -98,8 +104,9 @@ export async function POST(request) {
     : "medium";
 
   const { error } = await supabase.from("member_feedback").insert({
-    name: payload.name || null,
-    email: payload.email || null,
+    member_id: member.id,
+    name: payload.name || member.full_name || user.user_metadata?.full_name || null,
+    email: payload.email || member.email || user.email || null,
     route: payload.route || null,
     category,
     severity,

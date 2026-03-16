@@ -3,10 +3,10 @@ import { AddToHomeScreenCard } from "@/components/app-shell/AddToHomeScreenCard"
 import { MemberAccordion } from "@/components/app-shell/MemberAccordion";
 import { SettingsRow } from "@/components/app-shell/SettingsRow";
 import {
-  IconBug,
   IconBellRinging,
   IconBible,
   IconHeartDollar,
+  IconMessageReport,
   IconSettings,
   IconSparkles,
   IconUserCircle,
@@ -14,12 +14,12 @@ import {
 
 export default function MorePage() {
   return (
-    <AppShell navKey="more" title="More" subtitle="Secondary routes and member tools.">
+    <AppShell navKey="more" title="More" subtitle="Settings, church tools, and help.">
       <AddToHomeScreenCard />
 
       <MemberAccordion
         title="Your Member Tools"
-        description="Open your personal account tools, settings, and notification choices."
+        description="Open your profile, settings, and member preferences."
         defaultOpen
       >
         <div className="lc-stack">
@@ -41,8 +41,21 @@ export default function MorePage() {
         <div className="lc-stack">
           <SettingsRow icon={IconHeartDollar} label="Give" description="View giving options for tithe, offering, and missions." href="/member/give" />
           <SettingsRow icon={IconBible} label="Beliefs" description="Read the same beliefs summary shown on the main site." href="/member/beliefs" />
-          <SettingsRow icon={IconSparkles} label="Youth" description="Open the youth section styled to match the youth website." href="/member/youth" />
-          <SettingsRow icon={IconBug} label="Beta Feedback" description="Report a bug or visual issue so we can improve the app." href="/member/feedback" />
+          <SettingsRow icon={IconSparkles} label="Youth" description="Open the youth section with the bold youth look." href="/member/youth" tone="youth" />
+        </div>
+      </MemberAccordion>
+
+      <MemberAccordion
+        title="Report a Problem or Suggestion"
+        description="Tell us about bugs, confusing screens, or ideas."
+      >
+        <div className="lc-stack">
+          <SettingsRow
+            icon={IconMessageReport}
+            label="Send a Report"
+            description="Report an error, broken screen, or suggestion for improvement."
+            href="/member/feedback"
+          />
         </div>
       </MemberAccordion>
     </AppShell>

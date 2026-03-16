@@ -9,6 +9,7 @@ export function AppShell({
   navKey = "home",
   showProfileShortcut = true,
   headerAction = null,
+  footerContent = null,
   children,
 }) {
   const shellClassName = ["lc-app-shell", theme === "youth" ? "theme-youth" : "theme-member"].join(" ");
@@ -20,10 +21,12 @@ export function AppShell({
           kicker={kicker}
           title={title}
           subtitle={subtitle}
+          theme={theme}
           showProfileShortcut={showProfileShortcut}
           headerAction={headerAction}
         />
         <main className="lc-app-main">{children}</main>
+        {footerContent ? <div className="lc-app-footer-slot">{footerContent}</div> : null}
         <BottomNav activeKey={navKey} />
       </div>
     </div>

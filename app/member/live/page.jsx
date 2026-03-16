@@ -63,8 +63,8 @@ export default async function LivePage() {
 
       <section className="lc-stack">
         <div className="lc-section-head">
-          <h2>Next Actions</h2>
-          <p className="lc-muted">Keep related actions close to the live experience.</p>
+          <h2>Helpful Links</h2>
+          <p className="lc-muted">A few nearby places you may want after the stream.</p>
         </div>
         <ButtonRow actions={actions} />
       </section>

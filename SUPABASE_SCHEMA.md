@@ -95,6 +95,18 @@ create table if not exists public.archived_sermons (
   created_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.member_feedback (
+  id uuid primary key default gen_random_uuid(),
+  member_id uuid,
+  name text,
+  email text,
+  route text,
+  category text not null default 'bug' check (category in ('bug', 'ui', 'idea', 'other')),
+  severity text not null default 'medium' check (severity in ('low', 'medium', 'high')),
+  message text not null,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
 alter table if exists public.announcements
   add column if not exists category text,
   add column if not exists title text,
@@ -368,6 +380,14 @@ drop index if exists public.archived_sermons_lookup_idx;
 create index if not exists archived_sermons_lookup_idx
   on public.archived_sermons (is_published, preached_on desc, sort_order);
 
+drop index if exists public.member_feedback_lookup_idx;
+create index if not exists member_feedback_lookup_idx
+  on public.member_feedback (created_at desc, category, severity);
+
+drop index if exists public.member_feedback_member_idx;
+create index if not exists member_feedback_member_idx
+  on public.member_feedback (member_id, created_at desc);
+
 alter table public.announcements enable row level security;
 alter table public.scriptures enable row level security;
 alter table public.youth_banners enable row level security;
@@ -376,6 +396,7 @@ alter table public.prayer_requests enable row level security;
 alter table public.visit_requests enable row level security;
 alter table public.sermons enable row level security;
 alter table public.archived_sermons enable row level security;
+alter table public.member_feedback enable row level security;
 
 drop policy if exists announcements_public_read on public.announcements;
 create policy announcements_public_read
@@ -447,4 +468,11 @@ create policy visit_requests_public_insert
 on public.visit_requests
 for insert
 to anon, authenticated
+with check (true);
+
+drop policy if exists member_feedback_authenticated_insert on public.member_feedback;
+create policy member_feedback_authenticated_insert
+on public.member_feedback
+for insert
+to authenticated
 with check (true);

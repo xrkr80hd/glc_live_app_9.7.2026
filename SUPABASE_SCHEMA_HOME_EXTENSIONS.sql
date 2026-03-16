@@ -202,6 +202,18 @@ create table if not exists public.team_member_password_resets (
   used_at timestamptz
 );
 
+create table if not exists public.member_feedback (
+  id uuid primary key default gen_random_uuid(),
+  member_id uuid references public.team_members(id) on delete set null,
+  name text,
+  email text,
+  route text,
+  category text not null default 'bug' check (category in ('bug', 'ui', 'idea', 'other')),
+  severity text not null default 'medium' check (severity in ('low', 'medium', 'high')),
+  message text not null,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
 create index if not exists ministries_lookup_idx
   on public.ministries (is_published, sort_order, created_at desc);
 
@@ -260,6 +272,12 @@ create index if not exists team_member_password_resets_lookup_idx
 create unique index if not exists team_member_password_resets_token_hash_uidx
   on public.team_member_password_resets (token_hash);
 
+create index if not exists member_feedback_lookup_idx
+  on public.member_feedback (created_at desc, category, severity);
+
+create index if not exists member_feedback_member_idx
+  on public.member_feedback (member_id, created_at desc);
+
 alter table public.ministries enable row level security;
 alter table public.seasonal_features enable row level security;
 alter table public.prayer_requests enable row level security;
@@ -275,6 +293,7 @@ alter table public.service_song_lists enable row level security;
 alter table public.ministry_order_requests enable row level security;
 alter table public.bookkeeping_reports enable row level security;
 alter table public.team_member_password_resets enable row level security;
+alter table public.member_feedback enable row level security;
 
 drop policy if exists ministries_public_read on public.ministries;
 create policy ministries_public_read
@@ -324,6 +343,13 @@ on public.gallery_videos
 for select
 to anon, authenticated
 using (is_published = true);
+
+drop policy if exists member_feedback_authenticated_insert on public.member_feedback;
+create policy member_feedback_authenticated_insert
+on public.member_feedback
+for insert
+to authenticated
+with check (true);
 
 insert into public.team_roles (role_key, name, description, sort_order, is_system, is_active)
 values
