@@ -104,6 +104,7 @@ create table if not exists public.team_roles (
 
 create table if not exists public.team_members (
   id uuid primary key default gen_random_uuid(),
+  auth_user_id uuid,
   username text not null unique,
   full_name text,
   email text unique,
@@ -117,6 +118,7 @@ create table if not exists public.team_members (
 );
 
 alter table if exists public.team_members
+  add column if not exists auth_user_id uuid,
   add column if not exists password_hash text,
   add column if not exists last_login_at timestamptz;
 
@@ -226,6 +228,10 @@ create index if not exists team_roles_lookup_idx
 
 create index if not exists team_members_lookup_idx
   on public.team_members (is_active, is_superuser, created_at desc);
+
+create unique index if not exists team_members_auth_user_id_uidx
+  on public.team_members (auth_user_id)
+  where auth_user_id is not null;
 
 create index if not exists team_member_roles_lookup_idx
   on public.team_member_roles (member_id, role_id, assigned_at desc);
