@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AnnouncementCard } from "@/components/app-shell/AnnouncementCard";
 import { AppShell } from "@/components/app-shell/AppShell";
+import { HomeWelcomeToast } from "@/components/app-shell/HomeWelcomeToast";
 import { getHomepageContent, getSermonsContent } from "@/lib/content";
 import { getCurrentMemberFromServerCookies } from "@/lib/member-auth";
 import { formatMemberDate, summarizeText } from "@/lib/member-page-data";
@@ -13,30 +14,15 @@ import {
 
 export default async function HomePage() {
   const currentMember = await getCurrentMemberFromServerCookies();
-  const [{ announcements, livestream, memberScripture }, { videos }] = await Promise.all([getHomepageContent(), getSermonsContent()]);
+  const [{ announcements, memberScripture }, { videos }] = await Promise.all([getHomepageContent(), getSermonsContent()]);
   const primaryAnnouncement = announcements[0] || null;
   const latestSermon = videos[0] || null;
   const memberName = currentMember?.member?.full_name || currentMember?.session?.fullName || "";
-  const firstName = memberName.split(" ")?.[0] || "there";
+  const firstName = memberName.split(" ")?.[0] || "";
 
   return (
     <AppShell navKey="home" title={null} subtitle={null}>
-      <section className="lc-hero-card">
-        <div className="lc-stack">
-          <h1 className="lc-home-title">{`Welcome back, ${firstName}`}</h1>
-          <p className="lc-muted">Worship, prayer, sermons, and church updates in one simple place.</p>
-        </div>
-        <div className="lc-kpi-row">
-          <div className="lc-stat-card">
-            <strong>Service Times</strong>
-            <span>Sundays at 10:00 AM</span>
-          </div>
-          <div className="lc-stat-card">
-            <strong>Live Status</strong>
-            <span>{livestream?.isLive ? "Streaming now" : "Offline right now"}</span>
-          </div>
-        </div>
-      </section>
+      <HomeWelcomeToast firstName={firstName} />
 
       <section className="lc-card alt">
         <div className="lc-section-head">
