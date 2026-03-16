@@ -560,21 +560,21 @@ a {
 
 html[data-app-theme="dark"] .lc-app-shell.theme-member {
   --app-shell-bg:
-    radial-gradient(circle at top, rgba(42, 163, 111, 0.08) 0%, transparent 28%),
-    linear-gradient(180deg, #090b0a 0%, #111413 100%);
-  --app-frame-bg: linear-gradient(180deg, #101312 0%, #0d100f 100%);
-  --app-card-bg: rgba(18, 20, 19, 0.98);
-  --app-card-alt-bg: rgba(23, 26, 24, 0.98);
-  --app-nav-bg: rgba(12, 15, 14, 0.98);
-  --app-text: #f4fbf7;
-  --app-muted: #b5c0bb;
-  --app-line: rgba(118, 132, 125, 0.28);
-  --app-line-strong: rgba(155, 176, 166, 0.34);
+    radial-gradient(circle at top, rgba(42, 163, 111, 0.1) 0%, transparent 28%),
+    linear-gradient(180deg, #060807 0%, #101312 100%);
+  --app-frame-bg: linear-gradient(180deg, #0d1110 0%, #0a0d0c 100%);
+  --app-card-bg: rgba(16, 19, 18, 0.98);
+  --app-card-alt-bg: rgba(20, 24, 22, 0.98);
+  --app-nav-bg: rgba(10, 13, 12, 0.98);
+  --app-text: #f3f7f4;
+  --app-muted: #afbbb4;
+  --app-line: rgba(124, 141, 132, 0.24);
+  --app-line-strong: rgba(155, 176, 166, 0.28);
   --app-accent: #2aa36f;
-  --app-accent-strong: #ecfff7;
+  --app-accent-strong: #dff7ec;
   --app-accent-soft: rgba(42, 163, 111, 0.12);
-  --app-accent-soft-strong: rgba(42, 163, 111, 0.2);
-  --app-shadow: 0 26px 70px rgba(0, 0, 0, 0.34);
+  --app-accent-soft-strong: rgba(42, 163, 111, 0.18);
+  --app-shadow: 0 22px 48px rgba(0, 0, 0, 0.34);
 }
 
 .lc-app-frame {
@@ -588,6 +588,11 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
   border-radius: 34px;
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(13, 32, 24, 0.1);
+}
+
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-frame {
+  border-color: rgba(124, 141, 132, 0.18);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
 }
 
 .lc-app-header {
@@ -621,6 +626,7 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
   border-radius: 24px;
   background: linear-gradient(180deg, rgba(236, 248, 241, 0.96) 0%, rgba(255, 255, 255, 0.98) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: #16241d;
 }
 
 .lc-app-header-top {
@@ -671,7 +677,7 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
 .lc-app-header-subtitle {
   margin: 0;
   font-size: 0.95rem;
-  color: var(--app-muted);
+  color: #60756b;
   line-height: 1.45;
 }
 
@@ -683,16 +689,21 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
 
 html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-header {
   background:
-    radial-gradient(circle at top left, rgba(42, 163, 111, 0.16) 0%, transparent 32%),
-    radial-gradient(circle at top right, rgba(42, 163, 111, 0.08) 0%, transparent 26%),
-    linear-gradient(180deg, rgba(14, 17, 16, 0.99) 0%, rgba(15, 18, 17, 0.985) 100%);
+    radial-gradient(circle at top left, rgba(42, 163, 111, 0.14) 0%, transparent 30%),
+    radial-gradient(circle at top right, rgba(42, 163, 111, 0.07) 0%, transparent 24%),
+    linear-gradient(180deg, rgba(13, 16, 15, 0.995) 0%, rgba(11, 14, 13, 0.99) 100%);
   border-bottom-color: rgba(155, 176, 166, 0.2);
 }
 
 html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-header-copy {
   border-color: rgba(155, 176, 166, 0.18);
-  background: linear-gradient(180deg, rgba(25, 31, 28, 0.96) 0%, rgba(18, 22, 20, 0.98) 100%);
+  background: linear-gradient(180deg, rgba(22, 27, 25, 0.96) 0%, rgba(16, 20, 19, 0.98) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  color: var(--app-text);
+}
+
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-header-subtitle {
+  color: #d6e0da;
 }
 
 .lc-app-header-actions {
@@ -715,6 +726,14 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-header-copy {
   padding: 0;
 }
 
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-theme-toggle {
+  border-radius: 999px;
+  border: 1px solid rgba(124, 141, 132, 0.2);
+  background: rgba(19, 23, 21, 0.95);
+  color: var(--app-accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
 .lc-profile-shortcut {
   width: 46px;
   height: 46px;
@@ -727,6 +746,13 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-header-copy {
   border: 1px solid var(--app-line);
   box-shadow: 0 8px 16px rgba(15, 96, 72, 0.08);
   overflow: hidden;
+}
+
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-profile-shortcut {
+  background: rgba(18, 21, 20, 0.98);
+  color: var(--app-accent-strong);
+  border-color: rgba(124, 141, 132, 0.22);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.24);
 }
 
 .theme-youth .lc-profile-shortcut {
@@ -848,6 +874,19 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-card,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-announcement-card,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-prayer-card,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-profile-card,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-settings-row,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-media-placeholder,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-directory-card,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-stat-card {
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
 .lc-card.alt,
 .lc-stat-card,
 .lc-settings-row {
@@ -883,6 +922,18 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
   background: linear-gradient(180deg, #ffffff 0%, #fbfdfb 100%);
   border: 1px solid rgba(15, 96, 72, 0.14);
   box-shadow: var(--app-shadow);
+  color: #16241d;
+}
+
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-hero-card {
+  background:
+    radial-gradient(circle at top right, rgba(42, 163, 111, 0.1) 0%, transparent 34%),
+    linear-gradient(180deg, rgba(16, 19, 18, 0.99) 0%, rgba(12, 15, 14, 0.99) 100%);
+  border-color: rgba(124, 141, 132, 0.18);
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  color: var(--app-text);
 }
 
 .lc-home-kicker {
@@ -907,6 +958,10 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
 .lc-hero-note {
   padding-top: 0.15rem;
   border-top: 1px solid rgba(15, 96, 72, 0.09);
+}
+
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-hero-note {
+  border-top-color: rgba(124, 141, 132, 0.16);
 }
 
 .theme-youth .lc-hero-card,
@@ -1035,6 +1090,15 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
   box-shadow: 0 10px 24px rgba(19, 35, 28, 0.08);
 }
 
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-action-btn,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-action-link {
+  background: rgba(17, 20, 19, 0.98);
+  border-color: rgba(124, 141, 132, 0.2);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
 .lc-button-row .lc-action-link,
 .lc-button-row .lc-action-btn {
   min-height: 56px;
@@ -1052,6 +1116,12 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
   background: #ffffff;
   color: var(--app-accent-strong);
   border-color: rgba(15, 106, 79, 0.2);
+}
+
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-action-btn.secondary,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-action-link.secondary {
+  background: rgba(19, 23, 21, 0.98);
+  border-color: rgba(124, 141, 132, 0.24);
 }
 
 .lc-action-btn.ghost,
@@ -1319,9 +1389,20 @@ button.lc-announcement-card {
   border-radius: 18px;
   padding: 0.92rem 0.95rem;
   background: #ffffff;
-  color: var(--app-text);
+  color: #16241d;
   font: inherit;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-input,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-select,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-textarea,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-search,
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-password-input input {
+  background: #f7faf8;
+  color: #14211b;
+  border-color: rgba(42, 163, 111, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
 }
 
 .theme-youth .lc-input,

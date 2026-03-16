@@ -24,12 +24,7 @@ export function AppHeader({ kicker, title, subtitle, theme = "member", showProfi
 
   useEffect(() => {
     const storedTheme = window.localStorage.getItem("lc-app-theme");
-    const resolvedTheme =
-      storedTheme === "dark" || storedTheme === "light"
-        ? storedTheme
-        : window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light";
+    const resolvedTheme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : "light";
 
     setAppTheme(resolvedTheme);
     document.documentElement.dataset.appTheme = resolvedTheme;
