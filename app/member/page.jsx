@@ -1,8 +1,9 @@
 import { AnnouncementCard } from "@/components/app-shell/AnnouncementCard";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { ButtonRow } from "@/components/app-shell/ButtonRow";
-import { announcementCards, homePlaceholders } from "@/lib/mobile-app-content";
+import { getHomepageContent, getSermonsContent } from "@/lib/content";
 import { getCurrentMemberFromServerCookies } from "@/lib/member-auth";
+import { formatMemberDate, summarizeText } from "@/lib/member-page-data";
 import {
   IconBroadcast,
   IconClockHour3,
@@ -16,7 +17,9 @@ import {
 
 export default async function HomePage() {
   const currentMember = await getCurrentMemberFromServerCookies();
-  const primaryAnnouncement = announcementCards[0];
+  const [{ announcements, livestream }, { videos }] = await Promise.all([getHomepageContent(), getSermonsContent()]);
+  const primaryAnnouncement = announcements[0] || null;
+  const latestSermon = videos[0] || null;
   const memberName = currentMember?.member?.full_name || currentMember?.session?.fullName || "";
   const firstName = memberName.split(" ")?.[0] || "there";
   const quickActions = [
@@ -54,17 +57,17 @@ export default async function HomePage() {
           Welcome
         </span>
         <div className="lc-stack">
-          <h1 className="lc-home-title">{`${homePlaceholders.welcomeMessage}, ${firstName}`}</h1>
-          <p className="lc-muted">{homePlaceholders.churchIdentityLine}</p>
+          <h1 className="lc-home-title">{`Welcome back, ${firstName}`}</h1>
+          <p className="lc-muted">Stay connected with Liberty Church through live worship, sermons, prayer, and church updates.</p>
         </div>
         <div className="lc-kpi-row">
           <div className="lc-stat-card">
             <strong>Service Times</strong>
-            <span>{homePlaceholders.serviceTimePrimary}</span>
+            <span>Sundays at 10:00 AM</span>
           </div>
           <div className="lc-stat-card">
-            <strong>Campus</strong>
-            <span>{homePlaceholders.serviceLocation}</span>
+            <strong>Live Status</strong>
+            <span>{livestream?.isLive ? "Streaming now" : "Offline right now"}</span>
           </div>
         </div>
         <div className="lc-hero-note">
@@ -85,13 +88,22 @@ export default async function HomePage() {
 
       <section className="lc-card alt">
         <div className="lc-section-head">
-          <h2>Daily Verse</h2>
-          <p className="lc-muted">A dedicated verse card stays near the top of Home.</p>
+          <h2>Latest Sermon</h2>
+          <p className="lc-muted">Keep the newest message within easy reach from the member home screen.</p>
         </div>
-        <div className="lc-rich-copy">
-          <blockquote>{homePlaceholders.dailyVerseText}</blockquote>
-          <strong>{homePlaceholders.dailyVerseReference}</strong>
-        </div>
+        {latestSermon ? (
+          <AnnouncementCard
+            title={latestSermon.title}
+            summary={summarizeText(latestSermon.description || "Open the sermon library to watch the newest message.", 130)}
+            date={formatMemberDate(latestSermon.publishedAt, "Recent message")}
+            href="/member/sermons"
+            ctaLabel="Watch Sermon"
+          />
+        ) : (
+          <div className="lc-rich-copy">
+            <p>New sermon uploads will appear here as soon as they are published.</p>
+          </div>
+        )}
       </section>
 
       <section className="lc-stack">
@@ -99,13 +111,22 @@ export default async function HomePage() {
           <h2>Announcements</h2>
           <p className="lc-muted">Preview the latest update, then open the full announcement list.</p>
         </div>
-        <AnnouncementCard
-          title={primaryAnnouncement.title}
-          summary={primaryAnnouncement.summary}
-          date={primaryAnnouncement.date}
-          href="/member/announcements"
-          ctaLabel="Open Announcements"
-        />
+        {primaryAnnouncement ? (
+          <AnnouncementCard
+            title={primaryAnnouncement.title}
+            summary={summarizeText(primaryAnnouncement.body, 130)}
+            date={formatMemberDate(primaryAnnouncement.startsAt || primaryAnnouncement.createdAt)}
+            href={`/member/announcements/${primaryAnnouncement.id}`}
+            ctaLabel="Read Update"
+          />
+        ) : (
+          <section className="lc-card alt flat">
+            <div className="lc-announcement-meta">
+              <IconSpeakerphone size={16} stroke={1.8} />
+              <span>No announcements have been published yet.</span>
+            </div>
+          </section>
+        )}
       </section>
 
       <section className="lc-card">
@@ -116,15 +137,15 @@ export default async function HomePage() {
         <div className="lc-stack">
           <div className="lc-announcement-meta">
             <IconClockHour3 size={16} stroke={1.8} />
-            <span>{homePlaceholders.serviceTimePrimary}</span>
+            <span>Sundays at 10:00 AM</span>
           </div>
           <div className="lc-announcement-meta">
             <IconClockHour3 size={16} stroke={1.8} />
-            <span>{homePlaceholders.serviceTimeSecondary}</span>
+            <span>Youth Devotion at 9:20 AM</span>
           </div>
           <div className="lc-announcement-meta">
             <IconMapPin size={16} stroke={1.8} />
-            <span>{homePlaceholders.serviceLocation}</span>
+            <span>100 McKeithen Dr, Alexandria, LA</span>
           </div>
         </div>
       </section>

@@ -1,18 +1,16 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { IconCheck, IconPhoto, IconUpload } from "@tabler/icons-react";
+import { IconCheck } from "@tabler/icons-react";
 import { ToastMessage } from "@/components/app-shell/ToastMessage";
 
 export function MemberProfileForm({ member }) {
-  const uploadInputId = useId();
   const [form, setForm] = useState({
     fullName: member.fullName || "",
     email: member.email || "",
     phone: member.phone || "",
   });
-  const [selectedFileName, setSelectedFileName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -66,6 +64,11 @@ export function MemberProfileForm({ member }) {
 
       <section className="lc-card">
         <form className="lc-form-grid" onSubmit={handleSubmit}>
+          <div className="lc-section-head">
+            <h2>Your Contact Details</h2>
+            <p className="lc-muted">Keep this simple and current so church leaders can reach you when needed.</p>
+          </div>
+
           <div className="lc-form-grid two-up">
             <div className="lc-form-field">
               <label className="lc-field-label" htmlFor="edit-profile-name">Full Name</label>
@@ -102,39 +105,6 @@ export function MemberProfileForm({ member }) {
             />
           </div>
 
-          <div className="lc-upload-panel">
-            <div className="lc-upload-panel-head">
-              <div className="lc-section-head">
-                <h2>Profile Photo</h2>
-                <p className="lc-muted">Choose a photo now. Profile photo syncing is the next step in beta.</p>
-              </div>
-            </div>
-            <div className="lc-upload-dropzone">
-              <span className="lc-upload-icon">
-                <IconPhoto size={28} stroke={1.8} />
-              </span>
-              <strong>Upload a profile photo</strong>
-              <span className="lc-muted">JPG or PNG works best for the member app.</span>
-              <label htmlFor={uploadInputId} className="lc-upload-browse">
-                <IconUpload size={18} stroke={1.8} />
-                <span>Browse Files</span>
-              </label>
-              <input
-                id={uploadInputId}
-                type="file"
-                accept="image/png,image/jpeg,image/jpg"
-                className="lc-hidden-note"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  setSelectedFileName(file?.name || "");
-                }}
-              />
-              <span className="lc-upload-helper">
-                {selectedFileName ? `Selected: ${selectedFileName}` : "No file selected yet"}
-              </span>
-            </div>
-          </div>
-
           <div className="lc-button-row">
             <Link href="/member/profile" className="lc-action-link ghost">
               Cancel
@@ -145,9 +115,14 @@ export function MemberProfileForm({ member }) {
             </button>
           </div>
 
-          <Link href="/member/profile/change-password" className="lc-action-link secondary">
-            Change Password
-          </Link>
+          <div className="lc-inline-stack">
+            <Link href="/member/profile/photo" className="lc-action-link secondary">
+              Manage Profile Photo
+            </Link>
+            <Link href="/member/profile/change-password" className="lc-action-link ghost">
+              Change Password
+            </Link>
+          </div>
         </form>
       </section>
     </>

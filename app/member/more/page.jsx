@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/app-shell/AppShell";
 import { AddToHomeScreenCard } from "@/components/app-shell/AddToHomeScreenCard";
+import { MemberAccordion } from "@/components/app-shell/MemberAccordion";
 import { SettingsRow } from "@/components/app-shell/SettingsRow";
 import {
   IconBug,
@@ -16,38 +17,34 @@ export default function MorePage() {
     <AppShell navKey="more" title="More" subtitle="Secondary routes and member tools.">
       <AddToHomeScreenCard />
 
-      <section className="lc-card alt">
-        <div className="lc-section-head">
-          <h2>Your Member Tools</h2>
-          <p className="lc-muted">Everything here is grouped to make the beta build easy to navigate.</p>
+      <MemberAccordion
+        title="Your Member Tools"
+        description="Open your personal account tools, settings, and notification choices."
+        defaultOpen
+      >
+        <div className="lc-stack">
+          <SettingsRow icon={IconUserCircle} label="Profile" description="Open your member profile and photo." href="/member/profile" />
+          <SettingsRow icon={IconSettings} label="Settings" description="Open privacy, app, and member preferences." href="/member/settings" />
+          <SettingsRow
+            icon={IconBellRinging}
+            label="Announcement Notifications"
+            description="Choose how church announcements reach you."
+            href="/member/settings/announcement-notifications"
+          />
         </div>
-      </section>
+      </MemberAccordion>
 
-      <section className="lc-stack">
-        <div className="lc-section-head">
-          <h2>Account</h2>
-          <p className="lc-muted">Keep your member details and preferences up to date.</p>
+      <MemberAccordion
+        title="Church Life"
+        description="Open the areas members use most during the week."
+      >
+        <div className="lc-stack">
+          <SettingsRow icon={IconHeartDollar} label="Give" description="View giving options for tithe, offering, and missions." href="/member/give" />
+          <SettingsRow icon={IconBible} label="Beliefs" description="Read the same beliefs summary shown on the main site." href="/member/beliefs" />
+          <SettingsRow icon={IconSparkles} label="Youth" description="Open the youth section styled to match the youth website." href="/member/youth" />
+          <SettingsRow icon={IconBug} label="Beta Feedback" description="Report a bug or visual issue so we can improve the app." href="/member/feedback" />
         </div>
-        <SettingsRow icon={IconUserCircle} label="Profile" description="Open your member identity hub." href="/member/profile" />
-        <SettingsRow icon={IconSettings} label="Settings" description="Church preferences, privacy, and app controls." href="/member/settings" />
-        <SettingsRow
-          icon={IconBellRinging}
-          label="Announcement Notifications"
-          description="Adjust the announcement notification controls."
-          href="/member/settings/announcement-notifications"
-        />
-      </section>
-
-      <section className="lc-stack">
-        <div className="lc-section-head">
-          <h2>Church Life</h2>
-          <p className="lc-muted">Open the church-wide resources members use the most.</p>
-        </div>
-        <SettingsRow icon={IconHeartDollar} label="Give" description="Open giving options for tithe, offering, and missions." href="/member/give" />
-        <SettingsRow icon={IconBible} label="Beliefs" description="Read the current Liberty Church beliefs summary." href="/member/beliefs" />
-        <SettingsRow icon={IconSparkles} label="Youth" description="Open the youth section with its own visual theme." href="/member/youth" />
-        <SettingsRow icon={IconBug} label="Beta Feedback" description="Report bugs, visual issues, or tester notes for this build." href="/member/feedback" />
-      </section>
+      </MemberAccordion>
     </AppShell>
   );
 }

@@ -1,6 +1,7 @@
-import { IconMail } from "@tabler/icons-react";
+import Link from "next/link";
+import { IconMail, IconPencil } from "@tabler/icons-react";
 
-export function ProfileCard({ name, email, uploadLabel = null, footer = null }) {
+export function ProfileCard({ name, email, photoUrl = "", uploadLabel = null, footer = null, editPhotoHref = null }) {
   const initials = String(name || "")
     .trim()
     .split(/\s+/)
@@ -12,8 +13,13 @@ export function ProfileCard({ name, email, uploadLabel = null, footer = null }) 
   return (
     <section className="lc-profile-card">
       <div className="lc-profile-card-top">
-        <div className="lc-profile-photo" aria-hidden="true">
-          <span>{initials}</span>
+        <div className="lc-profile-photo">
+          {photoUrl ? <img src={photoUrl} alt={`${name} profile`} className="lc-profile-photo-image" /> : <span>{initials}</span>}
+          {editPhotoHref ? (
+            <Link href={editPhotoHref} className="lc-profile-photo-edit" aria-label="Edit profile photo">
+              <IconPencil size={14} stroke={2} />
+            </Link>
+          ) : null}
         </div>
         <div className="lc-identity-copy">
           <h2>{name}</h2>

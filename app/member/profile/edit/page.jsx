@@ -15,10 +15,16 @@ export default async function EditProfilePage() {
   };
 
   return (
-    <AppShell navKey="more" title="Edit Profile" subtitle="Update your name, phone number, and profile photo." showProfileShortcut={false}>
+    <AppShell navKey="more" title="Edit Profile" subtitle="Update the member details the church uses to reach you." showProfileShortcut={false}>
       <BackRow fallbackHref="/member/profile" useHistory={false} />
 
-      <ProfileCard name={memberProfile.fullName || "Liberty Church Member"} email={memberProfile.email || "member@golibertychurch.com"} uploadLabel={`@${memberProfile.username}`} />
+      <ProfileCard
+        name={memberProfile.fullName || "Liberty Church Member"}
+        email={memberProfile.email || "member@golibertychurch.com"}
+        photoUrl={current?.user?.user_metadata?.profile_photo_url || ""}
+        uploadLabel={`@${memberProfile.username}`}
+        editPhotoHref="/member/profile/photo"
+      />
 
       <MemberProfileForm member={memberProfile} />
     </AppShell>

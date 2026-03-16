@@ -22,6 +22,7 @@ export async function GET() {
       fullName: member.full_name || user.user_metadata?.full_name || "",
       email: member.email || user.email || "",
       phone: member.phone || "",
+      photoUrl: user.user_metadata?.profile_photo_url || "",
       createdAt: member.created_at || null,
       lastLoginAt: member.last_login_at || null,
     },
@@ -100,6 +101,7 @@ export async function PATCH(request) {
       fullName: member.full_name || "",
       email: member.email || user.email || "",
       phone: member.phone || "",
+      photoUrl: user.user_metadata?.profile_photo_url || "",
     },
     message: "Your profile has been updated.",
   });

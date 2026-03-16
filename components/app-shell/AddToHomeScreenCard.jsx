@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { IconDeviceMobile, IconDownload, IconShare3 } from "@tabler/icons-react";
+import { MemberAccordion } from "@/components/app-shell/MemberAccordion";
 
 export function AddToHomeScreenCard() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -37,25 +38,31 @@ export function AddToHomeScreenCard() {
   }
 
   return (
-    <section className="lc-card">
-      <div className="lc-upload-panel-head">
-        <div className="lc-section-head">
-          <h2>Save to Home Screen</h2>
-          <p className="lc-muted">Keep the member beta one tap away on your phone.</p>
-        </div>
-      </div>
-
+    <MemberAccordion
+      title="Save to Home Screen"
+      description="Tap to see the short steps for keeping the member area on your phone."
+    >
       <div className="lc-upload-panel compact">
         <div className="lc-upload-dropzone compact">
           <span className="lc-upload-icon">
             {platform === "ios" ? <IconShare3 size={28} stroke={1.8} /> : <IconDeviceMobile size={28} stroke={1.8} />}
           </span>
           <strong>Add Liberty Church to your home screen</strong>
-          <span className="lc-muted">
-            {platform === "ios"
-              ? "Tap Share, then choose Add to Home Screen."
-              : "Use your browser menu to install or add this app to your home screen."}
-          </span>
+          <div className="lc-step-list">
+            {platform === "ios" ? (
+              <>
+                <span>1. Open the Share menu in Safari.</span>
+                <span>2. Tap <strong>Add to Home Screen</strong>.</span>
+                <span>3. Tap <strong>Add</strong> in the top corner.</span>
+              </>
+            ) : (
+              <>
+                <span>1. Open your browser menu.</span>
+                <span>2. Choose <strong>Install App</strong> or <strong>Add to Home Screen</strong>.</span>
+                <span>3. Confirm the install so it stays one tap away.</span>
+              </>
+            )}
+          </div>
 
           {deferredPrompt ? (
             <button
@@ -74,6 +81,6 @@ export function AddToHomeScreenCard() {
           )}
         </div>
       </div>
-    </section>
+    </MemberAccordion>
   );
 }

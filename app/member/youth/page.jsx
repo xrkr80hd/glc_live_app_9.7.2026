@@ -3,10 +3,11 @@ import { BackRow } from "@/components/app-shell/BackRow";
 import { ButtonRow } from "@/components/app-shell/ButtonRow";
 import { YouthGlassCard } from "@/components/app-shell/YouthGlassCard";
 import { YouthHero } from "@/components/app-shell/YouthHero";
-import { youthDevotionalPlaceholders, youthEventPlaceholders } from "@/lib/mobile-app-content";
+import { getYouthPageContent } from "@/lib/content";
 import { IconBook2, IconCalendarEvent, IconMapPin, IconSparkles } from "@tabler/icons-react";
 
-export default function YouthPage() {
+export default async function YouthPage() {
+  const { youthAnnouncements, youthScripture, youthBanner } = await getYouthPageContent();
   const actions = [
     {
       label: "Read Devotional",
@@ -33,37 +34,53 @@ export default function YouthPage() {
 
       <YouthHero
         eyebrow="LC Youth"
-        title="Stay connected with youth ministry"
-        description="Jump into devotionals, event details, and the latest youth updates."
+        title={youthBanner?.title || "Stay connected with youth ministry"}
+        description={youthBanner?.subtitle || "Jump into devotionals, event details, and the latest youth updates."}
       >
         <ButtonRow actions={actions} />
       </YouthHero>
 
       <YouthGlassCard>
         <div className="lc-section-head">
-          <h2>Devotional</h2>
-          <p className="lc-muted">The Read Devotional button routes to the dedicated devotional page.</p>
+          <h2>Scripture of the Week</h2>
+          <p className="lc-muted">This section now follows the tone and visual direction of the youth website.</p>
         </div>
         <div className="lc-stack">
-          <strong>{youthDevotionalPlaceholders.title}</strong>
-          <span className="lc-muted">{youthDevotionalPlaceholders.reference}</span>
+          <strong>{youthScripture.reference}</strong>
+          <p className="lc-muted">{youthScripture.verse_text}</p>
         </div>
       </YouthGlassCard>
 
       <YouthGlassCard>
         <div className="lc-section-head">
-          <h2>Youth Event</h2>
-          <p className="lc-muted">Event cards route to the youth event detail page.</p>
+          <h2>Announcements and Events</h2>
+          <p className="lc-muted">Fresh youth updates pulled from the same content stream used by the youth website.</p>
         </div>
         <div className="lc-stack">
-          <strong>{youthEventPlaceholders.title}</strong>
+          {youthAnnouncements.map((item) => (
+            <article key={item.id} className="lc-card alt flat">
+              <div className="lc-stack">
+                <strong>{item.title}</strong>
+                <p className="lc-muted">{item.body}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </YouthGlassCard>
+
+      <YouthGlassCard>
+        <div className="lc-section-head">
+          <h2>Gather With Us</h2>
+          <p className="lc-muted">A simple reminder card for students and families opening the youth tab.</p>
+        </div>
+        <div className="lc-stack">
           <div className="lc-announcement-meta">
             <IconMapPin size={16} stroke={1.8} />
-            <span>{youthEventPlaceholders.location}</span>
+            <span>Liberty Church Youth Space</span>
           </div>
           <span className="lc-pill">
             <IconSparkles size={14} stroke={1.8} />
-            Upcoming event
+            Sundays at 9:20 AM
           </span>
         </div>
       </YouthGlassCard>
