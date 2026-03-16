@@ -513,21 +513,21 @@ a {
 .lc-app-shell,
 .lc-auth-shell {
   --app-shell-bg:
-    radial-gradient(circle at top, rgba(16, 93, 68, 0.2) 0%, transparent 34%),
-    linear-gradient(180deg, #f4f8f3 0%, #e6efe9 100%);
-  --app-frame-bg: linear-gradient(180deg, #ffffff 0%, #f8faf7 100%);
+    radial-gradient(circle at top, rgba(16, 93, 68, 0.08) 0%, transparent 30%),
+    linear-gradient(180deg, #fbfcfb 0%, #f3f6f4 100%);
+  --app-frame-bg: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
   --app-card-bg: #ffffff;
-  --app-card-alt-bg: #eef8f2;
+  --app-card-alt-bg: #f9fcfa;
   --app-nav-bg: rgba(255, 255, 255, 0.94);
   --app-text: #13211b;
   --app-muted: #4e6258;
-  --app-line: #bfd8cb;
-  --app-line-strong: #98bea9;
+  --app-line: #d4e2da;
+  --app-line-strong: #b4ccbF;
   --app-accent: #0f6a4f;
   --app-accent-strong: #0a4735;
-  --app-accent-soft: #dbf2e5;
-  --app-accent-soft-strong: #c4ead7;
-  --app-shadow: 0 20px 50px rgba(19, 35, 28, 0.12);
+  --app-accent-soft: #eef7f2;
+  --app-accent-soft-strong: #dbefe3;
+  --app-shadow: 0 18px 40px rgba(19, 35, 28, 0.08);
 }
 
 .lc-app-shell {
@@ -560,20 +560,20 @@ a {
 
 html[data-app-theme="dark"] .lc-app-shell.theme-member {
   --app-shell-bg:
-    radial-gradient(circle at top, rgba(44, 164, 118, 0.24) 0%, transparent 34%),
-    linear-gradient(180deg, #0b1511 0%, #101d17 100%);
-  --app-frame-bg: linear-gradient(180deg, #102019 0%, #0b1712 100%);
-  --app-card-bg: rgba(18, 32, 26, 0.96);
-  --app-card-alt-bg: rgba(20, 40, 31, 0.96);
-  --app-nav-bg: rgba(8, 19, 14, 0.96);
+    radial-gradient(circle at top, rgba(42, 163, 111, 0.08) 0%, transparent 28%),
+    linear-gradient(180deg, #090b0a 0%, #111413 100%);
+  --app-frame-bg: linear-gradient(180deg, #101312 0%, #0d100f 100%);
+  --app-card-bg: rgba(18, 20, 19, 0.98);
+  --app-card-alt-bg: rgba(23, 26, 24, 0.98);
+  --app-nav-bg: rgba(12, 15, 14, 0.98);
   --app-text: #f4fbf7;
-  --app-muted: #b7cbbf;
-  --app-line: rgba(137, 173, 156, 0.28);
-  --app-line-strong: rgba(164, 206, 187, 0.38);
+  --app-muted: #b5c0bb;
+  --app-line: rgba(118, 132, 125, 0.28);
+  --app-line-strong: rgba(155, 176, 166, 0.34);
   --app-accent: #2aa36f;
-  --app-accent-strong: #dbfff0;
-  --app-accent-soft: rgba(42, 163, 111, 0.18);
-  --app-accent-soft-strong: rgba(42, 163, 111, 0.28);
+  --app-accent-strong: #ecfff7;
+  --app-accent-soft: rgba(42, 163, 111, 0.12);
+  --app-accent-soft-strong: rgba(42, 163, 111, 0.2);
   --app-shadow: 0 26px 70px rgba(0, 0, 0, 0.34);
 }
 
@@ -584,10 +584,10 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
   flex-direction: column;
   background: var(--app-frame-bg);
   color: var(--app-text);
-  border: 2px solid rgba(15, 96, 72, 0.28);
+  border: 1px solid rgba(15, 96, 72, 0.14);
   border-radius: 34px;
   overflow: hidden;
-  box-shadow: 0 28px 80px rgba(13, 32, 24, 0.16);
+  box-shadow: 0 24px 60px rgba(13, 32, 24, 0.1);
 }
 
 .lc-app-header {
@@ -595,13 +595,13 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
   display: grid;
   gap: 0.8rem;
   padding: 0.95rem 1.2rem 0.85rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 249, 245, 0.96) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 255, 255, 0.97) 100%);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
-  border-bottom: 1px solid rgba(15, 96, 72, 0.18);
+  border-bottom: 1px solid rgba(15, 96, 72, 0.12);
   box-shadow:
-    inset 0 6px 0 var(--app-accent),
-    0 10px 22px rgba(15, 96, 72, 0.08);
+    inset 0 5px 0 var(--app-accent),
+    0 8px 18px rgba(15, 96, 72, 0.04);
 }
 
 .theme-youth .lc-app-header {
@@ -674,17 +674,17 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
 }
 
 .lc-theme-toggle {
-  width: 46px;
-  height: 46px;
-  border-radius: 999px;
-  border: 1px solid var(--app-line-strong);
+  width: 30px;
+  height: 30px;
+  border-radius: 0;
+  border: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--app-accent-soft);
+  background: transparent;
   color: var(--app-accent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
   cursor: pointer;
+  padding: 0;
 }
 
 .lc-profile-shortcut {
@@ -694,10 +694,10 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--app-accent-soft);
+  background: #ffffff;
   color: var(--app-accent);
   border: 1px solid var(--app-line);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 16px rgba(15, 96, 72, 0.08);
   overflow: hidden;
 }
 
@@ -706,8 +706,11 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
 }
 
 .lc-profile-shortcut-image {
+  display: block;
   width: 100%;
   height: 100%;
+  min-width: 100%;
+  min-height: 100%;
   object-fit: cover;
 }
 
@@ -729,7 +732,7 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member {
 
 .lc-app-footer-slot {
   padding: 0 1.2rem 0.75rem;
-  background: linear-gradient(180deg, rgba(248, 250, 247, 0) 0%, rgba(248, 250, 247, 0.98) 35%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.98) 35%);
 }
 
 html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
@@ -813,8 +816,8 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
 .lc-profile-card,
 .lc-announcement-card {
   box-shadow:
-    0 16px 36px rgba(13, 54, 39, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    0 12px 28px rgba(13, 54, 39, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .lc-card.flat {
@@ -843,11 +846,20 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
   display: grid;
   gap: 0.85rem;
   border-radius: 28px;
-  background:
-    radial-gradient(circle at top right, rgba(15, 96, 72, 0.28) 0%, transparent 34%),
-    linear-gradient(135deg, #ffffff 0%, #edf8f1 100%);
-  border: 1px solid rgba(15, 96, 72, 0.2);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfb 100%);
+  border: 1px solid rgba(15, 96, 72, 0.14);
   box-shadow: var(--app-shadow);
+}
+
+.lc-home-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-accent);
 }
 
 .lc-home-title {
@@ -1036,14 +1048,15 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-app-footer-slot {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.5rem;
   padding: 0.85rem 0.9rem calc(0.85rem + env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, #11684d 0%, #0b4e3a 100%);
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.98);
+  border-top: 1px solid var(--app-line);
+  box-shadow: 0 -10px 24px rgba(13, 32, 24, 0.06);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
 }
 
 html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-bottom-nav {
-  background: linear-gradient(180deg, #0a3c2d 0%, #082b21 100%);
+  background: rgba(12, 15, 14, 0.98);
 }
 
 .theme-youth .lc-bottom-nav {
@@ -1057,7 +1070,7 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-bottom-nav {
   gap: 0.22rem;
   padding: 0.5rem 0.3rem;
   border-radius: 16px;
-  color: rgba(255, 255, 255, 0.82);
+  color: #436455;
   font-size: 0.77rem;
   font-weight: 700;
 }
@@ -1071,7 +1084,7 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-bottom-nav {
   background: #1b8e69;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.12),
-    0 10px 18px rgba(0, 0, 0, 0.12);
+    0 10px 18px rgba(15, 96, 72, 0.16);
 }
 
 .theme-youth .lc-nav-link.is-active {
@@ -1413,8 +1426,11 @@ button.lc-announcement-card {
 }
 
 .lc-profile-photo-image {
+  display: block;
   width: 100%;
   height: 100%;
+  min-width: 100%;
+  min-height: 100%;
   object-fit: cover;
 }
 
@@ -1569,20 +1585,17 @@ button.lc-announcement-card {
 }
 
 .lc-accordion-chevron {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--app-accent-soft);
   color: var(--app-accent);
-  font-size: 1.25rem;
-  font-weight: 400;
 }
 
 .lc-accordion-card[open] .lc-accordion-chevron {
-  transform: rotate(45deg);
+  transform: none;
 }
 
 .lc-accordion-panel {
@@ -1855,11 +1868,22 @@ button.lc-announcement-card {
   text-align: center;
 }
 
-.lc-footer-cta-wrap .lc-action-link.primary {
-  min-height: 56px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #0f6048 0%, #1a936d 100%);
-  box-shadow: 0 16px 30px rgba(15, 96, 72, 0.22);
+.lc-youth-gateway-card {
+  display: grid;
+  gap: 0.75rem;
+  background:
+    radial-gradient(circle at top right, rgba(123, 115, 255, 0.08) 0%, transparent 34%),
+    radial-gradient(circle at bottom left, rgba(76, 202, 255, 0.08) 0%, transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+  border-color: rgba(124, 115, 255, 0.2);
+}
+
+html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-youth-gateway-card {
+  background:
+    radial-gradient(circle at top right, rgba(123, 115, 255, 0.16) 0%, transparent 34%),
+    radial-gradient(circle at bottom left, rgba(76, 202, 255, 0.14) 0%, transparent 30%),
+    linear-gradient(180deg, #15181d 0%, #101317 100%);
+  border-color: rgba(124, 115, 255, 0.3);
 }
 
 .lc-hidden-note {

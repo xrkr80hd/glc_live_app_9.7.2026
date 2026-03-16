@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { AnnouncementCard } from "@/components/app-shell/AnnouncementCard";
 import { AppShell } from "@/components/app-shell/AppShell";
-import { ButtonRow } from "@/components/app-shell/ButtonRow";
 import { getHomepageContent, getSermonsContent } from "@/lib/content";
 import { getCurrentMemberFromServerCookies } from "@/lib/member-auth";
 import { formatMemberDate, summarizeText } from "@/lib/member-page-data";
@@ -21,29 +21,10 @@ export default async function HomePage() {
   const firstName = memberName.split(" ")?.[0] || "there";
 
   return (
-    <AppShell
-      navKey="home"
-      title={null}
-      subtitle={null}
-      footerContent={
-        <div className="lc-footer-cta-wrap">
-          <ButtonRow
-            actions={[
-              {
-                label: "Youth! Go Here!",
-                href: "/member/youth",
-                icon: IconSparkles,
-                variant: "primary",
-              },
-            ]}
-            columns={1}
-          />
-        </div>
-      }
-    >
+    <AppShell navKey="home" title={null} subtitle={null}>
       <section className="lc-hero-card">
-        <span className="lc-hero-eyebrow">
-          <IconSparkles size={14} stroke={1.8} />
+        <span className="lc-home-kicker">
+          <IconSparkles size={15} stroke={1.9} />
           Welcome
         </span>
         <div className="lc-stack">
@@ -137,6 +118,17 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <Link href="/member/youth" className="lc-card lc-youth-gateway-card">
+        <span className="lc-home-kicker">
+          <IconSparkles size={15} stroke={1.9} />
+          Youth
+        </span>
+        <div className="lc-section-head">
+          <h2>Youth! Go Here!</h2>
+          <p className="lc-muted">Open the youth area for student devotion, updates, and upcoming events.</p>
+        </div>
+      </Link>
     </AppShell>
   );
 }
