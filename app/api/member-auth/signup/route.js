@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readJsonBody } from "@/lib/admin-api";
 import { isMemberAuthConfigured } from "@/lib/member-auth";
+import { buildPublicUrl } from "@/lib/public-url";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function normalizeEmail(value) {
@@ -13,8 +14,7 @@ function normalizeText(value) {
 }
 
 function buildEmailRedirectTo(request) {
-  const url = new URL(request.url);
-  const confirmUrl = new URL("/auth/confirm", url.origin);
+  const confirmUrl = buildPublicUrl(request, "/auth/confirm");
   confirmUrl.searchParams.set("next", "/member-access?verified=1");
   return confirmUrl.toString();
 }

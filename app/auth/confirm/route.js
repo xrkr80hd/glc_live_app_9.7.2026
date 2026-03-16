@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import { buildPublicUrl } from "@/lib/public-url";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function redirectTo(request, path) {
-  return NextResponse.redirect(new URL(path, request.url));
+  return NextResponse.redirect(buildPublicUrl(request, path));
 }
 
 export async function GET(request) {
