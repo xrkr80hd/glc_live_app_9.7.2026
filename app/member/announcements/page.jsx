@@ -19,7 +19,7 @@ export default function AnnouncementsPage() {
             title={item.title}
             summary={item.summary}
             date={item.date}
-            href={`/announcements/${item.id}`}
+            href={`/member/announcements/${item.id}`}
             ctaLabel="Read Detail"
           />
         ))}

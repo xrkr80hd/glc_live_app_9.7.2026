@@ -26,23 +26,23 @@ export default function LivePage() {
   ];
 
   return (
-    <AppShell navKey="live" title="Watch Live" subtitle="Join the current stream and follow along with today’s service.">
+    <AppShell navKey="live" title="Watch Live" subtitle="Join the current stream and follow along with today's service.">
       <BackRow fallbackHref="/member" />
 
       <section className="lc-media-placeholder video">
         <div className="lc-poster-copy">
           <IconBroadcast size={42} stroke={1.7} />
-          <strong>[STREAM_TITLE]</strong>
-          <span className="lc-muted">Livestream player area</span>
+          <strong>Sunday Worship Livestream</strong>
+          <span className="lc-muted">The live player will appear here whenever the church stream is active.</span>
         </div>
       </section>
 
       <section className="lc-card">
         <div className="lc-section-head">
-          <h2>[SERVICE_NAME]</h2>
-          <p className="lc-muted">[SERVICE_DATE]</p>
+          <h2>Liberty Church Worship Service</h2>
+          <p className="lc-muted">Sundays at 10:00 AM</p>
         </div>
-        <p>[SERVICE_DESCRIPTION]</p>
+        <p>Use this screen for the live service, then jump straight into prayer, giving, or the latest sermon library after the stream.</p>
       </section>
 
       <section className="lc-stack">

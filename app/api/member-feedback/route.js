@@ -1,16 +1,26 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+function normalizeText(value, maxLength = 0) {
+  const normalized = String(value || "").trim();
+  if (!maxLength) {
+    return normalized;
+  }
+  return normalized.slice(0, maxLength);
+}
+
 async function readPayload(request) {
   const contentType = request.headers.get("content-type") || "";
 
   if (contentType.includes("application/json")) {
     const body = await request.json().catch(() => ({}));
     return {
-      name: String(body.name || "").trim(),
-      email: String(body.email || "").trim(),
-      requestText: String(body.request || body.request_text || "").trim(),
-      sharePermission: Boolean(body.sharePermission),
+      name: normalizeText(body.name, 120),
+      email: normalizeText(body.email, 160),
+      route: normalizeText(body.route, 160),
+      category: normalizeText(body.category, 40),
+      severity: normalizeText(body.severity, 40),
+      message: normalizeText(body.message, 4000),
     };
   }
 
@@ -25,25 +35,18 @@ async function readPayload(request) {
 
   const formData = await request.formData();
   return {
-    name: String(formData.get("name") || "").trim(),
-    email: String(formData.get("email") || "").trim(),
-    requestText: String(formData.get("request") || formData.get("request_text") || "").trim(),
-    sharePermission:
-      String(formData.get("sharePermission") || "").toLowerCase() === "yes" ||
-      String(formData.get("is_private") || "") !== "true",
+    name: normalizeText(formData.get("name"), 120),
+    email: normalizeText(formData.get("email"), 160),
+    route: normalizeText(formData.get("route"), 160),
+    category: normalizeText(formData.get("category"), 40),
+    severity: normalizeText(formData.get("severity"), 40),
+    message: normalizeText(formData.get("message"), 4000),
   };
-}
-
-function normalizeName(value) {
-  return value || "Anonymous";
-}
-
-function normalizeEmail(value) {
-  return value || "not-provided@golibertychurch.com";
 }
 
 export async function POST(request) {
   let payload;
+
   try {
     payload = await readPayload(request);
   } catch (error) {
@@ -56,6 +59,7 @@ export async function POST(request) {
         { status: 415 },
       );
     }
+
     return NextResponse.json(
       {
         success: false,
@@ -65,11 +69,11 @@ export async function POST(request) {
     );
   }
 
-  if (!payload.requestText) {
+  if (!payload.message) {
     return NextResponse.json(
       {
         success: false,
-        message: "Please let us know how we can pray with you.",
+        message: "Please enter the issue or feedback note.",
       },
       { status: 400 },
     );
@@ -86,19 +90,27 @@ export async function POST(request) {
     );
   }
 
-  const { error } = await supabase.from("prayer_requests").insert({
-    name: normalizeName(payload.name),
-    email: normalizeEmail(payload.email),
-    request_text: payload.requestText,
-    is_private: !payload.sharePermission,
-    status: "new",
+  const category = ["bug", "ui", "idea", "other"].includes(payload.category)
+    ? payload.category
+    : "bug";
+  const severity = ["low", "medium", "high"].includes(payload.severity)
+    ? payload.severity
+    : "medium";
+
+  const { error } = await supabase.from("member_feedback").insert({
+    name: payload.name || null,
+    email: payload.email || null,
+    route: payload.route || null,
+    category,
+    severity,
+    message: payload.message,
   });
 
   if (error) {
     return NextResponse.json(
       {
         success: false,
-        message: "We could not send your request. Please try again soon.",
+        message: "Unable to save feedback right now. Please try again.",
       },
       { status: 500 },
     );
@@ -106,6 +118,6 @@ export async function POST(request) {
 
   return NextResponse.json({
     success: true,
-    message: "Thank you for sharing. Our prayer team is on it.",
+    message: "Thanks. Your test feedback has been saved.",
   });
 }

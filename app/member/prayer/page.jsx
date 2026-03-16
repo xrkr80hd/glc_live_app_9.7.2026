@@ -16,22 +16,54 @@ export default function PrayerPage() {
   const [request, setRequest] = useState("");
   const [destination, setDestination] = useState(destinations[0]);
   const [postAnonymously, setPostAnonymously] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    setShowToast(true);
+    setIsSaving(true);
+    setToast(null);
+
+    try {
+      const response = await fetch("/api/prayer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          request,
+          sharePermission: destination === destinations[1],
+          anonymous: postAnonymously,
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message || "Unable to send your request right now.");
+      }
+
+      setToast({
+        title: "Prayer request submitted",
+        message: payload.message || "Your request has been shared with the prayer team.",
+      });
+      setRequest("");
+      setDestination(destinations[0]);
+      setPostAnonymously(false);
+    } catch (error) {
+      setToast({
+        title: "Unable to submit prayer request",
+        message: error.message || "Please try again in a moment.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
     <AppShell navKey="prayer" title="Prayer" subtitle="Submit a prayer request and choose where it should go.">
-      {showToast ? (
+      {toast ? (
         <div className="lc-toast-wrap">
-          <ToastMessage
-            title="Prayer request submitted"
-            message="The success state is a toast on this route, not a separate page."
-            onClose={() => setShowToast(false)}
-          />
+          <ToastMessage title={toast.title} message={toast.message} onClose={() => setToast(null)} />
         </div>
       ) : null}
 
@@ -51,7 +83,8 @@ export default function PrayerPage() {
               className="lc-textarea"
               value={request}
               onChange={(event) => setRequest(event.target.value)}
-              placeholder="[PRAYER_REQUEST_TEXT]"
+              placeholder="Share your prayer request here. You can keep it private or send it for prayer wall review."
+              required
             />
           </div>
 
@@ -77,9 +110,9 @@ export default function PrayerPage() {
           </label>
 
           <div className="lc-button-row">
-            <button type="submit" className="lc-action-btn primary">
+            <button type="submit" className="lc-action-btn primary" disabled={isSaving}>
               <IconSend size={18} stroke={1.8} />
-              <span>Submit Prayer Request</span>
+              <span>{isSaving ? "Submitting..." : "Submit Prayer Request"}</span>
             </button>
             <Link href="/member/prayer/wall" className="lc-action-link ghost">
               <IconMessageCircleHeart size={18} stroke={1.8} />

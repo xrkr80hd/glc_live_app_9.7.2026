@@ -666,7 +666,7 @@ a {
   display: grid;
   align-content: start;
   gap: 1rem;
-  padding: 0 1.2rem 6.8rem;
+  padding: 0 1.2rem 6.5rem;
 }
 
 .lc-stack {
@@ -774,9 +774,14 @@ a {
 
 .lc-home-title {
   margin: 0;
-  font-size: clamp(2rem, 7vw, 2.55rem);
-  line-height: 1.02;
+  font-size: clamp(1.65rem, 6vw, 2.2rem);
+  line-height: 1.04;
   font-family: var(--font-display), var(--font-sans), sans-serif;
+}
+
+.lc-hero-note {
+  padding-top: 0.15rem;
+  border-top: 1px solid rgba(15, 96, 72, 0.09);
 }
 
 .theme-youth .lc-hero-card,
@@ -882,7 +887,7 @@ a {
 
 .lc-button-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--button-cols, 2), minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -903,6 +908,11 @@ a {
   background: #ffffff;
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(19, 35, 28, 0.08);
+}
+
+.lc-button-row .lc-action-link,
+.lc-button-row .lc-action-btn {
+  min-height: 56px;
 }
 
 .lc-action-btn.primary,
@@ -1285,6 +1295,12 @@ button.lc-announcement-card {
   color: var(--app-accent);
 }
 
+.lc-profile-photo span {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
 .theme-youth .lc-profile-photo {
   background: linear-gradient(135deg, rgba(123, 115, 255, 0.28) 0%, rgba(76, 202, 255, 0.14) 100%);
 }
@@ -1363,6 +1379,125 @@ button.lc-announcement-card {
   justify-items: center;
 }
 
+.lc-auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at top, rgba(15, 96, 72, 0.14) 0%, transparent 35%),
+    linear-gradient(180deg, #f7f8f4 0%, #edf1eb 100%);
+}
+
+.lc-auth-card {
+  width: min(100%, 540px);
+  display: grid;
+  gap: 0.95rem;
+  padding: 1.15rem;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(15, 96, 72, 0.12);
+  box-shadow: 0 28px 70px rgba(19, 35, 28, 0.12);
+}
+
+.lc-auth-copy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.lc-auth-copy h1 {
+  margin: 0;
+  font-size: clamp(1.9rem, 6vw, 2.45rem);
+  line-height: 1;
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+}
+
+.lc-auth-message,
+.lc-auth-note {
+  margin: 0;
+  border-radius: 20px;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid rgba(15, 96, 72, 0.12);
+  background: #f4fbf7;
+}
+
+.lc-auth-message {
+  color: #8d1b1b;
+  background: #fff4f4;
+  border-color: rgba(141, 27, 27, 0.12);
+}
+
+.lc-upload-panel {
+  border-radius: 22px;
+  border: 1px solid var(--app-line);
+  background: linear-gradient(180deg, #ffffff 0%, #f7faf8 100%);
+  padding: 0.9rem;
+}
+
+.lc-upload-panel.compact {
+  padding: 0.75rem;
+}
+
+.lc-upload-panel-head {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.8rem;
+}
+
+.lc-upload-dropzone {
+  min-height: 200px;
+  display: grid;
+  place-items: center;
+  gap: 0.7rem;
+  text-align: center;
+  border: 2px dashed var(--app-line-strong);
+  border-radius: 22px;
+  padding: 1.4rem;
+  background: rgba(15, 96, 72, 0.03);
+}
+
+.lc-upload-dropzone.compact {
+  min-height: 172px;
+  padding: 1rem;
+  gap: 0.6rem;
+}
+
+.lc-upload-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--app-accent) 0%, #1f7a5e 100%);
+  box-shadow: 0 14px 30px rgba(15, 96, 72, 0.22);
+}
+
+.lc-upload-browse {
+  min-width: 170px;
+  min-height: 50px;
+  border-radius: 16px;
+  border: 0;
+  padding: 0.8rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font: inherit;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--app-accent) 0%, #1b7357 100%);
+  box-shadow: 0 14px 28px rgba(15, 96, 72, 0.24);
+  cursor: pointer;
+}
+
+.lc-upload-helper {
+  font-size: 0.84rem;
+  color: var(--app-muted);
+  text-align: center;
+}
+
 .lc-hidden-note {
   position: absolute;
   width: 1px;
@@ -1395,6 +1530,26 @@ button.lc-announcement-card {
   .lc-kpi-row,
   .lc-button-row {
     grid-template-columns: 1fr;
+  }
+
+  .lc-app-main {
+    padding: 0 1rem 6.3rem;
+  }
+
+  .lc-hero-card,
+  .lc-card,
+  .lc-prayer-card,
+  .lc-directory-card,
+  .lc-stat-card,
+  .lc-announcement-card,
+  .lc-profile-card,
+  .lc-settings-row {
+    border-radius: 22px;
+  }
+
+  .lc-upload-dropzone {
+    min-height: 176px;
+    padding: 1rem;
   }
 
   .lc-profile-card-top {

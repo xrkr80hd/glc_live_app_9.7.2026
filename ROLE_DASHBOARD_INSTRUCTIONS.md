@@ -20,6 +20,13 @@
 - Use the youth theme only on youth-specific routes.
 - Do not push changes unless the user explicitly says to push.
 - When responding to this prompt, provide the requested route map and implementation plan before coding.
+- Frontend UX must stay plain-language and non-technical for everyday church users.
+- Default upload UX must use a clean file-upload card, not a raw URL field.
+- URL/video fields are optional secondary inputs only when the feature truly needs them, such as YouTube curriculum video support.
+- Member-facing and ministry-facing flows should prefer labels like "Upload Lesson Material," "Browse Files," "Last taught," "Up next," and "Mark as taught."
+- Never surface backend field names like `file_url`, `module_key`, `curriculum_id`, or similar technical schema terms in the visible UI.
+- Older or non-technical members must be able to understand what to do without training.
+- Upload components must look polished, mobile-friendly, and visually intentional rather than like default admin forms.
 
 ```text
 You are wiring the Liberty Church role dashboard system using the uploaded dashboard anchors already present in this workspace.

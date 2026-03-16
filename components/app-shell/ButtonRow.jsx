@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-export function ButtonRow({ actions }) {
+export function ButtonRow({ actions, columns = 2 }) {
   return (
-    <div className="lc-button-row">
+    <div className="lc-button-row" style={{ "--button-cols": columns }}>
       {actions.map((action) => {
         const Icon = action.icon;
         const className = action.variant ? `lc-action-link ${action.variant}` : "lc-action-link";

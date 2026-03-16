@@ -12,8 +12,8 @@ export default function YouthEventPage() {
 
       <section className="lc-event-poster">
         <div className="lc-poster-copy">
-          <strong>[YOUTH_EVENT_IMAGE]</strong>
-          <span className="lc-muted">Event artwork</span>
+          <strong>Liberty Youth Night</strong>
+          <span className="lc-muted">Student event artwork and preview area</span>
         </div>
       </section>
 
@@ -33,7 +33,7 @@ export default function YouthEventPage() {
             <IconMapPin size={16} stroke={1.8} />
             <span>{youthEventPlaceholders.location}</span>
           </div>
-          <ButtonRow actions={[{ label: youthEventPlaceholders.cta, disabled: true, variant: "ghost" }]} />
+          <ButtonRow actions={[{ label: youthEventPlaceholders.cta, href: "/member/youth", variant: "ghost" }]} />
         </div>
       </YouthGlassCard>
     </AppShell>

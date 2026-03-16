@@ -1,53 +1,26 @@
-import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { BackRow } from "@/components/app-shell/BackRow";
+import { MemberProfileForm } from "@/components/app-shell/MemberProfileForm";
 import { ProfileCard } from "@/components/app-shell/ProfileCard";
-import { profilePlaceholders } from "@/lib/mobile-app-content";
+import { getCurrentMemberFromServerCookies } from "@/lib/member-auth";
 
-export default function EditProfilePage() {
+export default async function EditProfilePage() {
+  const current = await getCurrentMemberFromServerCookies();
+  const member = current?.member;
+  const memberProfile = {
+    fullName: member?.full_name || current?.session?.fullName || "",
+    email: member?.email || current?.session?.email || "",
+    phone: member?.phone || "",
+    username: member?.username || current?.session?.username || "",
+  };
+
   return (
-    <AppShell navKey="more" title="Edit Profile" subtitle="Update member details and profile photo." showProfileShortcut={false}>
+    <AppShell navKey="more" title="Edit Profile" subtitle="Update your name, phone number, and profile photo." showProfileShortcut={false}>
       <BackRow fallbackHref="/member/profile" useHistory={false} />
 
-      <ProfileCard name={profilePlaceholders.name} email={profilePlaceholders.email} uploadLabel="Upload Profile Photo" />
+      <ProfileCard name={memberProfile.fullName || "Liberty Church Member"} email={memberProfile.email || "member@golibertychurch.com"} uploadLabel={`@${memberProfile.username}`} />
 
-      <section className="lc-card">
-        <form className="lc-form-grid">
-          <div className="lc-form-grid two-up">
-            <div className="lc-form-field">
-              <label className="lc-field-label" htmlFor="edit-profile-name">Name</label>
-              <input id="edit-profile-name" className="lc-input" defaultValue={profilePlaceholders.name} />
-            </div>
-            <div className="lc-form-field">
-              <label className="lc-field-label" htmlFor="edit-profile-email">Email</label>
-              <input id="edit-profile-email" className="lc-input" defaultValue={profilePlaceholders.email} />
-            </div>
-          </div>
-
-          <div className="lc-form-field">
-            <label className="lc-field-label" htmlFor="edit-profile-phone">Phone</label>
-            <input id="edit-profile-phone" className="lc-input" placeholder="[USER_PHONE]" />
-          </div>
-
-          <div className="lc-form-field">
-            <label className="lc-field-label" htmlFor="edit-profile-photo">Profile Photo Upload</label>
-            <input id="edit-profile-photo" type="file" accept="image/*" />
-          </div>
-
-          <div className="lc-button-row">
-            <Link href="/member/profile" className="lc-action-link ghost">
-              Cancel
-            </Link>
-            <button type="button" className="lc-action-btn primary">
-              Save Profile
-            </button>
-          </div>
-
-          <Link href="/member/profile/change-password" className="lc-action-link secondary">
-            Change Password
-          </Link>
-        </form>
-      </section>
+      <MemberProfileForm member={memberProfile} />
     </AppShell>
   );
 }

@@ -2,6 +2,7 @@ import { AnnouncementCard } from "@/components/app-shell/AnnouncementCard";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { ButtonRow } from "@/components/app-shell/ButtonRow";
 import { announcementCards, homePlaceholders } from "@/lib/mobile-app-content";
+import { getCurrentMemberFromServerCookies } from "@/lib/member-auth";
 import {
   IconBroadcast,
   IconClockHour3,
@@ -13,8 +14,11 @@ import {
   IconSpeakerphone,
 } from "@tabler/icons-react";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const currentMember = await getCurrentMemberFromServerCookies();
   const primaryAnnouncement = announcementCards[0];
+  const memberName = currentMember?.member?.full_name || currentMember?.session?.fullName || "";
+  const firstName = memberName.split(" ")?.[0] || "there";
   const quickActions = [
     {
       label: "Watch Live",
@@ -50,7 +54,7 @@ export default function HomePage() {
           Welcome
         </span>
         <div className="lc-stack">
-          <h1 className="lc-home-title">{homePlaceholders.welcomeMessage}</h1>
+          <h1 className="lc-home-title">{`${homePlaceholders.welcomeMessage}, ${firstName}`}</h1>
           <p className="lc-muted">{homePlaceholders.churchIdentityLine}</p>
         </div>
         <div className="lc-kpi-row">
@@ -63,14 +67,20 @@ export default function HomePage() {
             <span>{homePlaceholders.serviceLocation}</span>
           </div>
         </div>
+        <div className="lc-hero-note">
+          <div className="lc-announcement-meta">
+            <IconSpeakerphone size={16} stroke={1.8} />
+            <span>Today at a glance: worship, prayer, messages, and church updates in one place.</span>
+          </div>
+        </div>
       </section>
 
-      <section className="lc-stack">
+      <section className="lc-card">
         <div className="lc-section-head">
           <h2>Quick Access</h2>
           <p className="lc-muted">Jump into the most-used areas of the app.</p>
         </div>
-        <ButtonRow actions={quickActions} />
+        <ButtonRow actions={quickActions} columns={2} />
       </section>
 
       <section className="lc-card alt">
@@ -94,7 +104,7 @@ export default function HomePage() {
           summary={primaryAnnouncement.summary}
           date={primaryAnnouncement.date}
           href="/member/announcements"
-          ctaLabel="View All Announcements"
+          ctaLabel="Open Announcements"
         />
       </section>
 
