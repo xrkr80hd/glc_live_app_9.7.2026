@@ -115,6 +115,7 @@ export default async function HomePage() {
       </section>
 
       <Link href="/member/youth" className="lc-card lc-youth-gateway-card">
+        <span className="lc-hero-eyebrow">LC Youth</span>
         <div className="lc-section-head">
           <h2>Youth! Go Here!</h2>
           <p className="lc-muted">Open the youth area for student devotion, updates, and upcoming events.</p>

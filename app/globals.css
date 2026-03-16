@@ -1880,11 +1880,12 @@ button.lc-announcement-card {
   display: grid;
   gap: 0.75rem;
   background:
-    radial-gradient(circle at top right, rgba(123, 115, 255, 0.08) 0%, transparent 34%),
-    radial-gradient(circle at bottom left, rgba(76, 202, 255, 0.08) 0%, transparent 30%),
-    linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
-  border-color: rgba(124, 115, 255, 0.2);
-  box-shadow: 0 14px 28px rgba(74, 96, 177, 0.08);
+    radial-gradient(circle at top right, rgba(123, 115, 255, 0.34) 0%, transparent 36%),
+    radial-gradient(circle at bottom left, rgba(58, 197, 255, 0.24) 0%, transparent 34%),
+    linear-gradient(145deg, rgba(10, 18, 31, 0.96) 0%, rgba(14, 23, 39, 0.96) 100%);
+  border-color: rgba(124, 115, 255, 0.24);
+  box-shadow: 0 18px 36px rgba(12, 18, 37, 0.24);
+  color: #f5f7ff;
 }
 
 html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-youth-gateway-card {
@@ -1895,8 +1896,17 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-youth-gateway-card {
   border-color: rgba(124, 115, 255, 0.3);
 }
 
+.lc-youth-gateway-card h2,
+.lc-youth-gateway-card strong {
+  color: #f5f7ff;
+}
+
 .lc-youth-gateway-card .lc-muted {
-  color: #58648b;
+  color: #c8d2f1;
+}
+
+.lc-youth-gateway-card .lc-hero-eyebrow {
+  color: #dfe2ff;
 }
 
 .lc-hidden-note {
