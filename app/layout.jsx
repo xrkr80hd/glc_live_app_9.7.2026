@@ -15,8 +15,8 @@ const sora = Sora({
 });
 
 export const metadata = {
-  title: "Liberty Church",
-  description: "Unified Liberty Church website and member app frontend.",
+  title: "Liberty Church | Alexandria, LA",
+  description: "A thriving Spirit-filled church in Alexandria, LA. Join us Sundays for worship and the Word.",
 };
 
 export default function RootLayout({ children }) {

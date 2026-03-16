@@ -6,14 +6,14 @@ export function AppHeader({ kicker, title, subtitle, showProfileShortcut = true,
   return (
     <header className="lc-app-header">
       <div className="lc-app-header-top">
-        <Link href="/" className="lc-brand-lockup" aria-label="Go to Liberty Church home">
+        <Link href="/member" className="lc-brand-lockup" aria-label="Go to Liberty Church member home">
           <Image src="/assets/logo.png" alt="" width={28} height={28} className="lc-brand-mark" />
           <span>Liberty Church</span>
         </Link>
         <div className="lc-app-header-actions">
           {headerAction}
           {showProfileShortcut ? (
-            <Link href="/profile" className="lc-profile-shortcut" aria-label="Open profile">
+            <Link href="/member/profile" className="lc-profile-shortcut" aria-label="Open profile">
               <IconUserCircle size={24} stroke={1.8} />
             </Link>
           ) : null}

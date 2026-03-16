@@ -4,31 +4,31 @@ import { IconBroadcast, IconHome2, IconLayoutGrid, IconPlayerPlay, IconPray } fr
 const navItems = [
   {
     key: "home",
-    href: "/",
+    href: "/member",
     label: "Home",
     icon: IconHome2,
   },
   {
     key: "live",
-    href: "/live",
+    href: "/member/live",
     label: "Live",
     icon: IconBroadcast,
   },
   {
     key: "sermons",
-    href: "/sermons",
+    href: "/member/sermons",
     label: "Sermons",
     icon: IconPlayerPlay,
   },
   {
     key: "prayer",
-    href: "/prayer",
+    href: "/member/prayer",
     label: "Prayer",
     icon: IconPray,
   },
   {
     key: "more",
-    href: "/more",
+    href: "/member/more",
     label: "More",
     icon: IconLayoutGrid,
   },
