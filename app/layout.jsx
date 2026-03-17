@@ -18,6 +18,15 @@ export const metadata = {
   title: "Liberty Church | Alexandria, LA",
   description: "A thriving Spirit-filled church in Alexandria, LA. Join us Sundays for worship and the Word.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", type: "image/x-icon" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/favicon.ico"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -30,7 +39,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link rel="stylesheet" href="/assets/style.css" />
-        <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
         <meta name="theme-color" content="#0f6048" />
       </head>
       <body className={`${manrope.variable} ${sora.variable}`}>
