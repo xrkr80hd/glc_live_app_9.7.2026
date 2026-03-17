@@ -18,8 +18,11 @@ export default async function HomePage() {
   const primaryAnnouncement = announcements[0] || null;
   const memberName = currentMember?.member?.full_name || currentMember?.session?.fullName || "";
   const firstName = memberName.split(" ")?.[0] || "";
+  const memberEmail = currentMember?.user?.email || currentMember?.member?.email || currentMember?.session?.email || "";
+  const memberUsername = currentMember?.member?.username || currentMember?.session?.username || "";
+  const memberLoginId = memberEmail || (memberUsername ? `@${memberUsername}` : "");
   const homeTitle = firstName ? `Welcome, ${firstName}` : "Welcome";
-  const homeSubtitle = firstName || "Member";
+  const homeSubtitle = memberLoginId || "Member";
 
   return (
     <AppShell navKey="home" title={homeTitle} subtitle={homeSubtitle}>
