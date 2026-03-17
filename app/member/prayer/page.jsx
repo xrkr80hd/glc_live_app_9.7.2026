@@ -60,7 +60,7 @@ export default function PrayerPage() {
   }
 
   return (
-    <AppShell navKey="prayer" title="Prayer" subtitle="Submit a prayer request and choose where it should go.">
+    <AppShell navKey="prayer" title="Prayer" subtitle="Share a request and choose visibility.">
       {toast ? (
         <div className="lc-toast-wrap">
           <ToastMessage title={toast.title} message={toast.message} onClose={() => setToast(null)} />

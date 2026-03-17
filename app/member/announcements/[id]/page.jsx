@@ -1,9 +1,8 @@
 import { AppShell } from "@/components/app-shell/AppShell";
 import { BackRow } from "@/components/app-shell/BackRow";
-import { ButtonRow } from "@/components/app-shell/ButtonRow";
 import { getMemberAnnouncementById } from "@/lib/content";
 import { formatMemberDate } from "@/lib/member-page-data";
-import { IconCalendarWeek, IconNotes, IconTargetArrow } from "@tabler/icons-react";
+import { IconCalendarWeek } from "@tabler/icons-react";
 
 export default async function AnnouncementDetailPage({ params }) {
   const resolvedParams = await params;
@@ -11,7 +10,7 @@ export default async function AnnouncementDetailPage({ params }) {
 
   return (
     <AppShell navKey="home" title="Announcement Detail" subtitle="Full announcement reading page.">
-      <BackRow fallbackHref="/member/announcements" useHistory={false} />
+      <BackRow fallbackHref="/member" useHistory={false} />
 
       {announcement ? (
         <>
@@ -26,37 +25,6 @@ export default async function AnnouncementDetailPage({ params }) {
                 <p>{announcement.body}</p>
               </div>
             </div>
-          </section>
-
-          <section className="lc-card alt">
-            <div className="lc-section-head">
-              <h3>Next Step</h3>
-              <p className="lc-muted">Use one of the member tools below to respond or keep moving.</p>
-            </div>
-            <div className="lc-card-list">
-              <span className="lc-tag">
-                <IconNotes size={14} stroke={1.8} />
-                Church update
-              </span>
-              <span className="lc-tag">
-                <IconTargetArrow size={14} stroke={1.8} />
-                Member tools
-              </span>
-            </div>
-            <ButtonRow
-              actions={[
-                {
-                  label: "Prayer",
-                  href: "/member/prayer",
-                  variant: "ghost",
-                },
-                {
-                  label: "More",
-                  href: "/member/more",
-                  variant: "secondary",
-                },
-              ]}
-            />
           </section>
         </>
       ) : (

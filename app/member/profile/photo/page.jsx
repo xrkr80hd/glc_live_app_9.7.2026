@@ -9,7 +9,7 @@ export default async function ProfilePhotoPage() {
   const profilePhotoUrl = getMemberProfilePhotoUrl(current?.user);
 
   return (
-    <AppShell navKey="more" title="Profile Photo" subtitle="Choose, crop, and save the portrait shown on your member profile." showProfileShortcut={false}>
+    <AppShell navKey="more" title="Profile Photo" subtitle="Upload and crop your profile photo." showProfileShortcut={false}>
       <BackRow fallbackHref="/member/profile" useHistory={false} />
       <MemberPhotoEditor
         currentPhotoUrl={profilePhotoUrl}

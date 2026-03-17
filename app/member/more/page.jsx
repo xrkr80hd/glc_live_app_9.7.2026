@@ -1,48 +1,37 @@
 import { AppShell } from "@/components/app-shell/AppShell";
-import { AddToHomeScreenCard } from "@/components/app-shell/AddToHomeScreenCard";
 import { MemberAccordion } from "@/components/app-shell/MemberAccordion";
 import { SettingsRow } from "@/components/app-shell/SettingsRow";
 import {
-  IconBellRinging,
   IconBible,
   IconHeartDollar,
+  IconPlayerPlay,
   IconMessageReport,
   IconSettings,
-  IconSparkles,
   IconUserCircle,
 } from "@tabler/icons-react";
 
 export default function MorePage() {
   return (
     <AppShell navKey="more" title="More" subtitle="Settings, church tools, and help.">
-      <AddToHomeScreenCard />
-
       <section className="lc-stack lc-more-accordions">
+        <section className="lc-card lc-more-static-card">
+          <div className="lc-section-head">
+            <h2>Member Access</h2>
+            <p className="lc-muted">Open member content used during the week.</p>
+          </div>
+          <div className="lc-stack lc-member-access-links">
+            <SettingsRow icon={IconPlayerPlay} label="Sermons" description="Recent messages and archives." href="/member/sermons" />
+            <SettingsRow icon={IconBible} label="Beliefs" description="Read our core beliefs." href="/member/beliefs" />
+            <SettingsRow icon={IconHeartDollar} label="Give" description="Open giving and submit your gift." href="/member/give" />
+          </div>
+        </section>
         <MemberAccordion
-          title="Your Member Tools"
-          description="Open your profile, settings, and member preferences."
-          defaultOpen
+          title="Settings"
+          description="Open your profile and app preferences."
         >
           <div className="lc-stack">
             <SettingsRow icon={IconUserCircle} label="Profile" description="Open your member profile and photo." href="/member/profile" />
-            <SettingsRow icon={IconSettings} label="Settings" description="Open privacy, app, and member preferences." href="/member/settings" />
-            <SettingsRow
-              icon={IconBellRinging}
-              label="Announcement Notifications"
-              description="Choose how church announcements reach you."
-              href="/member/settings/announcement-notifications"
-            />
-          </div>
-        </MemberAccordion>
-
-        <MemberAccordion
-          title="Church Life"
-          description="Open the areas members use most during the week."
-        >
-          <div className="lc-stack">
-            <SettingsRow icon={IconHeartDollar} label="Give" description="View giving options for tithe, offering, and missions." href="/member/give" />
-            <SettingsRow icon={IconBible} label="Beliefs" description="Read the same beliefs summary shown on the main site." href="/member/beliefs" />
-            <SettingsRow icon={IconSparkles} label="Youth" description="Open the youth section with the bold youth look." href="/member/youth" tone="youth" />
+            <SettingsRow icon={IconSettings} label="Settings" description="Open notification and app preferences." href="/member/settings" />
           </div>
         </MemberAccordion>
 

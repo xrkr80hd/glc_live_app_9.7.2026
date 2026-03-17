@@ -6,7 +6,7 @@ import { youthDevotionalPlaceholders } from "@/lib/mobile-app-content";
 export default function YouthDevotionalPage() {
   return (
     <AppShell
-      navKey="more"
+      navKey="youth"
       theme="youth"
       title="Youth Devotional"
       subtitle="A focused devotional reading experience for youth ministry."

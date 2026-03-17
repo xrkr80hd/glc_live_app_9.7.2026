@@ -1,13 +1,14 @@
 import { AppShell } from "@/components/app-shell/AppShell";
 import { BackRow } from "@/components/app-shell/BackRow";
+import { ButtonRow } from "@/components/app-shell/ButtonRow";
 import { getLivestreamContent } from "@/lib/content";
-import { IconBroadcast } from "@tabler/icons-react";
+import { IconBible, IconBroadcast, IconHeartDollar, IconPlayerPlay } from "@tabler/icons-react";
 
 export default async function LivePage() {
   const livestream = await getLivestreamContent();
 
   return (
-    <AppShell navKey="live" title="Watch Live" subtitle="Join the current stream and follow along with today's service.">
+    <AppShell navKey="live" title="Watch Live" subtitle="Join today's service stream.">
       <BackRow fallbackHref="/member" />
 
       {livestream?.isLive && livestream.liveEmbedUrl ? (
@@ -22,6 +23,14 @@ export default async function LivePage() {
             />
           </div>
         </section>
+      ) : livestream?.fallbackVideoUrl ? (
+        <section className="lc-card alt">
+          <div className="lc-video-frame">
+            <video autoPlay muted loop playsInline preload="metadata" title={livestream.title || "Live stream fallback"}>
+              <source src={livestream.fallbackVideoUrl} />
+            </video>
+          </div>
+        </section>
       ) : (
         <section className="lc-media-placeholder video">
           <div className="lc-poster-copy">
@@ -31,6 +40,32 @@ export default async function LivePage() {
           </div>
         </section>
       )}
+
+      <section className="lc-card lc-live-action-card">
+        <ButtonRow
+          columns={1}
+          actions={[
+            {
+              label: "Give",
+              href: "/member/give",
+              variant: "primary lc-live-primary-action",
+              icon: IconHeartDollar,
+            },
+            {
+              label: "Click here to see past sermons",
+              href: "/member/sermons",
+              variant: "primary lc-live-primary-action",
+              icon: IconPlayerPlay,
+            },
+            {
+              label: "Beliefs",
+              href: "/member/beliefs",
+              variant: "primary lc-live-primary-action",
+              icon: IconBible,
+            },
+          ]}
+        />
+      </section>
 
       <section className="lc-card">
         <div className="lc-section-head">

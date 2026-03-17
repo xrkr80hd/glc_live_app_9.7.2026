@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell/AppShell";
+import { BackRow } from "@/components/app-shell/BackRow";
 import { ProfileCard } from "@/components/app-shell/ProfileCard";
 import { MemberLogoutButton } from "@/components/app-shell/MemberLogoutButton";
 import { SettingsRow } from "@/components/app-shell/SettingsRow";
@@ -13,6 +14,8 @@ export default async function ProfilePage() {
 
   return (
     <AppShell navKey="more" title="Profile" subtitle="Your member details, photo, and account tools." showProfileShortcut={false}>
+      <BackRow fallbackHref="/member" />
+
       <ProfileCard
         name={member?.full_name || current?.session?.fullName || "Liberty Church Member"}
         email={member?.email || current?.session?.email || "member@golibertychurch.com"}

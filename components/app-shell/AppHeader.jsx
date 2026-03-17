@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { IconMoonStars, IconSunHigh, IconUserCircle } from "@tabler/icons-react";
+import { IconUserCircle } from "@tabler/icons-react";
 
 function buildInitials(name) {
   return String(name || "")
@@ -15,25 +15,32 @@ function buildInitials(name) {
     .join("") || "LC";
 }
 
-export function AppHeader({ kicker, title, subtitle, theme = "member", showProfileShortcut = true, headerAction = null }) {
+export function AppHeader({
+  kicker,
+  title,
+  subtitle,
+  theme = "member",
+  showProfileShortcut = true,
+  headerAction = null,
+  compactHeader = false,
+  headerVideoUrl = null,
+  headerLogoSrc = "/assets/logo.png",
+  headerBrandLabel = "Liberty Church",
+}) {
   const [profileShortcut, setProfileShortcut] = useState({
     fullName: "",
     photoUrl: "",
   });
-  const [appTheme, setAppTheme] = useState("light");
   const [photoLoadFailed, setPhotoLoadFailed] = useState(false);
 
   useEffect(() => {
     if (theme !== "member") {
-      setAppTheme("light");
       document.documentElement.dataset.appTheme = "light";
       return;
     }
 
     const storedTheme = window.localStorage.getItem("lc-app-theme");
     const resolvedTheme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : "light";
-
-    setAppTheme(resolvedTheme);
     document.documentElement.dataset.appTheme = resolvedTheme;
   }, [theme]);
 
@@ -76,31 +83,16 @@ export function AppHeader({ kicker, title, subtitle, theme = "member", showProfi
 
   const initials = buildInitials(profileShortcut.fullName);
 
-  function toggleTheme() {
-    if (theme !== "member") {
-      return;
-    }
-
-    const nextTheme = appTheme === "dark" ? "light" : "dark";
-    setAppTheme(nextTheme);
-    document.documentElement.dataset.appTheme = nextTheme;
-    window.localStorage.setItem("lc-app-theme", nextTheme);
-  }
-
   return (
     <header className="lc-app-header">
       <div className="lc-app-header-top">
+        <span className="lc-header-left-spacer" aria-hidden="true" />
         <Link href="/member" className="lc-brand-lockup" aria-label="Go to Liberty Church member home">
-          <Image src="/assets/logo.png" alt="" width={28} height={28} className="lc-brand-mark" />
-          <span>Liberty Church</span>
+          <Image src={headerLogoSrc} alt="" width={28} height={28} className="lc-brand-mark" />
+          <span>{headerBrandLabel}</span>
         </Link>
         <div className="lc-app-header-actions">
           {headerAction}
-          {theme === "member" ? (
-            <button type="button" className="lc-theme-toggle" onClick={toggleTheme} aria-label={appTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
-              {appTheme === "dark" ? <IconSunHigh size={20} stroke={1.8} /> : <IconMoonStars size={20} stroke={1.8} />}
-            </button>
-          ) : null}
           {showProfileShortcut ? (
             <Link href="/member/profile" className="lc-profile-shortcut" aria-label="Open profile">
               {profileShortcut.photoUrl && !photoLoadFailed ? (
@@ -120,10 +112,19 @@ export function AppHeader({ kicker, title, subtitle, theme = "member", showProfi
         </div>
       </div>
       {title || subtitle || kicker ? (
-        <div className="lc-app-header-copy">
-          {kicker ? <p className="lc-app-header-kicker">{kicker}</p> : null}
-          {title ? <h1 className="lc-app-header-title">{title}</h1> : null}
-          {subtitle ? <p className="lc-app-header-subtitle">{subtitle}</p> : null}
+        <div className={`lc-app-header-copy${compactHeader ? " is-compact" : ""}`}>
+          {headerVideoUrl ? (
+            <div className="lc-app-header-copy-media" aria-hidden="true">
+              <video autoPlay muted loop playsInline preload="metadata">
+                <source src={headerVideoUrl} type="video/mp4" />
+              </video>
+            </div>
+          ) : null}
+          <div className="lc-app-header-copy-body">
+            {kicker ? <p className="lc-app-header-kicker">{kicker}</p> : null}
+            {title ? <h1 className="lc-app-header-title">{title}</h1> : null}
+            {subtitle ? <p className="lc-app-header-subtitle">{subtitle}</p> : null}
+          </div>
         </div>
       ) : null}
     </header>

@@ -3,33 +3,28 @@
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { BackRow } from "@/components/app-shell/BackRow";
-import { IconHeartDollar } from "@tabler/icons-react";
+import { MemberAccordion } from "@/components/app-shell/MemberAccordion";
 
 const funds = ["Tithe", "Offering", "Mission / Other"];
-const amounts = ["$25", "$50", "$100", "$250", "Custom"];
 const frequencies = ["One Time", "Weekly", "Monthly"];
-const methods = ["Card", "Bank Transfer"];
 
 export default function GivePage() {
   const [selectedFund, setSelectedFund] = useState(funds[0]);
-  const [selectedAmount, setSelectedAmount] = useState(amounts[0]);
   const [selectedFrequency, setSelectedFrequency] = useState(frequencies[0]);
-  const [selectedMethod, setSelectedMethod] = useState(methods[0]);
 
   return (
-    <AppShell navKey="more" title="Give" subtitle="Choose a fund, amount, and giving frequency.">
-      <BackRow fallbackHref="/member/more" />
+    <AppShell navKey="more" title="Give" subtitle="Choose a fund and give.">
+      <BackRow fallbackHref="/member" />
 
-      <section className="lc-card">
+      <section className="lc-card lc-give-card">
         <div className="lc-section-head">
           <h2>Giving Setup</h2>
-          <p className="lc-muted">Review giving details before online payment is connected.</p>
+          <p className="lc-muted">Simple giving setup while Stripe is being connected.</p>
         </div>
 
-        <div className="lc-stack">
-          <div>
-            <div className="lc-field-label">Fund</div>
-            <div className="lc-choice-grid">
+        <div className="lc-stack lc-give-stack">
+          <MemberAccordion title="Fund" description={`Selected: ${selectedFund}`}>
+            <div className="lc-choice-grid lc-give-choice-grid">
               {funds.map((fund) => (
                 <button
                   key={fund}
@@ -41,66 +36,34 @@ export default function GivePage() {
                 </button>
               ))}
             </div>
-          </div>
-
-          <div>
-            <div className="lc-field-label">Amount</div>
-            <div className="lc-amount-grid">
-              {amounts.map((amount) => (
-                <button
-                  key={amount}
-                  type="button"
-                  className={`lc-choice-chip${selectedAmount === amount ? " is-selected" : ""}`}
-                  onClick={() => setSelectedAmount(amount)}
-                >
-                  {amount}
-                </button>
-              ))}
-            </div>
-          </div>
+          </MemberAccordion>
 
           <div>
             <div className="lc-field-label">Frequency</div>
-            <div className="lc-choice-grid">
-              {frequencies.map((frequency) => (
-                <button
-                  key={frequency}
-                  type="button"
-                  className={`lc-choice-chip${selectedFrequency === frequency ? " is-selected" : ""}`}
-                  onClick={() => setSelectedFrequency(frequency)}
-                >
-                  {frequency}
-                </button>
-              ))}
-            </div>
-          </div>
+            <div className="lc-frequency-options" role="radiogroup" aria-label="Frequency">
+              {frequencies.map((frequency) => {
+                const isSelected = selectedFrequency === frequency;
 
-          <div>
-            <div className="lc-field-label">Payment Method</div>
-            <div className="lc-choice-grid">
-              {methods.map((method) => (
-                <button
-                  key={method}
-                  type="button"
-                  className={`lc-choice-chip${selectedMethod === method ? " is-selected" : ""}`}
-                  onClick={() => setSelectedMethod(method)}
-                >
-                  {method}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="lc-card alt flat">
-            <div className="lc-announcement-meta">
-              <IconHeartDollar size={16} stroke={1.8} />
-              <span>Online payment steps can be connected here when giving is enabled.</span>
+                return (
+                  <label key={frequency} className={`lc-frequency-option${isSelected ? " is-selected" : ""}`}>
+                    <span>{frequency}</span>
+                    <input
+                      type="checkbox"
+                      className="lc-frequency-checkbox"
+                      checked={isSelected}
+                      onChange={() => setSelectedFrequency(frequency)}
+                    />
+                  </label>
+                );
+              })}
             </div>
           </div>
 
           <button type="button" className="lc-action-btn primary">
-            Continue to Payment
+            Continue to Stripe
           </button>
+
+          <p className="lc-muted">Amount and payment method will be set inside Stripe checkout.</p>
         </div>
       </section>
     </AppShell>

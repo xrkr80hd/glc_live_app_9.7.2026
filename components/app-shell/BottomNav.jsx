@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IconBroadcast, IconHome2, IconLayoutGrid, IconPlayerPlay, IconPray } from "@tabler/icons-react";
+import { IconBroadcast, IconFlame, IconHome2, IconLayoutGrid, IconPray } from "@tabler/icons-react";
 
 const navItems = [
   {
@@ -15,16 +15,16 @@ const navItems = [
     icon: IconBroadcast,
   },
   {
-    key: "sermons",
-    href: "/member/sermons",
-    label: "Sermons",
-    icon: IconPlayerPlay,
-  },
-  {
     key: "prayer",
     href: "/member/prayer",
     label: "Prayer",
     icon: IconPray,
+  },
+  {
+    key: "youth",
+    href: "/member/youth",
+    label: "Youth",
+    icon: IconFlame,
   },
   {
     key: "more",

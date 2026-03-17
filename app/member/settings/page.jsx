@@ -1,11 +1,14 @@
 import { AppShell } from "@/components/app-shell/AppShell";
 import { BackRow } from "@/components/app-shell/BackRow";
-import { SettingsRow } from "@/components/app-shell/SettingsRow";
-import { IconAdjustmentsHorizontal, IconBellRinging, IconDeviceMobile, IconShieldLock } from "@tabler/icons-react";
+import { MemberAccordion } from "@/components/app-shell/MemberAccordion";
+import { ThemeModeToggleRow } from "@/components/app-shell/ThemeModeToggleRow";
+import { ToggleRow } from "@/components/app-shell/ToggleRow";
+import { announcementNotificationOptions, notificationPreferenceGroups } from "@/lib/mobile-app-content";
+import { IconDeviceMobile, IconShieldLock } from "@tabler/icons-react";
 
 export default function SettingsPage() {
   return (
-    <AppShell navKey="more" title="Settings" subtitle="Preferences and app settings hub." showProfileShortcut={false}>
+    <AppShell navKey="more" title="Settings" subtitle="Manage app preferences." showProfileShortcut={false}>
       <BackRow fallbackHref="/member/more" />
 
       <section className="lc-card alt">
@@ -15,19 +18,46 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="lc-stack">
-        <SettingsRow
-          icon={IconBellRinging}
-          label="Announcement Notifications"
-          description="Open the dedicated announcement notification controls."
-          href="/member/settings/announcement-notifications"
-        />
-        <SettingsRow
-          icon={IconAdjustmentsHorizontal}
-          label="Notification Preferences"
-          description="Open grouped notification preferences."
-          href="/member/settings/preferences"
-        />
+      <section className="lc-stack lc-more-accordions">
+        <MemberAccordion title="Settings" description="Notifications and appearance controls in one place." defaultOpen>
+          <div className="lc-settings-merged-stack">
+            <section className="lc-settings-merged-group">
+              <div className="lc-section-head">
+                <h3>Announcement Notifications</h3>
+              </div>
+              <div className="lc-stack">
+                {announcementNotificationOptions.map((option) => (
+                  <ToggleRow key={option.id} label={option.label} description={option.description} defaultOn={option.defaultOn} />
+                ))}
+              </div>
+            </section>
+
+            <section className="lc-settings-merged-group">
+              <div className="lc-section-head">
+                <h3>Notification Preferences</h3>
+              </div>
+              <div className="lc-stack">
+                {notificationPreferenceGroups.map((group) => (
+                  <section key={group.id} className="lc-settings-merged-subgroup">
+                    <p className="lc-settings-merged-subgroup-title">{group.title}</p>
+                    <div className="lc-stack">
+                      {group.rows.map((row) => (
+                        <ToggleRow key={row.id} label={row.label} description={row.description} defaultOn={row.defaultOn} />
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </section>
+
+            <section className="lc-settings-merged-group">
+              <div className="lc-section-head">
+                <h3>Appearance</h3>
+              </div>
+              <ThemeModeToggleRow />
+            </section>
+          </div>
+        </MemberAccordion>
       </section>
 
       <section className="lc-grid">

@@ -24,8 +24,24 @@ npm run dev
 npm run build
 ```
 
+## Docker (Local Development)
+
+1. Copy `.env.example` to `.env.local` and fill real values as needed.
+2. Start Docker Desktop.
+3. Run:
+
+```bash
+docker compose up --build
+```
+
+4. Open `http://localhost:3002`
+
+Notes:
+- The host port defaults to `3002` to avoid common local conflicts.
+- To use another port, run with `GLC_DOCKER_PORT=3010 docker compose up --build`.
+- Stop with `docker compose down`.
+
 ## Supabase SQL
 
 - `SUPABASE_SCHEMA.md`
 - `ARCHIVED_SERMONS_SCHEMA.sql`
-

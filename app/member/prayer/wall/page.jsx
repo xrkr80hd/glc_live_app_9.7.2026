@@ -7,7 +7,7 @@ import { IconMessageCircleHeart } from "@tabler/icons-react";
 
 export default function PrayerWallPage() {
   return (
-    <AppShell navKey="prayer" title="Prayer Wall" subtitle="Approved public prayer requests only.">
+    <AppShell navKey="prayer" title="Prayer Wall" subtitle="Public prayer requests.">
       <BackRow fallbackHref="/member/prayer" />
 
       <section className="lc-card alt">

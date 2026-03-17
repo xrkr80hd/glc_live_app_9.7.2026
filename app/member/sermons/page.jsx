@@ -7,8 +7,8 @@ export default async function SermonsPage() {
   const { videos } = await getSermonsContent();
 
   return (
-    <AppShell navKey="sermons" title="Sermons" subtitle="Browse recent messages, series, and featured teachings.">
-      <BackRow fallbackHref="/member" />
+    <AppShell navKey="more" title="Sermons" subtitle="Watch recent messages and series.">
+      <BackRow fallbackHref="/member/more" />
       <MemberSermonsScreen videos={videos} />
     </AppShell>
   );

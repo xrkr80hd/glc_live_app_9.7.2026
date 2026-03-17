@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { AnnouncementCard } from "@/components/app-shell/AnnouncementCard";
 import { AppShell } from "@/components/app-shell/AppShell";
-import { HomeWelcomeToast } from "@/components/app-shell/HomeWelcomeToast";
-import { getHomepageContent, getSermonsContent } from "@/lib/content";
+import { HomeQuickLinksAccordion } from "@/components/app-shell/HomeQuickLinksAccordion";
+import { getHomepageContent } from "@/lib/content";
 import { getCurrentMemberFromServerCookies } from "@/lib/member-auth";
-import { formatMemberDate, summarizeText } from "@/lib/member-page-data";
+import { formatMemberDate } from "@/lib/member-page-data";
 import {
+  IconChevronDown,
   IconClockHour3,
   IconBible,
   IconMapPin,
@@ -14,19 +14,20 @@ import {
 
 export default async function HomePage() {
   const currentMember = await getCurrentMemberFromServerCookies();
-  const [{ announcements, memberScripture }, { videos }] = await Promise.all([getHomepageContent(), getSermonsContent()]);
+  const { announcements, memberScripture } = await getHomepageContent();
   const primaryAnnouncement = announcements[0] || null;
-  const latestSermon = videos[0] || null;
   const memberName = currentMember?.member?.full_name || currentMember?.session?.fullName || "";
   const firstName = memberName.split(" ")?.[0] || "";
+  const homeTitle = firstName ? `Welcome, ${firstName}` : "Welcome";
+  const homeSubtitle = firstName || "Member";
 
   return (
-    <AppShell navKey="home" title={null} subtitle={null}>
-      <HomeWelcomeToast firstName={firstName} />
+    <AppShell navKey="home" title={homeTitle} subtitle={homeSubtitle}>
+      <HomeQuickLinksAccordion />
 
-      <section className="lc-card alt">
+      <section className="lc-card alt lc-home-daily-verse-card">
         <div className="lc-section-head">
-          <h2>Scripture of the Day</h2>
+          <h2>Daily Verse</h2>
         </div>
         <div className="lc-rich-copy">
           <div className="lc-announcement-meta">
@@ -37,39 +38,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="lc-card alt">
-        <div className="lc-section-head">
-          <h2>Latest Sermon</h2>
-          <p className="lc-muted">The newest message is ready when you are.</p>
-        </div>
-        {latestSermon ? (
-          <AnnouncementCard
-            title={latestSermon.title}
-            summary={summarizeText(latestSermon.description || "Open the sermon library to watch the newest message.", 130)}
-            date={formatMemberDate(latestSermon.publishedAt, "Recent message")}
-            href="/member/sermons"
-            ctaLabel="Watch Sermon"
-          />
-        ) : (
-          <div className="lc-rich-copy">
-            <p>New sermon uploads will appear here as soon as they are published.</p>
-          </div>
-        )}
-      </section>
-
       <section className="lc-stack">
-        <div className="lc-section-head">
-          <h2>Announcements</h2>
-          <p className="lc-muted">The latest church update at a glance.</p>
-        </div>
         {primaryAnnouncement ? (
-          <AnnouncementCard
-            title={primaryAnnouncement.title}
-            summary={summarizeText(primaryAnnouncement.body, 130)}
-            date={formatMemberDate(primaryAnnouncement.startsAt || primaryAnnouncement.createdAt)}
-            href={`/member/announcements/${primaryAnnouncement.id}`}
-            ctaLabel="Read Update"
-          />
+          <details className="lc-accordion-card lc-home-announcement-accordion" open>
+            <summary className="lc-accordion-summary">
+              <span className="lc-accordion-copy">
+                <strong>Announcements</strong>
+                <span>Open to read the latest update.</span>
+              </span>
+              <span className="lc-accordion-chevron" aria-hidden="true">
+                <IconChevronDown size={18} stroke={2} />
+              </span>
+            </summary>
+            <div className="lc-accordion-panel">
+              <article className="lc-home-announcement-scroll">
+                <h3>{primaryAnnouncement.title}</h3>
+                <p className="lc-muted">{formatMemberDate(primaryAnnouncement.startsAt || primaryAnnouncement.createdAt)}</p>
+                <p>{primaryAnnouncement.body}</p>
+              </article>
+              <Link href={`/member/announcements/${primaryAnnouncement.id}`} className="lc-action-link primary">
+                Read More
+              </Link>
+            </div>
+          </details>
         ) : (
           <section className="lc-card alt flat">
             <div className="lc-announcement-meta">
@@ -99,17 +90,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      <Link href="/member/youth" className="lc-card lc-youth-gateway-card">
-        <div className="lc-youth-gateway-head">
-          <span className="lc-youth-gateway-kicker">LC YOUTH</span>
-          <span className="lc-youth-gateway-open">Open</span>
-        </div>
-        <div className="lc-section-head">
-          <h2>Youth Devotional + Events</h2>
-          <p>Open the youth area for devotional content, updates, and upcoming events.</p>
-        </div>
-      </Link>
     </AppShell>
   );
 }

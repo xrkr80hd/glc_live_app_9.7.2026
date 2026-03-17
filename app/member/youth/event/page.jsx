@@ -1,41 +1,48 @@
+import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { BackRow } from "@/components/app-shell/BackRow";
-import { ButtonRow } from "@/components/app-shell/ButtonRow";
-import { YouthGlassCard } from "@/components/app-shell/YouthGlassCard";
-import { youthEventPlaceholders } from "@/lib/mobile-app-content";
-import { IconCalendarEvent, IconMapPin } from "@tabler/icons-react";
+import { getYouthEventAlbums } from "@/lib/content";
+import { formatMemberDate } from "@/lib/member-page-data";
 
-export default function YouthEventPage() {
+export default async function YouthEventPage() {
+  const albums = await getYouthEventAlbums();
+
   return (
-    <AppShell navKey="more" theme="youth" title="Youth Event" subtitle="Event details, timing, and location for the next youth gathering.">
+    <AppShell navKey="youth" theme="youth" title="Past Events" subtitle="Open an album to view media.">
       <BackRow fallbackHref="/member/youth" useHistory={false} />
 
-      <section className="lc-event-poster">
-        <div className="lc-poster-copy">
-          <strong>Liberty Youth Night</strong>
-          <span className="lc-muted">Student event artwork and preview area</span>
-        </div>
+      <section className="lc-stack">
+        {albums.length ? (
+          <section className="lc-card alt lc-youth-album-rail-wrap">
+            <div className="lc-section-head">
+              <h2>Albums</h2>
+            </div>
+            <div className="lc-youth-album-rail" aria-label="Past event albums">
+              {albums.map((album) => (
+                <Link key={album.id} href={`/member/youth/event/${album.id}`} className="lc-announcement-card lc-youth-event-album-row">
+                  <div className="lc-youth-event-album-cover">
+                    {album.coverPhotoUrl ? (
+                      <img src={album.coverPhotoUrl} alt={`${album.title} cover`} loading="lazy" />
+                    ) : (
+                      <span>Event</span>
+                    )}
+                  </div>
+                  <div className="lc-youth-event-album-copy">
+                    <h3>{album.title}</h3>
+                    <p className="lc-muted lc-youth-event-album-date">
+                      {formatMemberDate(album.albumDate || album.createdAt, "Date coming soon")}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="lc-card alt">
+            <p className="lc-muted">No youth event albums have been published yet.</p>
+          </section>
+        )}
       </section>
-
-      <YouthGlassCard>
-        <div className="lc-section-head">
-          <h2>{youthEventPlaceholders.title}</h2>
-          <p className="lc-muted">{youthEventPlaceholders.description}</p>
-        </div>
-        <div className="lc-stack">
-          <div className="lc-announcement-meta">
-            <IconCalendarEvent size={16} stroke={1.8} />
-            <span>
-              {youthEventPlaceholders.date} • {youthEventPlaceholders.time}
-            </span>
-          </div>
-          <div className="lc-announcement-meta">
-            <IconMapPin size={16} stroke={1.8} />
-            <span>{youthEventPlaceholders.location}</span>
-          </div>
-          <ButtonRow actions={[{ label: youthEventPlaceholders.cta, href: "/member/youth", variant: "ghost" }]} />
-        </div>
-      </YouthGlassCard>
     </AppShell>
   );
 }
