@@ -38,12 +38,30 @@ Both website routes (`/live`, `/sermons`) and member app routes (`/member/live`,
 Optional backend role visibility flag:
 
 - `BOOKKEEPER_ORDER_VISIBILITY=true` allows Bookkeeper read visibility across ministry order requests for reporting.
+- `ADMIN_MEMBER_UPGRADE_ROLE_KEYS=superuser,pastor` lets signed-in member accounts with these role keys auto-upgrade into admin session without a second login.
 
 ## Build
 
 ```bash
 npm run build
 ```
+
+## Role Demo Users
+
+Create one dummy member account per dashboard role:
+
+```bash
+node scripts/seed-role-demo-users.mjs
+```
+
+Defaults:
+- password: `DemoRole123!`
+- email pattern: `demo.<role>@golibertychurch.local`
+
+Optional env overrides:
+- `DEMO_MEMBER_PASSWORD`
+- `DEMO_MEMBER_EMAIL_DOMAIN`
+- `NEXT_PUBLIC_APP_URL` (for printed links)
 
 ## Docker (Local Development)
 

@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import { IconAlertCircle, IconLockPassword, IconLogin2, IconShieldCheck, IconUser } from "@tabler/icons-react";
 import styles from "./AdminLoginForm.module.css";
 
-export function AdminLoginForm() {
+export function AdminLoginForm({ initialError = "" }) {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(event) {
