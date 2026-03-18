@@ -114,10 +114,13 @@ export async function POST(request) {
   });
 
   if (error) {
+    const tableMissing = error.code === "42P01";
     return NextResponse.json(
       {
         success: false,
-        message: "Unable to save feedback right now. Please try again.",
+        message: tableMissing
+          ? "Feedback table is not set up yet. Please run the member feedback migration."
+          : "Unable to save feedback right now. Please try again.",
       },
       { status: 500 },
     );

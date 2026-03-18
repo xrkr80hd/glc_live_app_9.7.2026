@@ -11,25 +11,49 @@ import {
 
 const ROLE_CANONICAL_NAMES = {
   foh_sound: "FOH Sound",
+  foh: "FOH Sound",
+  foh_lead: "FOH Sound",
+  music_minister: "Music Minister",
   worship_leader: "Worship Leader",
   worship_team: "Worship Team",
   pastor: "Pastor",
   media_team: "Media Team",
+  media_lead: "Media Team",
   youth_minister: "Youth Minister",
   youth_minister_assistant: "Youth Minister Assistant",
+  youth_assistant: "Youth Minister Assistant",
+  kids_ministry: "Kids Ministry",
   kids_church: "Kids Church",
   childrens_church: "Children's Church",
   bookkeeper: "Bookkeeper",
   superuser: "Superuser",
+  super_user: "Superuser",
+};
+
+const ROLE_KEY_ALIASES = {
+  super_user: "superuser",
+  music_minister: "worship_leader",
+  worship_minister: "worship_leader",
+  media: "media_team",
+  media_lead: "media_team",
+  foh: "foh_sound",
+  foh_lead: "foh_sound",
+  youth_assistant: "youth_minister_assistant",
+  youth_ministry_assistant: "youth_minister_assistant",
+  kids_ministry: "kids_church",
+  kids_ministry_leader: "kids_church",
+  childrens_church: "kids_church",
 };
 
 function normalizeRoleKey(value) {
-  return String(value || "")
+  const normalized = String(value || "")
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9_-]+/g, "_")
     .replace(/_{2,}/g, "_")
     .replace(/^_+|_+$/g, "");
+
+  return ROLE_KEY_ALIASES[normalized] || normalized;
 }
 
 function normalizeRoleName(value) {

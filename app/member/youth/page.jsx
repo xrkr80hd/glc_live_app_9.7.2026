@@ -29,7 +29,7 @@ export default async function YouthPage() {
       </section>
 
       <section className="lc-stack">
-        <details className="lc-accordion-card lc-home-announcement-accordion" open>
+        <details className="lc-accordion-card lc-home-announcement-accordion">
           <summary className="lc-accordion-summary">
             <span className="lc-accordion-copy">
               <strong>Announcements and Events</strong>

@@ -8,7 +8,7 @@ import {
   requireAdminSession,
   requireAdminSupabase,
 } from "@/lib/admin-api";
-import { getMemberRoleKeys, hasAnyRole } from "@/lib/admin-role-access";
+import { canAccessBookkeeping, getMemberRoleKeys } from "@/lib/admin-role-access";
 
 const BOOKKEEPING_ENTRY_TYPES = new Set([
   "offering",
@@ -40,7 +40,7 @@ async function getRoleContext(supabase, session) {
   const roleKeys = session?.memberId
     ? await getMemberRoleKeys(supabase, session.memberId)
     : [];
-  const isAuthorized = session?.isSuperuser || hasAnyRole(roleKeys, ["pastor", "bookkeeper"]);
+  const isAuthorized = canAccessBookkeeping(roleKeys, Boolean(session?.isSuperuser));
   return {
     isAuthorized: Boolean(isAuthorized),
   };

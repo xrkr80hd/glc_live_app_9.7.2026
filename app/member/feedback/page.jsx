@@ -79,7 +79,7 @@ export default function MemberFeedbackPage() {
   }
 
   return (
-    <AppShell navKey="more" title="Report a Problem or Suggestion" subtitle="Tell us what needs attention or what could be better." showProfileShortcut={false}>
+    <AppShell navKey="more" title="Report a Problem" subtitle="Follow the steps below." showProfileShortcut={false}>
       {toast ? (
         <div className="lc-toast-wrap">
           <ToastMessage
@@ -95,30 +95,29 @@ export default function MemberFeedbackPage() {
       <section className="lc-card alt">
         <div className="lc-announcement-meta">
           <IconBug size={16} stroke={1.8} />
-          <span>Use this page to report bugs, broken screens, confusing wording, or helpful suggestions.</span>
+          <span>Send a report in order so we can review it quickly.</span>
         </div>
       </section>
 
-      <section className="lc-card">
+      <section className="lc-card lc-feedback-form-card">
         <div className="lc-section-head">
-          <h2>Send a Report</h2>
-          <p className="lc-muted">Keep it short and specific so we can fix it quickly.</p>
+          <h2>Send a report</h2>
+          <p className="lc-muted">Follow the steps in order.</p>
         </div>
 
-        <form className="lc-form-grid" onSubmit={handleSubmit}>
-          <div className="lc-form-grid two-up">
-            <div className="lc-form-field">
-              <label className="lc-field-label" htmlFor="feedback-name">Name</label>
-              <input id="feedback-name" className="lc-input" value={form.name} onChange={(event) => updateField("name", event.target.value)} />
-            </div>
-            <div className="lc-form-field">
-              <label className="lc-field-label" htmlFor="feedback-email">Email</label>
-              <input id="feedback-email" className="lc-input" value={form.email} onChange={(event) => updateField("email", event.target.value)} />
-            </div>
+        <form className="lc-form-grid lc-feedback-form" onSubmit={handleSubmit}>
+          <div className="lc-form-field">
+            <label className="lc-field-label" htmlFor="feedback-name">1. Name</label>
+            <input id="feedback-name" className="lc-input" value={form.name} onChange={(event) => updateField("name", event.target.value)} />
           </div>
 
           <div className="lc-form-field">
-            <label className="lc-field-label" htmlFor="feedback-route">Screen or Route</label>
+            <label className="lc-field-label" htmlFor="feedback-email">2. Email</label>
+            <input id="feedback-email" className="lc-input" value={form.email} onChange={(event) => updateField("email", event.target.value)} />
+          </div>
+
+          <div className="lc-form-field">
+            <label className="lc-field-label" htmlFor="feedback-route">3. Screen or Route</label>
             <input
               id="feedback-route"
               className="lc-input"
@@ -128,32 +127,30 @@ export default function MemberFeedbackPage() {
             />
           </div>
 
-          <div className="lc-form-grid two-up">
-            <div className="lc-form-field">
-              <label className="lc-field-label" htmlFor="feedback-category">Type</label>
-              <select id="feedback-category" className="lc-select" value={form.category} onChange={(event) => updateField("category", event.target.value)}>
-                {categoryOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="lc-form-field">
-              <label className="lc-field-label" htmlFor="feedback-severity">Severity</label>
-              <select id="feedback-severity" className="lc-select" value={form.severity} onChange={(event) => updateField("severity", event.target.value)}>
-                {severityOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="lc-form-field">
+            <label className="lc-field-label" htmlFor="feedback-category">4. Type</label>
+            <select id="feedback-category" className="lc-select" value={form.category} onChange={(event) => updateField("category", event.target.value)}>
+              {categoryOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="lc-form-field">
-            <label className="lc-field-label" htmlFor="feedback-message">What happened?</label>
+            <label className="lc-field-label" htmlFor="feedback-severity">5. Severity</label>
+            <select id="feedback-severity" className="lc-select" value={form.severity} onChange={(event) => updateField("severity", event.target.value)}>
+              {severityOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="lc-form-field">
+            <label className="lc-field-label" htmlFor="feedback-message">6. What happened?</label>
             <textarea
               id="feedback-message"
               className="lc-textarea"

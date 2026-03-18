@@ -7,7 +7,14 @@ import {
   requireAdminSession,
   requireAdminSupabase,
 } from "@/lib/admin-api";
-import { getMemberRoleKeys, hasAnyRole } from "@/lib/admin-role-access";
+import {
+  canReviewOrderRequests,
+  canViewAllOrderRequests,
+  canViewYouthAssistantOrderRequests,
+  getMemberRoles,
+  hasRole,
+  normalizeRoleKeyForPolicy,
+} from "@/lib/admin-role-access";
 
 const ORDER_REQUEST_STATUSES = new Set([
   "new",
@@ -17,11 +24,22 @@ const ORDER_REQUEST_STATUSES = new Set([
   "declined",
 ]);
 
+const STATUS_ALIASES = {
+  draft: "new",
+  submitted: "new",
+  under_review: "reviewing",
+  approved: "ordered",
+  denied: "declined",
+  completed: "fulfilled",
+};
+
 function normalizeStatus(value) {
   const normalized = String(value || "")
     .trim()
-    .toLowerCase();
-  return ORDER_REQUEST_STATUSES.has(normalized) ? normalized : "";
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+  const mapped = STATUS_ALIASES[normalized] || normalized;
+  return ORDER_REQUEST_STATUSES.has(mapped) ? mapped : "";
 }
 
 function normalizeMoney(value) {
@@ -36,18 +54,56 @@ function normalizeMoney(value) {
 }
 
 async function getSessionRoleContext(supabase, session) {
-  const roleKeys = session?.memberId
-    ? await getMemberRoleKeys(supabase, session.memberId)
-    : [];
+  const roles = session?.memberId ? await getMemberRoles(supabase, session.memberId) : [];
+  const roleKeys = roles.map((role) => String(role.role_key || "").trim()).filter(Boolean);
+  const roleIds = roles.map((role) => normalizeId(role.id)).filter(Boolean);
+  const isSuperuser = Boolean(session?.isSuperuser);
+  const bookkeeperCanViewAll =
+    process.env.BOOKKEEPER_ORDER_VISIBILITY === "true" && hasRole(roleKeys, "bookkeeper");
+
   return {
-    isSuperuser: Boolean(session?.isSuperuser),
+    isSuperuser,
     roleKeys,
-    isPastor: hasAnyRole(roleKeys, ["pastor"]),
+    roleIds,
+    canReview: canReviewOrderRequests(roleKeys, isSuperuser),
+    canViewAll: canViewAllOrderRequests(roleKeys, isSuperuser) || bookkeeperCanViewAll,
+    canViewYouthAssistant: canViewYouthAssistantOrderRequests(roleKeys, isSuperuser),
   };
 }
 
-function canManageAllOrderRequests(context) {
-  return context.isSuperuser || context.isPastor;
+async function getRoleIdsByPolicyKeys(supabase, targetRoleKeys) {
+  const normalizedTargets = new Set(
+    (Array.isArray(targetRoleKeys) ? targetRoleKeys : [])
+      .map((roleKey) => normalizeRoleKeyForPolicy(roleKey))
+      .filter(Boolean),
+  );
+
+  if (!normalizedTargets.size) {
+    return [];
+  }
+
+  const { data, error } = await supabase.from("team_roles").select("id, role_key");
+  if (error || !Array.isArray(data)) {
+    return [];
+  }
+
+  return data
+    .filter((role) => normalizedTargets.has(normalizeRoleKeyForPolicy(role.role_key)))
+    .map((role) => normalizeId(role.id))
+    .filter(Boolean);
+}
+
+async function resolveVisibleRoleIds(supabase, context) {
+  const visibleRoleIds = new Set(context.roleIds || []);
+
+  if (context.canViewYouthAssistant) {
+    const assistantRoleIds = await getRoleIdsByPolicyKeys(supabase, ["youth_minister_assistant"]);
+    for (const roleId of assistantRoleIds) {
+      visibleRoleIds.add(roleId);
+    }
+  }
+
+  return Array.from(visibleRoleIds);
 }
 
 async function getIdFromContext(context) {
@@ -87,11 +143,19 @@ export async function GET(request, context) {
     return NextResponse.json({ error: "Ministry order request not found" }, { status: 404 });
   }
 
-  if (
-    !canManageAllOrderRequests(roleContext) &&
-    (!session.memberId || String(data.requested_by_member_id || "") !== String(session.memberId))
-  ) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!roleContext.canViewAll) {
+    const sessionMemberId = normalizeId(session.memberId);
+    const isOwner = Boolean(
+      sessionMemberId &&
+        String(data.requested_by_member_id || "") === String(sessionMemberId),
+    );
+
+    if (!isOwner) {
+      const visibleRoleIds = await resolveVisibleRoleIds(supabase, roleContext);
+      if (!visibleRoleIds.includes(normalizeId(data.role_id))) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    }
   }
 
   return NextResponse.json({ ministryOrderRequest: data });
@@ -129,10 +193,11 @@ export async function PATCH(request, context) {
     return NextResponse.json({ error: "Ministry order request not found" }, { status: 404 });
   }
 
-  const canManageAll = canManageAllOrderRequests(roleContext);
+  const canManageAll = roleContext.canReview;
+  const sessionMemberId = normalizeId(session.memberId);
   const isOwner = Boolean(
-    session.memberId &&
-      String(existing.requested_by_member_id || "") === String(session.memberId),
+    sessionMemberId &&
+      String(existing.requested_by_member_id || "") === String(sessionMemberId),
   );
 
   if (!canManageAll && !isOwner) {
@@ -193,6 +258,13 @@ export async function PATCH(request, context) {
   }
 
   if (payload?.status !== undefined) {
+    if (!canManageAll) {
+      return NextResponse.json(
+        { error: "Only Pastor or Superuser can change request status." },
+        { status: 403 },
+      );
+    }
+
     const status = normalizeStatus(payload.status);
     if (!status) {
       return NextResponse.json(
@@ -259,10 +331,11 @@ export async function DELETE(request, context) {
     return NextResponse.json({ error: "Ministry order request not found" }, { status: 404 });
   }
 
-  const canManageAll = canManageAllOrderRequests(roleContext);
+  const canManageAll = roleContext.canReview;
+  const sessionMemberId = normalizeId(session.memberId);
   const isOwner = Boolean(
-    session.memberId &&
-      String(existing.requested_by_member_id || "") === String(session.memberId),
+    sessionMemberId &&
+      String(existing.requested_by_member_id || "") === String(sessionMemberId),
   );
 
   if (!canManageAll && !isOwner) {

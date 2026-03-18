@@ -173,9 +173,9 @@ const CONTENT_RESOURCES = [
   },
   {
     key: "team-roles",
-    label: "Teams & Permissions",
+    label: "Team Roles",
     singularLabel: "Team Role",
-    description: "Create roles like Media Team, Worship Team, FOH Sound, Children's, and Youth.",
+    description: "Create and manage ministry role definitions (Pastor, Media Team, Youth Minister, etc.).",
     icon: IconUsersGroup,
     listEndpoint: "/api/admin/team-roles?include_inactive=true&limit=300",
     createEndpoint: "/api/admin/team-roles",
@@ -196,30 +196,31 @@ const CONTENT_RESOURCES = [
   },
   {
     key: "team-members",
-    label: "User Accounts",
+    label: "Team Members",
     singularLabel: "Team Member",
-    description: "Create member records and flag superusers.",
+    description: "Create member records, assign ministry roles, and control access.",
     icon: IconUsersGroup,
     listEndpoint: "/api/admin/team-members?include_inactive=true&limit=300",
     createEndpoint: "/api/admin/team-members",
     itemEndpoint: (id) => `/api/admin/team-members/${id}`,
     listKey: "teamMembers",
     fields: [
-      { name: "username", label: "Username", type: "text", required: true, placeholder: "xrkr80hdadmin" },
       { name: "full_name", label: "Full Name", type: "text", placeholder: "Display name" },
       { name: "email", label: "Email", type: "text", placeholder: "name@example.com" },
       { name: "phone", label: "Phone", type: "text", placeholder: "(###) ###-####" },
+      { name: "username", label: "Username", type: "text", required: true, placeholder: "xrkr80hdadmin" },
       { name: "password", label: "Login Password", type: "password", placeholder: "Set password (min 8 chars)" },
-      { name: "notes", label: "Notes", type: "textarea", placeholder: "Optional notes...", rows: 4, fullWidth: true },
-      { name: "is_superuser", label: "Superuser", type: "checkbox", defaultValue: false },
-      { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
       {
         name: "role_ids",
-        label: "Assign Roles",
+        label: "Role Permissions",
         type: "relation_multi",
         relationResourceKey: "team-roles",
-        relationLabelKeys: ["name", "role_key"],
+        relationLabelKeys: ["name"],
+        showRoleIcon: false,
       },
+      { name: "is_superuser", label: "Superuser", type: "checkbox", defaultValue: false },
+      { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
+      { name: "notes", label: "Notes", type: "textarea", placeholder: "Optional notes...", rows: 4, fullWidth: true },
     ],
     preview: [
       { label: "Username", name: "username" },
@@ -233,9 +234,10 @@ const CONTENT_RESOURCES = [
   },
   {
     key: "team-member-roles",
-    label: "Team Access",
+    label: "Role Assignments (Advanced)",
     singularLabel: "Role Assignment",
-    description: "Assign multiple roles to each member and mark team-level admins.",
+    description: "Advanced role-mapping editor. Most assignments should be managed in Team Members.",
+    hidden: true,
     icon: IconUsersGroup,
     listEndpoint: "/api/admin/team-member-roles?limit=400",
     createEndpoint: "/api/admin/team-member-roles",
@@ -476,9 +478,9 @@ const CONTENT_RESOURCES = [
   },
   {
     key: "photo-albums",
-    label: "Photo Albums",
+    label: "Albums",
     singularLabel: "Photo Album",
-    description: "Create album names and dates for youth and church photo galleries.",
+    description: "Create top-level albums for church and youth galleries.",
     icon: IconPhoto,
     listEndpoint: "/api/admin/photo-albums?include_unpublished=true&limit=200",
     createEndpoint: "/api/admin/photo-albums",
@@ -511,9 +513,9 @@ const CONTENT_RESOURCES = [
   },
   {
     key: "album-photos",
-    label: "Album Photos",
+    label: "Photos in Albums",
     singularLabel: "Album Photo",
-    description: "Add unlimited photos to an album and select the album from the list.",
+    description: "Add photos into a selected album.",
     icon: IconPhoto,
     listEndpoint: "/api/admin/album-photos?include_unpublished=true&limit=300",
     createEndpoint: "/api/admin/album-photos",
@@ -682,29 +684,30 @@ const CONTENT_RESOURCES = [
     key: "livestreams",
     label: "Livestream",
     singularLabel: "Livestream",
-    description: "Manual stream embed, fallback video, and CTA copy.",
+    description: "Manual stream setup with required fallback video and CTA copy.",
     icon: IconBroadcast,
     listEndpoint: "/api/admin/livestreams?include_inactive=true&limit=120",
     createEndpoint: "/api/admin/livestreams",
     itemEndpoint: (id) => `/api/admin/livestreams/${id}`,
     listKey: "livestreams",
     fields: [
-      { name: "title", label: "Title", type: "text", required: true, placeholder: "Sunday Service Live" },
-      { name: "embed_url", label: "Embed URL", type: "text", required: true, placeholder: "https://www.youtube.com/embed/..." },
+      { name: "title", label: "Title", type: "text", required: true, placeholder: "Sunday Service Live", compact: true },
+      { name: "embed_url", label: "Embed URL", type: "text", required: true, placeholder: "https://www.youtube.com/embed/...", compact: true },
       {
         name: "fallback_video_url",
         label: "Fallback Video",
         type: "text",
+        compact: true,
         upload: {
           folder: "livestream/fallback",
           accept: "video/*",
-          helperText: "Upload a local fallback video file.",
+          helperText: "Upload fallback video file for outage scenarios.",
           uploadOnly: true,
         },
       },
-      { name: "watch_cta_label", label: "Watch CTA Label", type: "text", defaultValue: "Watch Live Now" },
-      { name: "starts_at", label: "Starts At", type: "datetime" },
-      { name: "ends_at", label: "Ends At", type: "datetime" },
+      { name: "watch_cta_label", label: "Watch CTA Label", type: "text", defaultValue: "Watch Live Now", compact: true },
+      { name: "starts_at", label: "Starts At", type: "datetime", compact: true },
+      { name: "ends_at", label: "Ends At", type: "datetime", compact: true },
       { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
     ],
     preview: [
@@ -816,12 +819,6 @@ const LIBERTY_ROLE_PRESETS = [
     sort_order: 80,
   },
   {
-    role_key: "childrens_church",
-    name: "Children's Church",
-    description: "Children's church ministry support.",
-    sort_order: 90,
-  },
-  {
     role_key: "bookkeeper",
     name: "Bookkeeper",
     description: "Bookkeeping and offering reporting.",
@@ -836,6 +833,8 @@ function normalizeRoleLookup(value) {
     .replace(/_+/g, "_")
     .replace(/^_+|_+$/g, "");
 }
+
+const LEGACY_ROLE_KEYS = new Set(["youth_ministry", "childrens_church"]);
 
 function getRoleIconUrl(roleKey, roleName) {
   const key = normalizeRoleLookup(roleKey);
@@ -1035,7 +1034,8 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
   const uploadInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
-  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState("");
+  const [multiSearch, setMultiSearch] = useState("");
 
   if (field.type === "textarea") {
     return (
@@ -1109,6 +1109,12 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
       ? value.map((entry) => String(entry))
       : [];
     const selectedSet = new Set(selectedValues);
+    const search = multiSearch.trim().toLowerCase();
+    const filteredOptions = relationOptions.filter((option) =>
+      String(option?.label || "")
+        .toLowerCase()
+        .includes(search),
+    );
 
     function toggleValue(optionValue) {
       const normalized = String(optionValue);
@@ -1123,9 +1129,41 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
 
     return (
       <div className={`${fieldClassName} ${styles.fieldWide}`}>
-        <span>{field.label}</span>
+        <div className={styles.multiSelectHead}>
+          <span>{field.label}</span>
+          <span className={styles.multiSelectCount}>{selectedSet.size} selected</span>
+        </div>
+        <div className={styles.multiSelectTools}>
+          <input
+            type="text"
+            value={multiSearch}
+            onChange={(event) => setMultiSearch(event.target.value)}
+            placeholder={`Search ${field.label.toLowerCase()}...`}
+          />
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() =>
+              onChange(
+                field.name,
+                relationOptions.map((option) => String(option.value)),
+              )
+            }
+            disabled={!relationOptions.length}
+          >
+            Select All
+          </button>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => onChange(field.name, [])}
+            disabled={!selectedSet.size}
+          >
+            Clear
+          </button>
+        </div>
         <div className={styles.rolePickerGrid}>
-          {relationOptions.map((option) => {
+          {filteredOptions.map((option) => {
             const isChecked = selectedSet.has(String(option.value));
             return (
               <button
@@ -1147,6 +1185,9 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
               </button>
             );
           })}
+          {!filteredOptions.length ? (
+            <p className={styles.empty}>No matches for this search.</p>
+          ) : null}
         </div>
       </div>
     );
@@ -1186,6 +1227,7 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
     setIsUploading(true);
 
     try {
+      setUploadedFileName(String(file.name || "").trim());
       const formData = new FormData();
       formData.append("file", file);
       if (uploadConfig.folder) {
@@ -1209,7 +1251,6 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
       setUploadError(error.message || "Unable to upload file.");
     } finally {
       setIsUploading(false);
-      setIsDraggingFile(false);
     }
   }
 
@@ -1219,16 +1260,6 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
       uploadFile(file);
     }
     event.target.value = "";
-  }
-
-  function onDrop(event) {
-    event.preventDefault();
-    const file = event.dataTransfer?.files?.[0];
-    if (file) {
-      uploadFile(file);
-    } else {
-      setIsDraggingFile(false);
-    }
   }
 
   if (inputType === "text" && uploadConfig) {
@@ -1253,20 +1284,6 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
           }}
         />
         <div className={styles.uploadGroup}>
-          <div
-            className={`${styles.uploadDropzone} ${isDraggingFile ? styles.uploadDropzoneDragging : ""}`}
-            onDragOver={(event) => {
-              event.preventDefault();
-              setIsDraggingFile(true);
-            }}
-            onDragLeave={(event) => {
-              event.preventDefault();
-              setIsDraggingFile(false);
-            }}
-            onDrop={onDrop}
-          >
-            Drag and drop file here
-          </div>
           <div className={styles.uploadActions}>
             <input
               ref={uploadInputRef}
@@ -1284,6 +1301,9 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
             >
               {isUploading ? "Uploading..." : "Choose File"}
             </button>
+            {uploadedFileName ? (
+              <span className={styles.uploadFileName}>{uploadedFileName}</span>
+            ) : null}
             {uploadConfig.helperText ? <p className={styles.uploadHint}>{uploadConfig.helperText}</p> : null}
           </div>
           {uploadError ? <p className={styles.uploadError}>{uploadError}</p> : null}
@@ -1359,6 +1379,7 @@ export function AdminDashboard({ username, sessionInfo }) {
   const [editDrafts, setEditDrafts] = useState({});
   const [editingIdByResource, setEditingIdByResource] = useState({});
   const [expandedItemIdByResource, setExpandedItemIdByResource] = useState({});
+  const [expandedMonitorItemKeys, setExpandedMonitorItemKeys] = useState({});
   const [prayerStatusDrafts, setPrayerStatusDrafts] = useState({});
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [busyAction, setBusyAction] = useState("");
@@ -1376,6 +1397,9 @@ export function AdminDashboard({ username, sessionInfo }) {
   const visibleContentResources = useMemo(
     () =>
       CONTENT_RESOURCES.filter((resource) => {
+        if (resource.hidden) {
+          return false;
+        }
         if (!Array.isArray(resource.requiredRoleKeys) || !resource.requiredRoleKeys.length) {
           return true;
         }
@@ -1579,18 +1603,36 @@ export function AdminDashboard({ username, sessionInfo }) {
         return [];
       }
     }
-    const sourceItems = contentState[field.relationResourceKey]?.items || [];
+    let sourceItems = contentState[field.relationResourceKey]?.items || [];
+
+    if (field.relationResourceKey === "team-roles") {
+      sourceItems = sourceItems.filter((item) => {
+        if (item?.is_active === false) {
+          return false;
+        }
+        const normalizedRoleKey = normalizeRoleLookup(item?.role_key || item?.name);
+        return !LEGACY_ROLE_KEYS.has(normalizedRoleKey);
+      });
+    }
+
     return sourceItems
       .map((item) => {
         const id = String(item?.id || "").trim();
         if (!id) {
           return null;
         }
+        const showTeamRoleKey =
+          field.relationResourceKey === "team-roles" &&
+          field.type === "relation_multi" &&
+          field.showRoleKeyInLabel !== true;
+
         return {
           value: id,
-          label: buildRelationLabel(item, field),
+          label: showTeamRoleKey
+            ? String(item?.name || item?.role_key || id)
+            : buildRelationLabel(item, field),
           icon_url:
-            field.relationResourceKey === "team-roles"
+            field.relationResourceKey === "team-roles" && field.showRoleIcon !== false
               ? getRoleIconUrl(item?.role_key, item?.name)
               : "",
         };
@@ -1638,6 +1680,14 @@ export function AdminDashboard({ username, sessionInfo }) {
     setExpandedItemIdByResource((prev) => ({
       ...prev,
       [resourceKey]: prev[resourceKey] === itemId ? "" : itemId,
+    }));
+  }
+
+  function toggleMonitorItemExpanded(resourceKey, itemId) {
+    const key = `${resourceKey}:${itemId}`;
+    setExpandedMonitorItemKeys((prev) => ({
+      ...prev,
+      [key]: !prev[key],
     }));
   }
 
@@ -1914,6 +1964,11 @@ export function AdminDashboard({ username, sessionInfo }) {
   const createDraft = createDrafts[activeResource.key] || getInitialDraft(activeResource.fields);
   const editDraft = editDrafts[activeResource.key] || {};
   const useAccordionCards = activeResource.key === "seasonal-features";
+  const isSingleColumnForm = ["team-members", "livestreams"].includes(activeResource.key);
+  const fieldsGridClassName =
+    isSingleColumnForm
+      ? `${styles.fieldsGrid} ${styles.fieldsGridSingle}`
+      : styles.fieldsGrid;
 
   return (
     <div className={styles.shell}>
@@ -2019,7 +2074,7 @@ export function AdminDashboard({ username, sessionInfo }) {
                   createItem(activeResource);
                 }}
               >
-                <div className={styles.fieldsGrid}>
+                <div className={fieldsGridClassName}>
                   {activeResource.fields.map((field) => (
                     <FieldInput
                       key={`create-${activeResource.key}-${field.name}`}
@@ -2132,7 +2187,7 @@ export function AdminDashboard({ username, sessionInfo }) {
                             saveItem(activeResource, item.id);
                           }}
                         >
-                          <div className={styles.fieldsGrid}>
+                          <div className={fieldsGridClassName}>
                             {activeResource.fields.map((field) => (
                               <FieldInput
                                 key={`edit-${item.id}-${field.name}`}
@@ -2243,88 +2298,112 @@ export function AdminDashboard({ username, sessionInfo }) {
                 {state.items.length === 0 && state.loaded ? <p className={styles.empty}>No requests found.</p> : null}
 
                 <div className={styles.monitorList}>
-                  {state.items.map((item) => (
-                    <article key={item.id} className={styles.monitorItem}>
-                      <div className={styles.monitorItemHeader}>
-                        <h4>{item.name || item.email || item.id}</h4>
-                        <button
-                          type="button"
-                          className={styles.dangerBtn}
-                          onClick={() => deleteMonitorItem(resource, item.id)}
-                          disabled={Boolean(busyAction)}
-                        >
-                          <IconTrash size={14} stroke={1.9} aria-hidden="true" />
-                          Delete
-                        </button>
-                      </div>
-
-                      <p>
-                        <strong>Email:</strong> {formatValue(item.email)}
-                      </p>
-                      <p>
-                        <strong>Phone:</strong> {formatValue(item.phone)}
-                      </p>
-                      {"submitted_at" in item ? (
-                        <p>
-                          <strong>Submitted:</strong> {formatDateTime(item.submitted_at)}
-                        </p>
-                      ) : null}
-
-                      {"request_text" in item ? (
-                        <p>
-                          <strong>Request:</strong> {formatValue(item.request_text)}
-                        </p>
-                      ) : null}
-
-                      {"preferred_service" in item ? (
-                        <p>
-                          <strong>Preferred Service:</strong> {formatValue(item.preferred_service)}
-                        </p>
-                      ) : null}
-
-                      {"party_size" in item ? (
-                        <p>
-                          <strong>Party Size:</strong> {formatValue(item.party_size)}
-                        </p>
-                      ) : null}
-
-                      {"message" in item ? (
-                        <p>
-                          <strong>Notes:</strong> {formatValue(item.message)}
-                        </p>
-                      ) : null}
-
-                      {"status" in item ? (
-                        <div className={styles.inlineControls}>
-                          <label htmlFor={`status-${item.id}`}>Status</label>
-                          <select
-                            id={`status-${item.id}`}
-                            value={prayerStatusDrafts[item.id] || String(item.status || "new")}
-                            onChange={(event) =>
-                              setPrayerStatusDrafts((prev) => ({
-                                ...prev,
-                                [item.id]: event.target.value,
-                              }))
-                            }
-                          >
-                            <option value="new">new</option>
-                            <option value="in_progress">in_progress</option>
-                            <option value="prayed">prayed</option>
-                            <option value="closed">closed</option>
-                          </select>
-                          <button
-                            type="button"
-                            className={styles.secondaryBtn}
-                            onClick={() => savePrayerStatus(item.id)}
-                            disabled={Boolean(busyAction)}
-                          >
-                            <IconDeviceFloppy size={14} stroke={1.9} aria-hidden="true" />
-                            Save
-                          </button>
+                  {state.items.map((item) => {
+                    const monitorItemKey = `${resource.key}:${item.id}`;
+                    const isExpanded = Boolean(expandedMonitorItemKeys[monitorItemKey]);
+                    return (
+                      <article key={item.id} className={styles.monitorItem}>
+                        <div className={styles.monitorSummaryRow}>
+                          <div className={styles.monitorSummaryMain}>
+                            <h4>{item.name || item.email || item.id}</h4>
+                            <p className={styles.monitorMetaLine}>
+                              {"submitted_at" in item ? formatDateTime(item.submitted_at) : "No submit time"}
+                              {"email" in item && item.email ? ` • ${item.email}` : ""}
+                            </p>
+                          </div>
+                          <div className={styles.monitorSummaryActions}>
+                            {"status" in item ? (
+                              <span className={styles.monitorStatusPill}>
+                                {String(item.status || "new")}
+                              </span>
+                            ) : null}
+                            <button
+                              type="button"
+                              className={styles.secondaryBtn}
+                              onClick={() => toggleMonitorItemExpanded(resource.key, item.id)}
+                              disabled={Boolean(busyAction)}
+                            >
+                              {isExpanded ? "Hide" : "Open"}
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.dangerBtn}
+                              onClick={() => deleteMonitorItem(resource, item.id)}
+                              disabled={Boolean(busyAction)}
+                            >
+                              <IconTrash size={14} stroke={1.9} aria-hidden="true" />
+                              Delete
+                            </button>
+                          </div>
                         </div>
-                      ) : null}
-                    </article>
-                  ))}
+
+                        {isExpanded ? (
+                          <div className={styles.monitorDetailGrid}>
+                            <p>
+                              <strong>Email:</strong> {formatValue(item.email)}
+                            </p>
+                            <p>
+                              <strong>Phone:</strong> {formatValue(item.phone)}
+                            </p>
+
+                            {"request_text" in item ? (
+                              <p>
+                                <strong>Request:</strong> {formatValue(item.request_text)}
+                              </p>
+                            ) : null}
+
+                            {"preferred_service" in item ? (
+                              <p>
+                                <strong>Preferred Service:</strong> {formatValue(item.preferred_service)}
+                              </p>
+                            ) : null}
+
+                            {"party_size" in item ? (
+                              <p>
+                                <strong>Party Size:</strong> {formatValue(item.party_size)}
+                              </p>
+                            ) : null}
+
+                            {"message" in item ? (
+                              <p>
+                                <strong>Notes:</strong> {formatValue(item.message)}
+                              </p>
+                            ) : null}
+
+                            {"status" in item ? (
+                              <div className={styles.inlineControls}>
+                                <label htmlFor={`status-${item.id}`}>Status</label>
+                                <select
+                                  id={`status-${item.id}`}
+                                  value={prayerStatusDrafts[item.id] || String(item.status || "new")}
+                                  onChange={(event) =>
+                                    setPrayerStatusDrafts((prev) => ({
+                                      ...prev,
+                                      [item.id]: event.target.value,
+                                    }))
+                                  }
+                                >
+                                  <option value="new">new</option>
+                                  <option value="in_progress">in_progress</option>
+                                  <option value="prayed">prayed</option>
+                                  <option value="closed">closed</option>
+                                </select>
+                                <button
+                                  type="button"
+                                  className={styles.secondaryBtn}
+                                  onClick={() => savePrayerStatus(item.id)}
+                                  disabled={Boolean(busyAction)}
+                                >
+                                  <IconDeviceFloppy size={14} stroke={1.9} aria-hidden="true" />
+                                  Save
+                                </button>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })}
                 </div>
               </article>
             );

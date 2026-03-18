@@ -18,6 +18,27 @@ npm install
 npm run dev
 ```
 
+## YouTube Wiring (Live + Sermons)
+
+Use separate API keys if needed:
+
+- `YOUTUBE_LIVE_API_KEY`
+- `YOUTUBE_SERMONS_API_KEY`
+- `YOUTUBE_LIVE_CHANNEL_ID`
+- `YOUTUBE_SERMONS_CHANNEL_ID`
+
+Legacy env names are still supported:
+
+- `SUPABASE_NEW_LIVE_KEY`
+- `SUPABASE_NEW_SERMONS_KEY`
+- `YOUTUBE_CHANNEL_ID`
+
+Both website routes (`/live`, `/sermons`) and member app routes (`/member/live`, `/member/sermons`) use the same shared content pipeline in `lib/content.js`.
+
+Optional backend role visibility flag:
+
+- `BOOKKEEPER_ORDER_VISIBILITY=true` allows Bookkeeper read visibility across ministry order requests for reporting.
+
 ## Build
 
 ```bash

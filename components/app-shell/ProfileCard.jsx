@@ -17,7 +17,7 @@ export function ProfileCard({ name, email, photoUrl = "", uploadLabel = null, fo
           {photoUrl ? <img src={photoUrl} alt={`${name} profile`} className="lc-profile-photo-image" /> : <span>{initials}</span>}
           {editPhotoHref ? (
             <Link href={editPhotoHref} className="lc-profile-photo-edit" aria-label="Edit profile photo">
-              <IconPencil size={14} stroke={2} />
+              <IconPencil size={11} stroke={2.1} />
             </Link>
           ) : null}
         </div>

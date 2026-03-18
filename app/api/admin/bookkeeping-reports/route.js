@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   normalizeDate,
+  normalizeId,
   normalizeOptionalText,
   parseBoolean,
   parsePaging,
@@ -8,7 +9,7 @@ import {
   requireAdminSession,
   requireAdminSupabase,
 } from "@/lib/admin-api";
-import { getMemberRoleKeys, hasAnyRole } from "@/lib/admin-role-access";
+import { canAccessBookkeeping, getMemberRoleKeys } from "@/lib/admin-role-access";
 
 const BOOKKEEPING_ENTRY_TYPES = new Set([
   "offering",
@@ -40,7 +41,7 @@ async function getRoleContext(supabase, session) {
   const roleKeys = session?.memberId
     ? await getMemberRoleKeys(supabase, session.memberId)
     : [];
-  const isAuthorized = session?.isSuperuser || hasAnyRole(roleKeys, ["pastor", "bookkeeper"]);
+  const isAuthorized = canAccessBookkeeping(roleKeys, Boolean(session?.isSuperuser));
   return {
     isAuthorized: Boolean(isAuthorized),
     roleKeys,
@@ -180,7 +181,7 @@ export async function POST(request) {
       title,
       amount,
       notes,
-      submitted_by_member_id: session.memberId || null,
+      submitted_by_member_id: normalizeId(session.memberId) || null,
       is_active: isActive,
       updated_at: new Date().toISOString(),
     })

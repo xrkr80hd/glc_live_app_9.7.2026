@@ -25,6 +25,7 @@ export async function GET() {
   const livestream = await getLivestreamContent();
   const payload = {
     isLive: Boolean(livestream.isLive),
+    source: livestream.source || "offline",
     title: livestream.title || "Live Stream",
     liveEmbedUrl: livestream.liveEmbedUrl || "",
     fallbackVideoUrl: livestream.fallbackVideoUrl || "",

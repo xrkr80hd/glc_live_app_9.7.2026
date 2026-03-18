@@ -5,21 +5,23 @@ import { AppShell } from "@/components/app-shell/AppShell";
 import { BackRow } from "@/components/app-shell/BackRow";
 import { MemberAccordion } from "@/components/app-shell/MemberAccordion";
 
-const funds = ["Tithe", "Offering", "Mission / Other"];
+const funds = ["Tithe", "General Offering", "Missions", "Designated Giving"];
 const frequencies = ["One Time", "Weekly", "Monthly"];
 
 export default function GivePage() {
   const [selectedFund, setSelectedFund] = useState(funds[0]);
   const [selectedFrequency, setSelectedFrequency] = useState(frequencies[0]);
+  const [designatedDetails, setDesignatedDetails] = useState("");
+  const isDesignatedGiving = selectedFund === "Designated Giving";
 
   return (
-    <AppShell navKey="more" title="Give" subtitle="Choose a fund and give.">
+    <AppShell navKey="more" title="Give" subtitle="Secure giving in a few simple steps.">
       <BackRow fallbackHref="/member" />
 
       <section className="lc-card lc-give-card">
         <div className="lc-section-head">
           <h2>Giving Setup</h2>
-          <p className="lc-muted">Simple giving setup while Stripe is being connected.</p>
+          <p className="lc-muted lc-give-intro">Choose where your gift should go, then continue to secure checkout.</p>
         </div>
 
         <div className="lc-stack lc-give-stack">
@@ -36,6 +38,18 @@ export default function GivePage() {
                 </button>
               ))}
             </div>
+            {isDesignatedGiving ? (
+              <div className="lc-form-field lc-give-designated-field">
+                <label className="lc-field-label" htmlFor="designated-giving-details">Designated Giving Details</label>
+                <input
+                  id="designated-giving-details"
+                  className="lc-input"
+                  value={designatedDetails}
+                  onChange={(event) => setDesignatedDetails(event.target.value)}
+                  placeholder="Example: Youth ministry, media team, building support"
+                />
+              </div>
+            ) : null}
           </MemberAccordion>
 
           <div>
@@ -63,7 +77,7 @@ export default function GivePage() {
             Continue to Stripe
           </button>
 
-          <p className="lc-muted">Amount and payment method will be set inside Stripe checkout.</p>
+          <p className="lc-muted">Amount and payment method are completed securely in Stripe checkout.</p>
         </div>
       </section>
     </AppShell>

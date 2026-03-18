@@ -40,6 +40,34 @@ export function MemberPhotoEditor({ currentPhotoUrl = "", memberName = "Liberty 
   const [toast, setToast] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  const cropMetrics = useMemo(() => {
+    if (!dimensions?.width || !dimensions?.height) {
+      return null;
+    }
+
+    const baseScale = Math.max(PREVIEW_SIZE / dimensions.width, PREVIEW_SIZE / dimensions.height);
+    const scaledWidth = dimensions.width * baseScale * zoom;
+    const scaledHeight = dimensions.height * baseScale * zoom;
+    const maxOffsetX = Math.max(0, (scaledWidth - PREVIEW_SIZE) / 2);
+    const maxOffsetY = Math.max(0, (scaledHeight - PREVIEW_SIZE) / 2);
+
+    return {
+      scaledWidth,
+      scaledHeight,
+      maxOffsetX,
+      maxOffsetY,
+    };
+  }, [dimensions, zoom]);
+
+  useEffect(() => {
+    if (!cropMetrics) {
+      return;
+    }
+
+    setOffsetX((current) => clamp(current, -cropMetrics.maxOffsetX, cropMetrics.maxOffsetX));
+    setOffsetY((current) => clamp(current, -cropMetrics.maxOffsetY, cropMetrics.maxOffsetY));
+  }, [cropMetrics]);
+
   useEffect(() => {
     let active = true;
 
@@ -92,20 +120,18 @@ export function MemberPhotoEditor({ currentPhotoUrl = "", memberName = "Liberty 
   }, [hasNewUpload]);
 
   const previewStyle = useMemo(() => {
-    if (!sourceUrl || !dimensions?.width || !dimensions?.height) {
+    if (!sourceUrl || !cropMetrics) {
       return null;
     }
-
-    const baseScale = Math.max(PREVIEW_SIZE / dimensions.width, PREVIEW_SIZE / dimensions.height);
-    const scaledWidth = dimensions.width * baseScale * zoom;
-    const scaledHeight = dimensions.height * baseScale * zoom;
+    const clampedX = clamp(offsetX, -cropMetrics.maxOffsetX, cropMetrics.maxOffsetX);
+    const clampedY = clamp(offsetY, -cropMetrics.maxOffsetY, cropMetrics.maxOffsetY);
 
     return {
-      width: `${scaledWidth}px`,
-      height: `${scaledHeight}px`,
-      transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`,
+      width: `${cropMetrics.scaledWidth}px`,
+      height: `${cropMetrics.scaledHeight}px`,
+      transform: `translate(calc(-50% + ${clampedX}px), calc(-50% + ${clampedY}px))`,
     };
-  }, [dimensions, offsetX, offsetY, sourceUrl, zoom]);
+  }, [cropMetrics, offsetX, offsetY, sourceUrl]);
 
   function applySelectedFile(file) {
     if (!file) {
@@ -168,7 +194,7 @@ export function MemberPhotoEditor({ currentPhotoUrl = "", memberName = "Liberty 
   }
 
   async function buildCroppedBlob() {
-    if (!sourceUrl || !dimensions?.width || !dimensions?.height) {
+    if (!sourceUrl || !dimensions?.width || !dimensions?.height || !cropMetrics) {
       return null;
     }
 
@@ -185,17 +211,16 @@ export function MemberPhotoEditor({ currentPhotoUrl = "", memberName = "Liberty 
       return null;
     }
 
-    const baseScale = Math.max(PREVIEW_SIZE / dimensions.width, PREVIEW_SIZE / dimensions.height);
-    const scaledWidth = dimensions.width * baseScale * zoom;
-    const scaledHeight = dimensions.height * baseScale * zoom;
+    const clampedX = clamp(offsetX, -cropMetrics.maxOffsetX, cropMetrics.maxOffsetX);
+    const clampedY = clamp(offsetY, -cropMetrics.maxOffsetY, cropMetrics.maxOffsetY);
     const ratio = OUTPUT_SIZE / PREVIEW_SIZE;
 
     context.drawImage(
       image,
-      (PREVIEW_SIZE / 2 - scaledWidth / 2 + offsetX) * ratio,
-      (PREVIEW_SIZE / 2 - scaledHeight / 2 + offsetY) * ratio,
-      scaledWidth * ratio,
-      scaledHeight * ratio,
+      (PREVIEW_SIZE / 2 - cropMetrics.scaledWidth / 2 + clampedX) * ratio,
+      (PREVIEW_SIZE / 2 - cropMetrics.scaledHeight / 2 + clampedY) * ratio,
+      cropMetrics.scaledWidth * ratio,
+      cropMetrics.scaledHeight * ratio,
     );
 
     return await new Promise((resolve) => {
@@ -329,12 +354,20 @@ export function MemberPhotoEditor({ currentPhotoUrl = "", memberName = "Liberty 
                   </span>
                   <input
                     type="range"
-                    min="-140"
-                    max="140"
+                    min={cropMetrics ? -Math.round(cropMetrics.maxOffsetX) : -140}
+                    max={cropMetrics ? Math.round(cropMetrics.maxOffsetX) : 140}
                     step="1"
                     value={offsetX}
-                    onChange={(event) => setOffsetX(clamp(Number(event.target.value), -140, 140))}
-                    disabled={!previewStyle}
+                    onChange={(event) =>
+                      setOffsetX(
+                        clamp(
+                          Number(event.target.value),
+                          cropMetrics ? -cropMetrics.maxOffsetX : -140,
+                          cropMetrics ? cropMetrics.maxOffsetX : 140,
+                        ),
+                      )
+                    }
+                    disabled={!previewStyle || (cropMetrics ? cropMetrics.maxOffsetX <= 0 : false)}
                   />
                 </label>
                 <label className="lc-slider-field">
@@ -344,12 +377,20 @@ export function MemberPhotoEditor({ currentPhotoUrl = "", memberName = "Liberty 
                   </span>
                   <input
                     type="range"
-                    min="-140"
-                    max="140"
+                    min={cropMetrics ? -Math.round(cropMetrics.maxOffsetY) : -140}
+                    max={cropMetrics ? Math.round(cropMetrics.maxOffsetY) : 140}
                     step="1"
                     value={offsetY}
-                    onChange={(event) => setOffsetY(clamp(Number(event.target.value), -140, 140))}
-                    disabled={!previewStyle}
+                    onChange={(event) =>
+                      setOffsetY(
+                        clamp(
+                          Number(event.target.value),
+                          cropMetrics ? -cropMetrics.maxOffsetY : -140,
+                          cropMetrics ? cropMetrics.maxOffsetY : 140,
+                        ),
+                      )
+                    }
+                    disabled={!previewStyle || (cropMetrics ? cropMetrics.maxOffsetY <= 0 : false)}
                   />
                 </label>
               </div>
