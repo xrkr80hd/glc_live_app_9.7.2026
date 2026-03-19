@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { MemberAccordion } from "@/components/app-shell/MemberAccordion";
 
 function normalizeRoleIds(value) {
   if (!Array.isArray(value)) {
@@ -87,7 +88,7 @@ export function RoleAccessManager() {
     return () => {
       isActive = false;
     };
-  }, [selectedMemberId]);
+  }, []);
 
   const filteredMembers = useMemo(() => {
     const query = String(search || "").trim().toLowerCase();
@@ -199,108 +200,107 @@ export function RoleAccessManager() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-5 pb-5">
-          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-            <section className="space-y-3">
-              <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#9ca8b4]">
-                Find Member
-                <input
-                  className="h-10 rounded-none border border-[#445262] bg-[#1b2430] px-3 text-sm text-white outline-none focus:border-[#2E7D32]"
-                  placeholder="Search name, username, or email"
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                />
-              </label>
+          <div className="space-y-3">
+            <MemberAccordion title="Find Member" description="Open to search and select from your member pool." defaultOpen>
+              <div className="space-y-3">
+                <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#9ca8b4]">
+                  Member Search
+                  <input
+                    className="h-10 rounded-none border border-[#445262] bg-[#1b2430] px-3 text-sm text-white outline-none focus:border-[#2E7D32]"
+                    placeholder="Search name, username, or email"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                  />
+                </label>
 
-              <div className="max-h-[420px] overflow-y-auto rounded-none border border-[#445262] bg-[#1b2430]">
-                {isLoading ? (
-                  <p className="px-3 py-3 text-sm text-[#aab6c2]">Loading members...</p>
-                ) : filteredMembers.length ? (
-                  <ul className="divide-y divide-[#3a4655]">
-                    {filteredMembers.map((member) => {
-                      const isSelected = member.id === selectedMemberId;
-                      return (
-                        <li key={member.id}>
-                          <button
-                            type="button"
-                            onClick={() => handleSelectMember(member.id)}
-                            className={`grid w-full gap-1 px-3 py-3 text-left transition-colors ${
-                              isSelected ? "bg-[#2E7D32]/24 text-white" : "text-[#d7dee5] hover:bg-[#2E7D32]/14"
-                            }`}
-                          >
-                            <strong className="truncate text-sm">{memberLabel(member)}</strong>
-                            <span className="truncate text-xs text-[#9fb0c2]">{member.email || "No email on file"}</span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : (
-                  <p className="px-3 py-3 text-sm text-[#aab6c2]">No members match your search.</p>
-                )}
-              </div>
-            </section>
-
-            <section className="space-y-3">
-              <div className="rounded-none border border-[#445262] bg-[#1b2430] p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#9ca8b4]">Selected Member</p>
-                <p className="mt-1 text-sm font-semibold text-white">{memberLabel(selectedMember)}</p>
-                <p className="text-xs text-[#aab6c2]">{selectedMember?.email || "No email on file"}</p>
-              </div>
-
-              <div className="grid gap-2 rounded-none border border-[#445262] bg-[#1b2430] p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#9ca8b4]">Assign Roles</p>
-                <div className="max-h-[420px] overflow-y-auto rounded-none border border-[#3b4757] bg-[#1f2935] p-2">
-                  {roles.length ? (
-                    <ul className="grid gap-2">
-                      {roles.map((role) => {
-                        const checked = selectedRoleSet.has(role.id);
+                <div className="max-h-[320px] overflow-y-auto rounded-none border border-[#445262] bg-[#1b2430]">
+                  {isLoading ? (
+                    <p className="px-3 py-3 text-sm text-[#aab6c2]">Loading members...</p>
+                  ) : filteredMembers.length ? (
+                    <ul className="m-0 list-none divide-y divide-[#3a4655] p-0">
+                      {filteredMembers.map((member) => {
+                        const isSelected = member.id === selectedMemberId;
                         return (
-                          <li key={role.id}>
-                            <label className="flex items-start gap-2 rounded-none border border-[#3b4757] bg-[#222d39] px-3 py-2 text-sm text-[#d7dee5]">
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleToggleRole(role.id)}
-                                className="mt-[2px] h-4 w-4 rounded-none border-[#526177] bg-transparent accent-[#2E7D32]"
-                                disabled={!selectedMember || isSaving}
-                              />
-                              <span className="grid gap-0.5">
-                                <strong className="text-sm text-white">{role.name}</strong>
-                                <span className="text-xs text-[#9fb0c2]">{role.role_key}</span>
-                              </span>
-                            </label>
+                          <li key={member.id} className="list-none">
+                            <button
+                              type="button"
+                              onClick={() => handleSelectMember(member.id)}
+                              className={`grid w-full gap-1 px-3 py-3 text-left transition-colors ${
+                                isSelected ? "bg-[#2E7D32]/24 text-white" : "text-[#d7dee5] hover:bg-[#2E7D32]/14"
+                              }`}
+                            >
+                              <strong className="truncate text-sm">{memberLabel(member)}</strong>
+                              <span className="truncate text-xs text-[#9fb0c2]">{member.email || "No email on file"}</span>
+                            </button>
                           </li>
                         );
                       })}
                     </ul>
                   ) : (
-                    <p className="text-sm text-[#aab6c2]">No roles found.</p>
+                    <p className="px-3 py-3 text-sm text-[#aab6c2]">No members match your search.</p>
                   )}
                 </div>
               </div>
+            </MemberAccordion>
 
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={!selectedMember || !hasChanges || isSaving}
-                  className="h-10 rounded-none bg-[#2E7D32] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#276b2b] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isSaving ? "Saving..." : "Save Role Access"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedRoleIds(assignedRoleIds)}
-                  disabled={!selectedMember || isSaving}
-                  className="h-10 rounded-none border border-[#4a596a] bg-[#27313b] px-4 text-sm font-semibold text-[#d7dee5] transition-colors hover:bg-[#313f4d] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Reset
-                </button>
+            <div className="rounded-none border border-[#445262] bg-[#1b2430] p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#9ca8b4]">Selected Member</p>
+              <p className="mt-1 text-sm font-semibold text-white">{memberLabel(selectedMember)}</p>
+              <p className="text-xs text-[#aab6c2]">{selectedMember?.email || "No email on file"}</p>
+            </div>
+
+            <MemberAccordion title="Assign Roles" description="Open to check permissions for the selected member." defaultOpen>
+              <div className="max-h-[320px] overflow-y-auto rounded-none border border-[#3b4757] bg-[#1f2935] p-2">
+                {roles.length ? (
+                  <ul className="m-0 grid list-none gap-2 p-0">
+                    {roles.map((role) => {
+                      const checked = selectedRoleSet.has(role.id);
+                      return (
+                        <li key={role.id} className="list-none">
+                          <label className="flex items-start gap-2 rounded-none border border-[#3b4757] bg-[#222d39] px-3 py-2 text-sm text-[#d7dee5]">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => handleToggleRole(role.id)}
+                              className="mt-[2px] h-4 w-4 rounded-none border-[#526177] bg-transparent accent-[#2E7D32]"
+                              disabled={!selectedMember || isSaving}
+                            />
+                            <span className="grid gap-0.5">
+                              <strong className="text-sm text-white">{role.name}</strong>
+                              <span className="text-xs text-[#9fb0c2]">{role.role_key}</span>
+                            </span>
+                          </label>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-[#aab6c2]">No roles found.</p>
+                )}
               </div>
+            </MemberAccordion>
 
-              {error ? <p className="text-sm text-[#ff8f8f]">{error}</p> : null}
-              {notice ? <p className="text-sm text-[#9de6b0]">{notice}</p> : null}
-            </section>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={!selectedMember || !hasChanges || isSaving}
+                className="h-11 w-full rounded-none bg-[#2E7D32] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#276b2b] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSaving ? "Saving..." : "Save Roles For Selected Member"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRoleIds(assignedRoleIds)}
+                disabled={!selectedMember || isSaving}
+                className="h-11 w-full rounded-none border border-[#4a596a] bg-[#27313b] px-4 text-sm font-semibold text-[#d7dee5] transition-colors hover:bg-[#313f4d] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Reset Unsaved Role Changes
+              </button>
+            </div>
+
+            {error ? <p className="text-sm text-[#ff8f8f]">{error}</p> : null}
+            {notice ? <p className="text-sm text-[#9de6b0]">{notice}</p> : null}
           </div>
         </CardContent>
       </Card>
