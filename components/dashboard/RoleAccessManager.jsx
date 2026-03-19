@@ -229,7 +229,7 @@ export function RoleAccessManager() {
                                 isSelected ? "bg-[#2E7D32]/24 text-white" : "text-[#d7dee5] hover:bg-[#2E7D32]/14"
                               }`}
                             >
-                              <strong className="truncate text-sm">{memberLabel(member)}</strong>
+                              <strong className="truncate text-sm font-semibold text-white">{memberLabel(member)}</strong>
                               <span className="truncate text-xs text-[#9fb0c2]">{member.email || "No email on file"}</span>
                             </button>
                           </li>
