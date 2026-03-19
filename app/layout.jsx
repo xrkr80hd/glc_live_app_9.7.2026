@@ -39,7 +39,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link rel="stylesheet" href="/assets/style.css" />
-        <meta name="theme-color" content="#0f6048" />
+        <meta name="theme-color" content="#1F4D3A" />
       </head>
       <body className={`${manrope.variable} ${sora.variable}`}>
         {children}

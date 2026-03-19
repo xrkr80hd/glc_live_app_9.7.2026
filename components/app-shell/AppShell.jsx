@@ -20,8 +20,8 @@ export function AppShell({
       : navKey === "home"
         ? "https://www.golibertychurch.com/assets/hero_vids/worship_hero.mp4"
         : null;
-  const headerLogoSrc = theme === "youth" ? "/assets/LC_YOUTH_LOGO.png" : "/assets/logo.png";
-  const headerBrandLabel = theme === "youth" ? "LC Youth" : "Liberty Church";
+  const headerLogoSrc = theme === "youth" ? "/assets/lc_youth_logo_new.png" : "/assets/lc_logo_new_dark.png";
+  const headerBrandLabel = "Liberty Church";
 
   return (
     <div className={shellClassName}>

@@ -8,15 +8,20 @@ export default async function MemberAccessPage({ searchParams }) {
   const session = await getMemberSessionFromServerCookies();
 
   if (session) {
-    redirect("/member");
+    redirect("/dashboard");
   }
 
   const params = await searchParams;
   const initialView = params?.verified === "1" ? "verified" : "signin";
-  const initialMessage =
-    params?.error === "verification"
-      ? "That verification link is no longer valid. Please create your account again or sign in."
-      : "";
+
+  let initialMessage = "";
+  if (params?.error === "verification") {
+    initialMessage = "That link is no longer valid. Request a fresh link and try again.";
+  } else if (params?.passwordReset === "1") {
+    initialMessage = "Password updated. Sign in with your new password.";
+  } else if (params?.emailChanged === "1") {
+    initialMessage = "Email updated. Sign in with your new email and password.";
+  }
 
   return <MemberAccessScreen initialView={initialView} initialMessage={initialMessage} />;
 }

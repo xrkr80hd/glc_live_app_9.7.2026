@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { IconUserCircle } from "@tabler/icons-react";
+import { GlobalHeaderBar } from "@/components/shared/GlobalHeaderBar";
 
 function buildInitials(name) {
   return String(name || "")
@@ -24,9 +25,10 @@ export function AppHeader({
   headerAction = null,
   compactHeader = false,
   headerVideoUrl = null,
-  headerLogoSrc = "/assets/logo.png",
+  headerLogoSrc = "/assets/lc_logo_new_dark.png",
   headerBrandLabel = "Liberty Church",
 }) {
+  const [resolvedAppTheme, setResolvedAppTheme] = useState("light");
   const [profileShortcut, setProfileShortcut] = useState({
     fullName: "",
     photoUrl: "",
@@ -36,12 +38,35 @@ export function AppHeader({
   useEffect(() => {
     if (theme !== "member") {
       document.documentElement.dataset.appTheme = "light";
+      setResolvedAppTheme("light");
       return;
     }
 
     const storedTheme = window.localStorage.getItem("lc-app-theme");
     const resolvedTheme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : "light";
     document.documentElement.dataset.appTheme = resolvedTheme;
+    setResolvedAppTheme(resolvedTheme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (theme !== "member") {
+      return undefined;
+    }
+
+    const root = document.documentElement;
+    const syncThemeFromDom = () => {
+      const nextTheme = root.dataset.appTheme === "dark" ? "dark" : "light";
+      setResolvedAppTheme(nextTheme);
+    };
+
+    const observer = new MutationObserver(syncThemeFromDom);
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ["data-app-theme"],
+    });
+
+    syncThemeFromDom();
+    return () => observer.disconnect();
   }, [theme]);
 
   useEffect(() => {
@@ -82,35 +107,53 @@ export function AppHeader({
   }, [showProfileShortcut]);
 
   const initials = buildInitials(profileShortcut.fullName);
+  const resolvedLogoSrc = "/assets/lc_logo_new_dark.png";
+  const isYouthTheme = theme === "youth";
+  const youthHeaderClassName = isYouthTheme
+    ? "border-[#66e49e]/35 bg-[linear-gradient(90deg,#172034_0%,#21314f_50%,#172034_100%)]"
+    : "";
+  const youthBrandTextStyle = isYouthTheme
+    ? { textShadow: "0 0 10px rgba(102, 228, 158, 0.58), 0 0 22px rgba(102, 228, 158, 0.28)" }
+    : undefined;
+  const logoSrc = theme === "youth" ? "/assets/lc_youth_logo_new.png" : resolvedLogoSrc || headerLogoSrc;
 
   return (
     <header className="lc-app-header">
-      <div className="lc-app-header-top">
-        <span className="lc-header-left-spacer" aria-hidden="true" />
-        <Link href="/member" className="lc-brand-lockup" aria-label="Go to Liberty Church member home">
-          <Image src={headerLogoSrc} alt="" width={28} height={28} className="lc-brand-mark" />
-          <span>{headerBrandLabel}</span>
-        </Link>
-        <div className="lc-app-header-actions">
-          {headerAction}
-          {showProfileShortcut ? (
-            <Link href="/member/profile" className="lc-profile-shortcut" aria-label="Open profile">
-              {profileShortcut.photoUrl && !photoLoadFailed ? (
-                <img
-                  src={profileShortcut.photoUrl}
-                  alt="Your profile"
-                  className="lc-profile-shortcut-image"
-                  onError={() => setPhotoLoadFailed(true)}
-                />
-              ) : initials ? (
-                <span className="lc-profile-shortcut-initials">{initials}</span>
-              ) : (
-                <IconUserCircle size={24} stroke={1.8} />
-              )}
-            </Link>
-          ) : null}
+      <GlobalHeaderBar
+        sticky={false}
+        className={youthHeaderClassName}
+        maxWidthClassName="max-w-none"
+        innerClassName="px-0 sm:px-0 lg:px-0"
+      >
+        <div className="lc-app-header-top w-full px-2">
+          <span className="lc-header-left-spacer" aria-hidden="true" />
+          <Link href="/member" className="lc-brand-lockup" aria-label="Go to Liberty Church member home">
+            <Image src={logoSrc} alt="" width={28} height={28} className="lc-brand-mark" />
+            <span className={isYouthTheme ? "text-[#dcfff1]" : undefined} style={youthBrandTextStyle}>
+              {headerBrandLabel}
+            </span>
+          </Link>
+          <div className="lc-app-header-actions">
+            {headerAction}
+            {showProfileShortcut ? (
+              <Link href="/member/profile" className="lc-profile-shortcut" aria-label="Open profile">
+                {profileShortcut.photoUrl && !photoLoadFailed ? (
+                  <img
+                    src={profileShortcut.photoUrl}
+                    alt="Your profile"
+                    className="lc-profile-shortcut-image"
+                    onError={() => setPhotoLoadFailed(true)}
+                  />
+                ) : initials ? (
+                  <span className="lc-profile-shortcut-initials">{initials}</span>
+                ) : (
+                  <IconUserCircle size={24} stroke={1.8} />
+                )}
+              </Link>
+            ) : null}
+          </div>
         </div>
-      </div>
+      </GlobalHeaderBar>
       {title || subtitle || kicker ? (
         <div className={`lc-app-header-copy${compactHeader ? " is-compact" : ""}`}>
           {headerVideoUrl ? (

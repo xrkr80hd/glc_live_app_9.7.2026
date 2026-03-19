@@ -1,82 +1,93 @@
 import Script from "next/script";
-import { ChurchHeader } from "@/components/ChurchHeader";
-import { ChurchSiteFooter } from "@/components/ChurchSiteFooter";
-import { IconPray, IconSend } from "@tabler/icons-react";
+import { PublicSiteShell } from "@/components/public-site/PublicSiteShell";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { Button } from "@/components/ui/button";
 
 export default function PrayerPage() {
   return (
-    <>
-      <ChurchHeader active="prayer" />
-
-      <section className="section alt">
-        <div className="container flow">
-          <h2>
-            <span className="heading-inline">
-              <IconPray size={28} stroke={1.8} aria-hidden="true" />
-              <span>Prayer Requests</span>
-            </span>
-          </h2>
-          <p className="lede">
-            We believe in the power of prayer. Share your request and our team will lift it before the Lord. If you&apos;d like follow-up, include your email.
-          </p>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-          <div className="card prayer-form-card">
-            <h3>
-              <span className="heading-inline small">
-                <IconPray size={22} stroke={1.8} aria-hidden="true" />
-                <span>Share Your Prayer Request</span>
-              </span>
-            </h3>
-            <p className="muted">
-              Every request goes straight to our pastoral care team. We only share publicly if you give us permission.
+    <PublicSiteShell>
+      <div className="bg-[#F6F6F2]">
+        <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+          <BlurFade inView delay={0.04} className="space-y-2">
+            <h1 className="text-3xl font-semibold text-[#3F4D48] sm:text-4xl">Prayer Requests</h1>
+            <p className="max-w-3xl text-base leading-7 text-[#3F4D48]">
+              We believe in the power of prayer. Share your request and our team will lift it before the Lord. If you would like follow-up, include your email.
             </p>
-            <form id="prayerForm" className="form" data-endpoint="/api/prayer-request/" noValidate>
-              <div className="row">
-                <div>
-                  <label htmlFor="prayerName">
-                    Name <span className="muted">(optional)</span>
-                  </label>
-                  <input id="prayerName" name="name" type="text" maxLength={120} placeholder="Your name" autoComplete="name" />
-                </div>
-                <div>
-                  <label htmlFor="prayerEmail">
-                    Email <span className="muted">(optional)</span>
-                  </label>
-                  <input id="prayerEmail" name="email" type="email" maxLength={160} placeholder="you@example.com" autoComplete="email" />
-                </div>
-              </div>
-              <label htmlFor="prayerRequest">
-                How can we pray with you?
-                <textarea
-                  id="prayerRequest"
-                  name="request"
-                  rows={5}
-                  required
-                  placeholder="Share whatever is on your heart — big or small."
-                />
-              </label>
-              <label className="prayer-checkbox">
-                <input type="checkbox" id="prayerShare" name="sharePermission" value="yes" />
-                <span>It&apos;s okay to share this request with the congregation (otherwise it stays with the pastoral team).</span>
-              </label>
-              <p className="note">We monitor prayer requests daily and someone will reach out if you include your contact details.</p>
-              <div>
-                <button className="btn" type="submit">
-                  <IconSend size={18} stroke={1.9} aria-hidden="true" />
-                  Send Request
-                </button>
-              </div>
-            </form>
-            <div id="prayerStatus" className="mt-12" role="status" aria-live="polite" />
-          </div>
-        </div>
-      </section>
+          </BlurFade>
 
-      <ChurchSiteFooter />
+          <BlurFade inView delay={0.08}>
+            <section className="border border-[#E3E8E6] bg-white p-4 sm:p-6">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold text-[#3F4D48]">Share Your Prayer Request</h2>
+                <p className="text-base leading-7 text-[#3F4D48]">
+                  Every request goes straight to our pastoral care team. We only share publicly if you give us permission.
+                </p>
+              </div>
+
+              <form id="prayerForm" className="mt-5 space-y-4" data-endpoint="/api/prayer-request/" noValidate>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label htmlFor="prayerName" className="space-y-2 text-sm font-medium text-[#3F4D48]">
+                    <span>
+                      Name <span className="font-normal text-[#3F4D48]/75">(optional)</span>
+                    </span>
+                    <input
+                      id="prayerName"
+                      name="name"
+                      type="text"
+                      maxLength={120}
+                      placeholder="Your name"
+                      autoComplete="name"
+                      className="h-10 w-full border border-[#E3E8E6] bg-white px-3 text-base text-[#3F4D48] outline-none transition-colors placeholder:text-[#3F4D48]/55 focus:border-[#1F4D3A]"
+                    />
+                  </label>
+
+                  <label htmlFor="prayerEmail" className="space-y-2 text-sm font-medium text-[#3F4D48]">
+                    <span>
+                      Email <span className="font-normal text-[#3F4D48]/75">(optional)</span>
+                    </span>
+                    <input
+                      id="prayerEmail"
+                      name="email"
+                      type="email"
+                      maxLength={160}
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      className="h-10 w-full border border-[#E3E8E6] bg-white px-3 text-base text-[#3F4D48] outline-none transition-colors placeholder:text-[#3F4D48]/55 focus:border-[#1F4D3A]"
+                    />
+                  </label>
+                </div>
+
+                <label htmlFor="prayerRequest" className="space-y-2 text-sm font-medium text-[#3F4D48]">
+                  <span>How can we pray with you?</span>
+                  <textarea
+                    id="prayerRequest"
+                    name="request"
+                    rows={5}
+                    required
+                    placeholder="Share whatever is on your heart - big or small."
+                    className="w-full border border-[#E3E8E6] bg-white px-3 py-2 text-base leading-6 text-[#3F4D48] outline-none transition-colors placeholder:text-[#3F4D48]/55 focus:border-[#1F4D3A]"
+                  />
+                </label>
+
+                <label className="flex items-start gap-2 text-sm leading-6 text-[#3F4D48]">
+                  <input type="checkbox" id="prayerShare" name="sharePermission" value="yes" className="mt-1 h-4 w-4 border-[#E3E8E6]" />
+                  <span>It is okay to share this request with the congregation (otherwise it stays with the pastoral team).</span>
+                </label>
+
+                <p className="text-sm leading-6 text-[#3F4D48]">
+                  We monitor prayer requests daily and someone will reach out if you include your contact details.
+                </p>
+
+                <Button type="submit" className="h-10 rounded-none bg-[#1F4D3A] px-4 text-sm font-semibold text-white hover:bg-[#2E7D32]">
+                  Send Request
+                </Button>
+              </form>
+
+              <div id="prayerStatus" className="mt-3 text-sm text-[#3F4D48]" role="status" aria-live="polite" />
+            </section>
+          </BlurFade>
+        </div>
+      </div>
 
       <Script id="prayer-submit" strategy="afterInteractive">{`
         (function () {
@@ -89,8 +100,19 @@ export default function PrayerPage() {
           const setStatus = (message, state) => {
             if (!statusEl) return;
             statusEl.textContent = message || '';
-            statusEl.classList.remove('pending', 'success', 'error');
-            if (state) statusEl.classList.add(state);
+            statusEl.className = 'mt-3 text-sm';
+            statusEl.style.color = '#3F4D48';
+            if (!message) return;
+            if (state === 'pending') {
+              return;
+            }
+            if (state === 'success') {
+              statusEl.style.color = '#1F4D3A';
+              return;
+            }
+            if (state === 'error') {
+              statusEl.style.color = '#B13737';
+            }
           };
 
           form.addEventListener('submit', async (event) => {
@@ -109,7 +131,7 @@ export default function PrayerPage() {
               return;
             }
 
-            setStatus('Sending your request…', 'pending');
+            setStatus('Sending your request...', 'pending');
             if (submitBtn) submitBtn.disabled = true;
 
             try {
@@ -135,6 +157,6 @@ export default function PrayerPage() {
           });
         })();
       `}</Script>
-    </>
+    </PublicSiteShell>
   );
 }

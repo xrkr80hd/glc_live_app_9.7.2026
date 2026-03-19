@@ -1,14 +1,15 @@
 import { BodyClass } from "@/components/BodyClass";
 import { ChurchHeader } from "@/components/ChurchHeader";
 import { ChurchSimpleFooter } from "@/components/ChurchSimpleFooter";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getYouthPageContent } from "@/lib/content";
-import { IconBible, IconCalendarEvent, IconVideo } from "@tabler/icons-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function YouthPage() {
   const { youthAnnouncements, youthScripture, youthBanner } = await getYouthPageContent();
-  const tickerTextRaw = youthBanner?.subtitle || "Sundays @ 9:20 AM — Youth Devotion | Pop-Up Events — Check back for more info";
+  const tickerTextRaw = youthBanner?.subtitle || "Sundays @ 9:20 AM - Youth Devotion | Pop-Up Events - Check back for more info";
   const tickerText = tickerTextRaw.replace(/\p{Extended_Pictographic}/gu, "").replace(/\s{2,}/g, " ").trim();
 
   return (
@@ -16,16 +17,23 @@ export default async function YouthPage() {
       <BodyClass className="youth" />
       <ChurchHeader active="youth" youthBrand />
 
-      <section className="hero youth-hero">
-        <video id="heroVideo" autoPlay muted loop playsInline preload="metadata" poster="/assets/youth-backdrop.png">
-          <source src="https://www.golibertychurch.com/assets/LC_YOUTH_HERO_VID.mp4" type="video/mp4" />
-        </video>
-        <div className="overlay" />
-        <div className="content container">
-          <span className="hero-subtitle">WE ARE LC YOUTH</span>
-          <h1 className="hero-title">LC Youth</h1>
-          <p className="hero-tagline">Rooted in Jesus. Fueled by community.</p>
-          <p className="hero-description">Middle and high school students discovering identity, purpose, and friendships that last forever.</p>
+      <section className="bg-[linear-gradient(145deg,rgba(10,18,31,0.92)_0%,rgba(14,23,39,0.92)_100%)] pb-[3%]">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8 lg:pt-12">
+          <BlurFade inView delay={0.04}>
+            <Card className="relative min-h-[240px] overflow-hidden border border-[#66e49e]/32 bg-[#172034] py-0 shadow-sm sm:min-h-[290px]">
+              <video className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-65 contrast-110 saturate-125" autoPlay loop muted playsInline preload="metadata" poster="/assets/youth-backdrop.png">
+                <source src="https://www.golibertychurch.com/assets/LC_YOUTH_HERO_VID.mp4" type="video/mp4" />
+              </video>
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(23,32,52,0.58)_0%,rgba(33,49,79,0.42)_50%,rgba(23,32,52,0.58)_100%)]" aria-hidden="true" />
+              <CardHeader className="relative z-10 px-5 pb-2 pt-6 sm:px-8 sm:pt-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#b7d9ff]">We Are</p>
+                <CardTitle className="max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">Liberty Church Youth</CardTitle>
+              </CardHeader>
+              <CardContent className="relative z-10 px-5 pb-7 pt-2 sm:px-8 sm:pb-8">
+                <span className="inline-block h-6 w-full" aria-hidden="true" />
+              </CardContent>
+            </Card>
+          </BlurFade>
         </div>
       </section>
 
@@ -41,51 +49,26 @@ export default async function YouthPage() {
       <section className="section alt youth-scripture" id="week-in-word">
         <div className="container">
           <div className="section-head">
-            <span className="eyebrow">Here&apos;s what&apos;s speaking to us</span>
-            <h2>
-              <span className="heading-inline">
-                <IconBible size={28} stroke={1.8} aria-hidden="true" />
-                <span>Scripture of the Week + Devotional</span>
-              </span>
-            </h2>
-            <p className="sub">Each week we rally around a verse and a short devo crafted by our youth team.</p>
+            <h2>Scripture of the Week</h2>
           </div>
-          <div className="youth-scripture-grid">
-            <article className="glass-card scripture-card">
-              <span className="badge badge-light">Scripture of the Week</span>
-              <blockquote>
-                <p id="scripture-text">{youthScripture.verse_text}</p>
-              </blockquote>
-              <cite id="scripture-reference">{youthScripture.reference}</cite>
-            </article>
-            <article className="glass-card devotional-card">
-              <div className="devotional-header">
-                <span className="badge badge-outline">Weekly Devo</span>
-                <h3>Lean in &amp; reflect</h3>
-              </div>
-              <div id="devotional-text" className="devotional-text">
-                <p>{youthBanner?.title || "Hang tight—our next devotional drops right after service!"}</p>
-              </div>
-              <div className="devotional-footer">
-                <p>
-                  Want to talk it out? Show up Sundays at <strong>9:20 AM</strong> for student-led conversation and prayer.
-                </p>
-              </div>
-            </article>
-          </div>
+          <article className="glass-card youth-scripture-single">
+            <h3>Scripture</h3>
+            <p id="scripture-reference" className="youth-scripture-reference">
+              {youthScripture.reference}
+            </p>
+            <blockquote className="youth-scripture-verse">
+              <p id="scripture-text">{youthScripture.verse_text}</p>
+            </blockquote>
+            <h3>Lean In and Reflect</h3>
+            <p id="devotional-text">{youthBanner?.title || "Take this verse with you this week and ask God how to live it out today."}</p>
+          </article>
         </div>
       </section>
 
       <section className="section alt youth-announcements" id="announcements">
         <div className="container">
           <div className="section-head">
-            <span className="eyebrow">Don&apos;t miss out</span>
-            <h2>
-              <span className="heading-inline">
-                <IconCalendarEvent size={28} stroke={1.8} aria-hidden="true" />
-                <span>Announcements &amp; Events</span>
-              </span>
-            </h2>
+            <h2>Announcements and Events</h2>
             <p className="sub">Fresh updates, pop-up hangs, and everything happening next.</p>
           </div>
           <div className="announcements-grid" id="announcements-grid">
@@ -102,35 +85,6 @@ export default async function YouthPage() {
               </article>
             )}
           </div>
-        </div>
-      </section>
-
-      <section className="section youth-gallery" id="gallery">
-        <div className="container">
-          <div className="section-head">
-            <span className="eyebrow">Memories in motion</span>
-            <h2>
-              <span className="heading-inline">
-                <IconVideo size={28} stroke={1.8} aria-hidden="true" />
-                <span>Check out our past hangouts</span>
-              </span>
-            </h2>
-            <p className="sub">Choose an album to explore highlight photos and videos.</p>
-          </div>
-          <div className="gallery-controls">
-            <label className="sr-only" htmlFor="youth-album-select">
-              Choose an album
-            </label>
-            <select id="youth-album-select" className="album-select" disabled defaultValue="">
-              <option value="">Albums coming soon</option>
-            </select>
-          </div>
-          <div className="gallery-stage empty" id="gallery-stage">
-            <div className="stage-placeholder">
-              <p className="muted">Gallery coming soon. Check back after our next youth hangout!</p>
-            </div>
-          </div>
-          <div className="media-grid" id="gallery-media-grid" aria-live="polite" />
         </div>
       </section>
 
@@ -168,6 +122,33 @@ export default async function YouthPage() {
               display: flex;
               align-items: center;
               letter-spacing: 0.04em;
+            }
+
+            .youth-scripture-single {
+              display: grid;
+              gap: 0.85rem;
+            }
+
+            .youth-scripture-single h3 {
+              margin: 0;
+              font-size: 0.96rem;
+              letter-spacing: 0.05em;
+              text-transform: uppercase;
+            }
+
+            .youth-scripture-reference {
+              margin: 0;
+              font-weight: 700;
+            }
+
+            .youth-scripture-verse {
+              margin: 0;
+              padding-left: 0.9rem;
+              border-left: 3px solid rgba(102, 228, 158, 0.55);
+            }
+
+            .youth-scripture-verse p {
+              margin: 0;
             }
 
             @keyframes tickerScroll {

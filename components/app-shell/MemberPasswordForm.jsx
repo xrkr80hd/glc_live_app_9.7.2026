@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { IconEye, IconEyeOff, IconLockPassword } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
+import { IconLockPassword } from "@tabler/icons-react";
 import { ToastMessage } from "@/components/app-shell/ToastMessage";
 
 export function MemberPasswordForm() {
+  const router = useRouter();
   const [visibility, setVisibility] = useState({
     current: false,
     next: false,
@@ -52,6 +54,12 @@ export function MemberPasswordForm() {
         throw new Error(payload.message || "Unable to update your password right now.");
       }
 
+      if (payload.redirectTo) {
+        router.replace(payload.redirectTo);
+        router.refresh();
+        return;
+      }
+
       setToast({
         title: "Password updated",
         message: payload.message || "Your new password has been saved.",
@@ -84,10 +92,16 @@ export function MemberPasswordForm() {
             type={isVisible ? "text" : "password"}
             value={form[fieldName]}
             onChange={(event) => updateField(fieldName, event.target.value)}
+            autoComplete={key === "current" ? "current-password" : "new-password"}
             required
           />
-          <button type="button" onClick={() => toggleVisibility(key)} aria-label={`Toggle ${label.toLowerCase()} visibility`}>
-            {isVisible ? <IconEyeOff size={18} stroke={1.8} /> : <IconEye size={18} stroke={1.8} />}
+          <button
+            type="button"
+            className="lc-password-toggle"
+            onClick={() => toggleVisibility(key)}
+            aria-label={`${isVisible ? "Hide" : "Show"} password`}
+          >
+            {isVisible ? "Hide" : "Show"}
           </button>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { readJsonBody } from "@/lib/admin-api";
 import { isMemberAuthConfigured } from "@/lib/member-auth";
-import { buildPublicUrl } from "@/lib/public-url";
+import { buildAuthUrl } from "@/lib/public-url";
+import { validateMemberPassword } from "@/lib/security/password-policy";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function normalizeEmail(value) {
@@ -14,7 +15,7 @@ function normalizeText(value) {
 }
 
 function buildEmailRedirectTo(request) {
-  const confirmUrl = buildPublicUrl(request, "/auth/confirm");
+  const confirmUrl = buildAuthUrl(request, "/auth/confirm");
   confirmUrl.searchParams.set("next", "/member-access?verified=1");
   return confirmUrl.toString();
 }
@@ -50,11 +51,16 @@ export async function POST(request) {
     );
   }
 
-  if (password.length < 8) {
+  const passwordValidation = validateMemberPassword(password, {
+    fullName,
+    email,
+  });
+
+  if (!passwordValidation.valid) {
     return NextResponse.json(
       {
         success: false,
-        message: "Use at least 8 characters for your password.",
+        message: passwordValidation.message,
       },
       { status: 400 },
     );

@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import { readJsonBody } from "@/lib/admin-api";
 import { ensureMemberProfileForAuthUser, isMemberAuthConfigured } from "@/lib/member-auth";
+import {
+  checkIpLoginThrottle,
+  clearAccountLoginFailuresByEmail,
+  getAccountLockStatusByEmail,
+  recordAccountLoginFailureByEmail,
+  recordIpLoginFailure,
+  recordIpLoginSuccess,
+} from "@/lib/security/login-guard";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function normalizeEmail(value) {
@@ -36,6 +44,40 @@ export async function POST(request) {
     );
   }
 
+  const ipThrottle = checkIpLoginThrottle(request);
+  if (!ipThrottle.allowed) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: `Too many login attempts. Try again in about ${Math.max(1, Math.ceil(ipThrottle.retryAfterSeconds / 60))} minute(s).`,
+      },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(ipThrottle.retryAfterSeconds),
+        },
+      },
+    );
+  }
+
+  const accountLock = await getAccountLockStatusByEmail(email);
+  if (accountLock.locked) {
+    recordIpLoginFailure(request);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: `This account is temporarily locked. Try again in about ${Math.max(1, Math.ceil(accountLock.retryAfterSeconds / 60))} minute(s).`,
+      },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(accountLock.retryAfterSeconds),
+        },
+      },
+    );
+  }
+
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return NextResponse.json(
@@ -53,6 +95,9 @@ export async function POST(request) {
   });
 
   if (signInError || !signInData?.user) {
+    recordIpLoginFailure(request);
+    await recordAccountLoginFailureByEmail(email);
+
     const normalizedMessage = String(signInError?.message || "").toLowerCase();
     const message = normalizedMessage.includes("email not confirmed")
       ? "Please verify your email first, then sign in."
@@ -60,6 +105,9 @@ export async function POST(request) {
 
     return NextResponse.json({ success: false, message }, { status: 401 });
   }
+
+  recordIpLoginSuccess(request);
+  await clearAccountLoginFailuresByEmail(email);
 
   const member = await ensureMemberProfileForAuthUser({
     user: signInData.user,

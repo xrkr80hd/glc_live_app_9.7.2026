@@ -198,6 +198,33 @@
   width: 100%;
 }
 
+.passwordInputWrap {
+  position: relative;
+}
+
+.passwordInputWrap input {
+  padding-right: 3.5rem;
+}
+
+.passwordToggleBtn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--admin-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.2rem 0.3rem;
+  cursor: pointer;
+}
+
+.passwordToggleBtn:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 1px;
+}
+
 .field input:-webkit-autofill,
 .field input:-webkit-autofill:hover,
 .field input:-webkit-autofill:focus,

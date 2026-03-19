@@ -1,7 +1,9 @@
-import { ChurchHeader } from "@/components/ChurchHeader";
-import { ChurchSimpleFooter } from "@/components/ChurchSimpleFooter";
+import Link from "next/link";
+import { PublicSiteShell } from "@/components/public-site/PublicSiteShell";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLivestreamContent } from "@/lib/content";
-import { IconBroadcast, IconMessageCircleHeart, IconPlayerPlay } from "@tabler/icons-react";
 
 export const dynamic = "force-dynamic";
 
@@ -13,67 +15,62 @@ export default async function LivePage() {
     "/assets/stream_fallback_loop/stream_fall_back_loop.mp4";
 
   return (
-    <>
-      <ChurchHeader active="live" />
+    <PublicSiteShell>
+      <div className="bg-[#F6F6F2]">
+        <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+          <BlurFade inView delay={0.04}>
+            <Card className="border border-[#E3E8E6] bg-white py-0 shadow-sm">
+              <CardHeader className="px-5 pb-2 pt-6 sm:px-7 sm:pt-7">
+                <CardTitle className="text-2xl text-[#3F4D48] sm:text-3xl">Live Stream</CardTitle>
+                <CardDescription className="text-base text-[#3F4D48]">Join us Sundays at 10:00 AM.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 px-5 pb-6 pt-1 sm:px-7 sm:pb-7">
+                <div id="LS1" style={{ display: livestream.isLive ? "block" : "none" }}>
+                  <div className="overflow-hidden border border-[#E3E8E6] bg-white">
+                    {livestream.isLive && livestream.liveEmbedUrl ? (
+                      <iframe
+                        src={livestream.liveEmbedUrl}
+                        title={livestream.title || "Live Stream"}
+                        className="aspect-video w-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        loading="lazy"
+                      />
+                    ) : null}
+                  </div>
+                </div>
 
-      <main>
-        <section className="section">
-          <div className="container">
-            <div className="section-head">
-              <h1>
-                <span className="title-inline">
-                  <IconBroadcast size={32} stroke={1.8} aria-hidden="true" />
-                  <span>Live Stream</span>
-                </span>
-              </h1>
-              <p className="muted">Join us Sundays at 10:00 AM.</p>
-            </div>
+                <div id="LS2" style={{ display: livestream.isLive ? "none" : "block" }}>
+                  <div className="overflow-hidden border border-[#E3E8E6] bg-white">
+                    <video className="aspect-video w-full object-cover" autoPlay muted loop playsInline>
+                      <source src={fallbackVideo} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                  <p className="pt-3 text-sm text-[#3F4D48]">We are not currently streaming live. Join us Sundays at 10:00 AM.</p>
+                </div>
+              </CardContent>
+            </Card>
+          </BlurFade>
 
-            <div id="LS1" style={{ display: livestream.isLive ? "block" : "none" }}>
-              <div className="embed aspect-16x9">
-                {livestream.isLive && livestream.liveEmbedUrl ? (
-                  <iframe
-                    src={livestream.liveEmbedUrl}
-                    title={livestream.title || "Live Stream"}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    loading="lazy"
-                  />
-                ) : null}
-              </div>
-            </div>
-
-            <div id="LS2" style={{ display: livestream.isLive ? "none" : "block" }}>
-              <div className="embed aspect-16x9">
-                <video className="fallback-video" autoPlay muted loop playsInline>
-                  <source src={fallbackVideo} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-              <p className="note">We are not currently streaming live. Join us Sundays at 10:00 AM.</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="section alt">
-          <div className="container">
-            <h2>Can&apos;t Make It Live?</h2>
-            <p className="sub">Catch up on recent sermons and services.</p>
-            <div className="cta-row">
-              <a className="btn" href="/sermons">
-                <IconPlayerPlay size={18} stroke={1.9} aria-hidden="true" />
-                Watch Sermons
-              </a>
-              <a className="btn ghost" href="/prayer">
-                <IconMessageCircleHeart size={18} stroke={1.9} aria-hidden="true" />
-                Submit Prayer Request
-              </a>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <ChurchSimpleFooter />
-    </>
+          <BlurFade inView delay={0.08}>
+            <Card className="border border-[#E3E8E6] bg-white py-0 shadow-sm">
+              <CardHeader className="px-5 pb-2 pt-6 sm:px-7 sm:pt-7">
+                <CardTitle className="text-2xl text-[#3F4D48] sm:text-3xl">Can&apos;t Make It Live?</CardTitle>
+                <CardDescription className="text-base text-[#3F4D48]">Catch up on recent sermons and services.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-3 px-5 pb-6 pt-1 sm:px-7 sm:pb-7">
+                <Button asChild className="h-10 rounded-none bg-[#1F4D3A] px-4 text-sm font-semibold text-white hover:bg-[#2E7D32]">
+                  <Link href="/sermons">Watch Sermons</Link>
+                </Button>
+                <Button asChild variant="secondary" className="h-10 rounded-none px-4 text-sm font-semibold">
+                  <Link href="/prayer">Submit Prayer Request</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </BlurFade>
+        </div>
+      </div>
+    </PublicSiteShell>
   );
 }

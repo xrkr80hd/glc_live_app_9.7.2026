@@ -13,6 +13,8 @@ export function AdminResetPasswordForm() {
   const [token, setToken] = useState(tokenFromQuery);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -90,14 +92,26 @@ export function AdminResetPasswordForm() {
               <IconLockPassword size={16} stroke={1.8} aria-hidden="true" />
               New Password
             </span>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              disabled={loading}
-              placeholder="At least 8 characters"
-            />
+            <div className={styles.passwordWrap}>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="new-password"
+                required
+                disabled={loading}
+                placeholder="At least 8 characters"
+              />
+              <button
+                type="button"
+                className={styles.passwordToggle}
+                onClick={() => setShowPassword((current) => !current)}
+                aria-label={`${showPassword ? "Hide" : "Show"} password`}
+                disabled={loading}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </label>
 
           <label className={styles.field}>
@@ -105,14 +119,26 @@ export function AdminResetPasswordForm() {
               <IconLockPassword size={16} stroke={1.8} aria-hidden="true" />
               Confirm Password
             </span>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              required
-              disabled={loading}
-              placeholder="Re-enter password"
-            />
+            <div className={styles.passwordWrap}>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                autoComplete="new-password"
+                required
+                disabled={loading}
+                placeholder="Re-enter password"
+              />
+              <button
+                type="button"
+                className={styles.passwordToggle}
+                onClick={() => setShowConfirmPassword((current) => !current)}
+                aria-label={`${showConfirmPassword ? "Hide" : "Show"} password`}
+                disabled={loading}
+              >
+                {showConfirmPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </label>
 
           {error ? <p className={styles.error}>{error}</p> : null}

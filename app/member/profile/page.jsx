@@ -4,7 +4,7 @@ import { ProfileCard } from "@/components/app-shell/ProfileCard";
 import { MemberLogoutButton } from "@/components/app-shell/MemberLogoutButton";
 import { SettingsRow } from "@/components/app-shell/SettingsRow";
 import { getCurrentMemberFromServerCookies, getMemberProfilePhotoUrl } from "@/lib/member-auth";
-import { IconCamera, IconEdit, IconLockPassword, IconUsersGroup } from "@tabler/icons-react";
+import { IconCamera, IconEdit, IconLockPassword, IconMail, IconUsersGroup } from "@tabler/icons-react";
 
 export default async function ProfilePage() {
   const current = await getCurrentMemberFromServerCookies();
@@ -38,6 +38,7 @@ export default async function ProfilePage() {
       <section className="lc-stack">
         <SettingsRow icon={IconCamera} label="Profile Photo" description="Choose, crop, and save your portrait." href="/member/profile/photo" />
         <SettingsRow icon={IconEdit} label="Edit Profile" description="Update your name and phone number." href="/member/profile/edit" />
+        <SettingsRow icon={IconMail} label="Change Email" description="Update the email used for member sign in." href="/member/profile/change-email" />
         <SettingsRow icon={IconUsersGroup} label="Church Directory" description="Open the read-only directory view." href="/member/directory" />
         <SettingsRow icon={IconLockPassword} label="Change Password" description="Open the password update screen." href="/member/profile/change-password" />
       </section>

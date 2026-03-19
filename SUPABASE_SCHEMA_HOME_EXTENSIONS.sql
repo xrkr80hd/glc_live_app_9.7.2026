@@ -110,6 +110,8 @@ create table if not exists public.team_members (
   email text unique,
   phone text,
   password_hash text,
+  failed_sign_in_attempts integer not null default 0,
+  sign_in_lock_until timestamptz,
   last_login_at timestamptz,
   is_superuser boolean not null default false,
   is_active boolean not null default true,
@@ -120,7 +122,23 @@ create table if not exists public.team_members (
 alter table if exists public.team_members
   add column if not exists auth_user_id uuid,
   add column if not exists password_hash text,
+  add column if not exists failed_sign_in_attempts integer not null default 0,
+  add column if not exists sign_in_lock_until timestamptz,
   add column if not exists last_login_at timestamptz;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'team_members_failed_sign_in_attempts_non_negative'
+  ) then
+    alter table public.team_members
+      add constraint team_members_failed_sign_in_attempts_non_negative
+      check (failed_sign_in_attempts >= 0);
+  end if;
+end
+$$;
 
 create table if not exists public.team_member_roles (
   id uuid primary key default gen_random_uuid(),
@@ -244,6 +262,10 @@ create index if not exists team_members_lookup_idx
 create unique index if not exists team_members_auth_user_id_uidx
   on public.team_members (auth_user_id)
   where auth_user_id is not null;
+
+create index if not exists team_members_sign_in_lock_until_idx
+  on public.team_members (sign_in_lock_until)
+  where sign_in_lock_until is not null;
 
 create index if not exists team_member_roles_lookup_idx
   on public.team_member_roles (member_id, role_id, assigned_at desc);

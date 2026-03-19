@@ -24,6 +24,7 @@ import {
   IconRefresh,
   IconShoppingCart,
   IconSpeakerphone,
+  IconShare,
   IconTrash,
   IconUsersGroup,
   IconX,
@@ -146,6 +147,31 @@ const CONTENT_RESOURCES = [
       { label: "Ends", name: "ends_at", format: formatDateTime },
       { label: "Sort", name: "sort_order" },
       { label: "Published", name: "is_published" },
+    ],
+  },
+  {
+    key: "social-links",
+    label: "Social Links",
+    singularLabel: "Social Link",
+    description: "Manage the public social platforms shown across the site and app.",
+    icon: IconShare,
+    listEndpoint: "/api/admin/social-links?include_inactive=true&limit=120",
+    createEndpoint: "/api/admin/social-links",
+    itemEndpoint: (id) => `/api/admin/social-links/${id}`,
+    listKey: "socialLinks",
+    fields: [
+      { name: "platform_key", label: "Platform Key", type: "text", required: true, placeholder: "facebook" },
+      { name: "label", label: "Label", type: "text", required: true, placeholder: "Facebook" },
+      { name: "url", label: "URL", type: "text", required: true, placeholder: "https://www.facebook.com/CenlaChurch/" },
+      { name: "sort_order", label: "Sort Order", type: "number", defaultValue: 0 },
+      { name: "is_active", label: "Active", type: "checkbox", defaultValue: true },
+    ],
+    preview: [
+      { label: "Platform Key", name: "platform_key" },
+      { label: "Label", name: "label" },
+      { label: "URL", name: "url" },
+      { label: "Sort", name: "sort_order" },
+      { label: "Active", name: "is_active" },
     ],
   },
   {
@@ -1036,6 +1062,7 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
   const [uploadError, setUploadError] = useState("");
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [multiSearch, setMultiSearch] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   if (field.type === "textarea") {
     return (
@@ -1309,6 +1336,33 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
           {uploadError ? <p className={styles.uploadError}>{uploadError}</p> : null}
         </div>
       </div>
+    );
+  }
+
+  if (inputType === "password") {
+    return (
+      <label className={fieldClassName} htmlFor={inputId}>
+        <span>{field.label}</span>
+        <div className={styles.passwordInputWrap}>
+          <input
+            id={inputId}
+            type={showPassword ? "text" : "password"}
+            value={value}
+            required={Boolean(field.required)}
+            placeholder={field.placeholder || ""}
+            autoComplete="new-password"
+            onChange={(event) => onChange(field.name, event.target.value)}
+          />
+          <button
+            type="button"
+            className={styles.passwordToggleBtn}
+            onClick={() => setShowPassword((current) => !current)}
+            aria-label={`${showPassword ? "Hide" : "Show"} password`}
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
+        </div>
+      </label>
     );
   }
 

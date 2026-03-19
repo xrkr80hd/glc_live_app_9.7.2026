@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { HomeQuickLinksAccordion } from "@/components/app-shell/HomeQuickLinksAccordion";
-import { getHomepageContent } from "@/lib/content";
+import { getHomepageContent, getSocialLinksContent } from "@/lib/content";
 import { getCurrentMemberFromServerCookies } from "@/lib/member-auth";
 import { formatMemberDate } from "@/lib/member-page-data";
+import { getDashboardViewerContext } from "@/lib/role-dashboard-config";
 import {
   IconBrandFacebook,
   IconBrandYoutube,
@@ -15,10 +16,28 @@ import {
   IconSpeakerphone,
 } from "@tabler/icons-react";
 
+const SOCIAL_FALLBACKS = {
+  facebook: "https://www.facebook.com/CenlaChurch/",
+  youtube: "https://www.youtube.com/@libertychurchcenla",
+};
+
+function findSocialUrl(links, platformKey, fallback = "") {
+  const list = Array.isArray(links) ? links : [];
+  const matched = list.find((item) => String(item?.platformKey || "").toLowerCase() === platformKey);
+  const url = String(matched?.url || "").trim();
+  return url || fallback;
+}
+
 export default async function HomePage() {
-  const currentMember = await getCurrentMemberFromServerCookies();
-  const { announcements, memberScripture } = await getHomepageContent();
+  const viewer = await getDashboardViewerContext();
+  const currentMember = viewer?.currentMember || (await getCurrentMemberFromServerCookies());
+  const [homepageContent, socialLinks] = await Promise.all([getHomepageContent(), getSocialLinksContent()]);
+  const { announcements, memberScripture } = homepageContent;
+  const facebookUrl = findSocialUrl(socialLinks, "facebook", SOCIAL_FALLBACKS.facebook);
+  const youtubeUrl = findSocialUrl(socialLinks, "youtube", SOCIAL_FALLBACKS.youtube);
   const primaryAnnouncement = announcements[0] || null;
+  const elevatedDashboardCount = (viewer?.accessibleDashboardKeys || []).filter((key) => key !== "member").length;
+  const hasElevatedAccess = elevatedDashboardCount > 0;
   const memberName = currentMember?.member?.full_name || currentMember?.session?.fullName || "";
   const firstName = memberName.split(" ")?.[0] || "";
   const memberEmail = currentMember?.user?.email || currentMember?.member?.email || currentMember?.session?.email || "";
@@ -26,9 +45,16 @@ export default async function HomePage() {
   const memberLoginId = memberEmail || (memberUsername ? `@${memberUsername}` : "");
   const homeTitle = firstName ? `Welcome, ${firstName}` : "Welcome";
   const homeSubtitle = memberLoginId || "Member";
+  const footerContent = hasElevatedAccess ? (
+    <div className="lc-home-admin-cta-wrap">
+      <Link href="/dashboard" className="lc-home-admin-cta-btn">
+        See My Admin
+      </Link>
+    </div>
+  ) : null;
 
   return (
-    <AppShell navKey="home" title={homeTitle} subtitle={homeSubtitle}>
+    <AppShell navKey="home" title={homeTitle} subtitle={homeSubtitle} footerContent={footerContent}>
       <section className="lc-card alt lc-home-daily-verse-card">
         <div className="lc-section-head">
           <h2>Daily Verse</h2>
@@ -106,10 +132,10 @@ export default async function HomePage() {
           <a href="tel:+13184483880" className="lc-home-social-link" aria-label="Call church" title="Call Church">
             <IconPhone size={22} stroke={1.9} />
           </a>
-          <a href="https://www.facebook.com/CenlaChurch" target="_blank" rel="noopener noreferrer" className="lc-home-social-link" aria-label="Facebook" title="Facebook">
+          <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="lc-home-social-link" aria-label="Facebook" title="Facebook">
             <IconBrandFacebook size={22} stroke={1.9} />
           </a>
-          <a href="https://www.youtube.com/@libertychurchcenla" target="_blank" rel="noopener noreferrer" className="lc-home-social-link" aria-label="Liberty Church Cenla YouTube" title="Liberty Church Cenla YouTube">
+          <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="lc-home-social-link" aria-label="Liberty Church Cenla YouTube" title="Liberty Church Cenla YouTube">
             <IconBrandYoutube size={22} stroke={1.9} />
           </a>
         </div>

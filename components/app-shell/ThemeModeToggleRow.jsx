@@ -12,6 +12,7 @@ function resolveStoredTheme() {
 
 export function ThemeModeToggleRow() {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const stateLabel = isDarkMode ? "On" : "Off";
 
   useEffect(() => {
     const resolvedTheme = resolveStoredTheme();
@@ -35,14 +36,19 @@ export function ThemeModeToggleRow() {
         <strong>Dark Mode</strong>
         <span className="lc-muted">Switch the app between light and dark theme.</span>
       </div>
-      <button
-        type="button"
-        className={`lc-toggle-switch${isDarkMode ? " is-on" : ""}`}
-        role="switch"
-        aria-checked={isDarkMode}
-        aria-label={isDarkMode ? "Disable dark mode" : "Enable dark mode"}
-        onClick={handleToggleTheme}
-      />
+      <div className="lc-toggle-control">
+        <span className={`lc-toggle-state${isDarkMode ? " is-on" : ""}`} aria-hidden="true">
+          {stateLabel}
+        </span>
+        <button
+          type="button"
+          className={`lc-toggle-switch${isDarkMode ? " is-on" : ""}`}
+          role="switch"
+          aria-checked={isDarkMode}
+          aria-label={isDarkMode ? "Disable dark mode" : "Enable dark mode"}
+          onClick={handleToggleTheme}
+        />
+      </div>
     </div>
   );
 }

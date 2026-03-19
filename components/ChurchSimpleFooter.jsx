@@ -6,8 +6,26 @@ import {
   IconMapPin,
   IconUsersGroup,
 } from "@tabler/icons-react";
+import { getSocialLinksContent } from "@/lib/content";
 
-export function ChurchSimpleFooter() {
+const SOCIAL_FALLBACKS = {
+  youtube: "https://www.youtube.com/@libertychurchcenla",
+  facebook: "https://www.facebook.com/CenlaChurch/",
+};
+
+function findSocialUrl(links, platformKey, fallback = "") {
+  const list = Array.isArray(links) ? links : [];
+  const matched = list.find((item) => String(item?.platformKey || "").toLowerCase() === platformKey);
+  const url = String(matched?.url || "").trim();
+  return url || fallback;
+}
+
+export async function ChurchSimpleFooter() {
+  const socialLinks = await getSocialLinksContent();
+  const youtubeUrl = findSocialUrl(socialLinks, "youtube", SOCIAL_FALLBACKS.youtube);
+  const facebookUrl = findSocialUrl(socialLinks, "facebook", SOCIAL_FALLBACKS.facebook);
+  const instagramUrl = findSocialUrl(socialLinks, "instagram");
+
   return (
     <footer className="footer">
       <div className="container">
@@ -40,18 +58,20 @@ export function ChurchSimpleFooter() {
               <span>Connect</span>
             </h4>
             <div className="social-links">
-              <a href="https://www.youtube.com/@GoLibertyChurch" target="_blank" rel="noopener">
+              <a href={youtubeUrl} target="_blank" rel="noopener">
                 <IconBrandYoutube size={16} stroke={1.9} aria-hidden="true" />
                 YouTube
               </a>
-              <a href="https://www.facebook.com/GoLibertyChurch" target="_blank" rel="noopener">
+              <a href={facebookUrl} target="_blank" rel="noopener">
                 <IconBrandFacebook size={16} stroke={1.9} aria-hidden="true" />
                 Facebook
               </a>
-              <a href="https://www.instagram.com/golibertychurch/" target="_blank" rel="noopener">
-                <IconBrandInstagram size={16} stroke={1.9} aria-hidden="true" />
-                Instagram
-              </a>
+              {instagramUrl ? (
+                <a href={instagramUrl} target="_blank" rel="noopener">
+                  <IconBrandInstagram size={16} stroke={1.9} aria-hidden="true" />
+                  Instagram
+                </a>
+              ) : null}
             </div>
           </div>
         </div>

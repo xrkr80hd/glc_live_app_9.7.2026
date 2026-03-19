@@ -116,6 +116,9 @@ export function MemberProfileForm({ member }) {
           <Link href="/member/profile/photo" className="lc-action-link secondary">
             Manage Profile Photo
           </Link>
+          <Link href="/member/profile/change-email" className="lc-action-link ghost">
+            Change Email
+          </Link>
           <Link href="/member/profile/change-password" className="lc-action-link ghost">
             Change Password
           </Link>

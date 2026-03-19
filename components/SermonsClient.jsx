@@ -1,17 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  IconBook2,
-  IconChevronDown,
-  IconChevronUp,
-  IconClock,
-  IconDeviceTv,
-  IconEye,
-  IconEyeOff,
-  IconPlayerPlay,
-  IconVideo,
-} from "@tabler/icons-react";
 
 function isValidVideoId(id) {
   return /^[A-Za-z0-9_-]{11}$/.test(String(id || ""));
@@ -97,201 +86,190 @@ export function SermonsClient({ videos = [] }) {
   const canCollapseRecent = recentShown > 6;
 
   return (
-    <>
-      <section className="section">
-        <div className="container">
-          <div className="section-head">
-            <h1>
-              <span className="title-inline">
-                <IconDeviceTv size={32} stroke={1.8} aria-hidden="true" />
-                <span>Messages</span>
-              </span>
-            </h1>
-            <p className="muted">Watch recent uploads, browse series, or view archived sermons. Tap any card to play below.</p>
-          </div>
-          <div className="embed aspect-16x9" id="sermonPlayer">
-            {selectedEmbed ? (
-              <div className="content">
-                <iframe
-                  src={selectedEmbed}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  loading="lazy"
-                  title={selectedVideo?.title || "Sermon"}
-                />
-              </div>
-            ) : (
-              <div className="content placeholder" style={{ padding: 28 }}>
-                No sermons available yet.
-              </div>
-            )}
-          </div>
+    <div className="space-y-10">
+      <section className="space-y-3">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-semibold text-[#3F4D48] sm:text-4xl">Watch Sermons</h1>
+          <p className="text-base leading-7 text-[#3F4D48]">
+            Watch recent uploads, browse series, or view archived sermons. Select any message to play below.
+          </p>
+        </div>
+        <div id="sermonPlayer" className="overflow-hidden border border-[#E3E8E6] bg-white">
+          {selectedEmbed ? (
+            <iframe
+              src={selectedEmbed}
+              className="aspect-video w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              loading="lazy"
+              title={selectedVideo?.title || "Sermon"}
+            />
+          ) : (
+            <div className="px-4 py-12 text-center text-base text-[#3F4D48] sm:px-6">No sermons available yet.</div>
+          )}
         </div>
       </section>
 
-      <section className="section alt">
-        <div className="container">
-          <h2>
-            <span className="heading-inline">
-              <IconVideo size={28} stroke={1.8} aria-hidden="true" />
-              <span>Recently Uploaded</span>
-            </span>
-          </h2>
-          <div className="cards" id="recentGrid">
-            {recentVideos.map((video) => (
-              <article
+      <section className="space-y-4">
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Recent</p>
+          <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">Recently Uploaded</h2>
+        </div>
+        <div id="recentGrid" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {recentVideos.map((video) => {
+            const isSelected = selectedId === video.id;
+            return (
+              <button
                 key={video.id}
-                className="card"
+                type="button"
                 data-id={video.id}
                 onClick={() => setSelectedId(video.id)}
-                style={{ cursor: "pointer" }}
+                className={`flex h-full flex-col overflow-hidden border bg-white text-left transition-colors ${
+                  isSelected ? "border-[#1F4D3A]" : "border-[#E3E8E6] hover:border-[#2E7D32]"
+                }`}
               >
                 {video.thumbnail ? (
-                  <img src={video.thumbnail} alt="" style={{ width: "100%", height: "auto", borderRadius: 10 }} loading="lazy" />
-                ) : null}
-                <h3>{video.title || "Untitled"}</h3>
-                <p className="muted">{formatDate(video.publishedAt)}</p>
-              </article>
-            ))}
-          </div>
-          {(canLoadMoreRecent || canCollapseRecent) ? (
-            <div className="btn-group mt-16" id="recentControls">
-              {canLoadMoreRecent ? (
-                <button
-                  id="btnMoreRecent"
-                  className="btn small"
-                  type="button"
-                  onClick={() => setRecentShown((current) => Math.min(current + 6, videos.length))}
-                >
-                  <IconChevronDown size={16} stroke={1.9} aria-hidden="true" />
-                  Load more
-                </button>
-              ) : null}
-              {canCollapseRecent ? (
-                <button
-                  id="btnCollapseRecent"
-                  className="btn ghost small"
-                  type="button"
-                  onClick={() => setRecentShown(6)}
-                >
-                  <IconChevronUp size={16} stroke={1.9} aria-hidden="true" />
-                  Collapse
-                </button>
-              ) : null}
-            </div>
-          ) : null}
+                  <img src={video.thumbnail} alt="" className="h-44 w-full object-cover" loading="lazy" />
+                ) : (
+                  <div className="h-44 w-full bg-[#F6F6F2]" aria-hidden="true" />
+                )}
+                <div className="space-y-1 p-4">
+                  <h3 className="line-clamp-2 text-base font-semibold text-[#3F4D48]">{video.title || "Untitled"}</h3>
+                  <p className="text-sm text-[#3F4D48]/80">{formatDate(video.publishedAt)}</p>
+                </div>
+              </button>
+            );
+          })}
         </div>
+        {(canLoadMoreRecent || canCollapseRecent) ? (
+          <div id="recentControls" className="flex flex-wrap gap-3">
+            {canLoadMoreRecent ? (
+              <button
+                id="btnMoreRecent"
+                type="button"
+                className="h-10 border border-[#1F4D3A] bg-white px-4 text-sm font-semibold text-[#1F4D3A] transition-colors hover:bg-[#2E7D32] hover:text-white"
+                onClick={() => setRecentShown((current) => Math.min(current + 6, videos.length))}
+              >
+                Load more
+              </button>
+            ) : null}
+            {canCollapseRecent ? (
+              <button
+                id="btnCollapseRecent"
+                type="button"
+                className="h-10 border border-[#E3E8E6] bg-white px-4 text-sm font-semibold text-[#3F4D48] transition-colors hover:bg-[#F6F6F2]"
+                onClick={() => setRecentShown(6)}
+              >
+                Collapse
+              </button>
+            ) : null}
+          </div>
+        ) : null}
       </section>
 
-      <section className="section">
-        <div className="container">
-          <h2>
-            <span className="heading-inline">
-              <IconBook2 size={28} stroke={1.8} aria-hidden="true" />
-              <span>Series</span>
-            </span>
-          </h2>
-          <div id="seriesList">
-            {playlists.length ? (
-              playlists.map((playlist) => {
-                const shownCount = playlistShown[playlist.id] || 8;
-                const items = Array.isArray(playlist.items) ? playlist.items : [];
-                const shownItems = items.slice(0, shownCount);
-                const isOpen = Boolean(openPlaylistIds[playlist.id]);
-                return (
-                  <div key={playlist.id} className="series-item">
-                    <button
-                      className="series-toggle"
-                      type="button"
-                      aria-expanded={isOpen}
-                      onClick={() =>
-                        setOpenPlaylistIds((current) => ({
-                          ...current,
-                          [playlist.id]: !current[playlist.id],
-                        }))
-                      }
-                    >
-                      <span className="series-title">{playlist.title || "Series"}</span>
-                      <span className="series-meta">
-                        <span>{playlist.itemCount || items.length} messages</span>
-                        <IconChevronDown className="series-chevron-icon" size={14} stroke={2.1} aria-hidden="true" />
-                      </span>
-                    </button>
-                    <div className="series-panel" hidden={!isOpen}>
-                      <ul className="list">
-                        {shownItems.map((item) => (
-                          <li key={`${playlist.id}-${item.id}`}>
-                            <button className="btn ghost" type="button" onClick={() => setSelectedId(item.id)}>
-                              <IconPlayerPlay size={16} stroke={1.9} aria-hidden="true" />
-                              {item.title || "Untitled"}
-                            </button>{" "}
-                            <span className="muted">{formatDate(item.publishedAt)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      {shownCount < items.length ? (
-                        <button
-                          className="btn small"
-                          type="button"
-                          onClick={() =>
-                            setPlaylistShown((current) => ({
-                              ...current,
-                              [playlist.id]: Math.min((current[playlist.id] || 8) + 10, items.length),
-                            }))
-                          }
-                        >
-                          <IconChevronDown size={16} stroke={1.9} aria-hidden="true" />
-                          Load more ({items.length - shownCount})
-                        </button>
-                      ) : null}
-                    </div>
+      <section className="space-y-4">
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Series</p>
+          <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">Browse by Series</h2>
+        </div>
+        <div id="seriesList" className="space-y-3">
+          {playlists.length ? (
+            playlists.map((playlist) => {
+              const shownCount = playlistShown[playlist.id] || 8;
+              const items = Array.isArray(playlist.items) ? playlist.items : [];
+              const shownItems = items.slice(0, shownCount);
+              const isOpen = Boolean(openPlaylistIds[playlist.id]);
+              return (
+                <div key={playlist.id} className="overflow-hidden border border-[#E3E8E6] bg-white">
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    className="flex w-full items-center justify-between px-4 py-3 text-left sm:px-5"
+                    onClick={() =>
+                      setOpenPlaylistIds((current) => ({
+                        ...current,
+                        [playlist.id]: !current[playlist.id],
+                      }))
+                    }
+                  >
+                    <span className="text-base font-semibold text-[#3F4D48]">{playlist.title || "Series"}</span>
+                    <span className="text-sm text-[#3F4D48]/80">{playlist.itemCount || items.length} messages</span>
+                  </button>
+                  <div className="border-t border-[#E3E8E6] px-4 py-4 sm:px-5" hidden={!isOpen}>
+                    <ul className="space-y-2">
+                      {shownItems.map((item) => (
+                        <li key={`${playlist.id}-${item.id}`} className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                          <button
+                            type="button"
+                            className="text-left text-sm font-medium text-[#3F4D48] transition-colors hover:text-[#1F4D3A]"
+                            onClick={() => setSelectedId(item.id)}
+                          >
+                            {item.title || "Untitled"}
+                          </button>
+                          <span className="text-sm text-[#3F4D48]/80">{formatDate(item.publishedAt)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {shownCount < items.length ? (
+                      <button
+                        type="button"
+                        className="mt-4 h-10 border border-[#1F4D3A] bg-white px-4 text-sm font-semibold text-[#1F4D3A] transition-colors hover:bg-[#2E7D32] hover:text-white"
+                        onClick={() =>
+                          setPlaylistShown((current) => ({
+                            ...current,
+                            [playlist.id]: Math.min((current[playlist.id] || 8) + 10, items.length),
+                          }))
+                        }
+                      >
+                        Load more ({items.length - shownCount})
+                      </button>
+                    ) : null}
                   </div>
-                );
-              })
-            ) : (
-              <p className="muted">Series list coming soon.</p>
-            )}
-          </div>
+                </div>
+              );
+            })
+          ) : (
+            <p className="text-base text-[#3F4D48]">Series list coming soon.</p>
+          )}
         </div>
       </section>
 
-      <section className="section alt">
-        <div className="container">
-          <h2>
-            <span className="heading-inline">
-              <IconClock size={28} stroke={1.8} aria-hidden="true" />
-              <span>Archived Sermons</span>
-            </span>
-          </h2>
-          <p className="muted">Older messages curated by our team.</p>
-          <div className="card">
-            <button
-              id="toggleArchived"
-              className="btn ghost"
-              type="button"
-              aria-expanded={showArchived}
-              aria-controls="archivedList"
-              onClick={() => setShowArchived((current) => !current)}
-            >
-              {showArchived ? <IconEyeOff size={16} stroke={1.9} aria-hidden="true" /> : <IconEye size={16} stroke={1.9} aria-hidden="true" />}
-              {showArchived ? "Hide archived" : "Show archived"}
-            </button>
-            <div id="archivedList" className="mt-12" hidden={!showArchived}>
-              <ul className="list" id="archivedUl">
-                {archived.map((item, index) => (
-                  <li key={`${item.id || item.title || "archived"}-${index}`}>
-                    <button className="btn ghost" type="button" onClick={() => setSelectedId(item.id)}>
-                      <IconPlayerPlay size={16} stroke={1.9} aria-hidden="true" />
-                      {item.title || "Untitled"}
-                    </button>{" "}
-                    <span className="muted">{formatDate(item.publishedAt || item.date || item.preachedOn)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      <section className="space-y-3">
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Archive</p>
+          <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">Archived Sermons</h2>
+          <p className="text-base text-[#3F4D48]">Older messages curated by our team.</p>
+        </div>
+        <div className="border border-[#E3E8E6] bg-white p-4 sm:p-5">
+          <button
+            id="toggleArchived"
+            type="button"
+            aria-expanded={showArchived}
+            aria-controls="archivedList"
+            className="h-10 border border-[#1F4D3A] bg-white px-4 text-sm font-semibold text-[#1F4D3A] transition-colors hover:bg-[#2E7D32] hover:text-white"
+            onClick={() => setShowArchived((current) => !current)}
+          >
+            {showArchived ? "Hide archived" : "Show archived"}
+          </button>
+          <div id="archivedList" className="mt-4" hidden={!showArchived}>
+            <ul id="archivedUl" className="space-y-2">
+              {archived.map((item, index) => (
+                <li key={`${item.id || item.title || "archived"}-${index}`} className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                  <button
+                    type="button"
+                    className="text-left text-sm font-medium text-[#3F4D48] transition-colors hover:text-[#1F4D3A]"
+                    onClick={() => setSelectedId(item.id)}
+                  >
+                    {item.title || "Untitled"}
+                  </button>
+                  <span className="text-sm text-[#3F4D48]/80">{formatDate(item.publishedAt || item.date || item.preachedOn)}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
+

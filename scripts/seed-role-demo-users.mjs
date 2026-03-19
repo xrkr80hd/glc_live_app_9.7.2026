@@ -58,11 +58,19 @@ function normalizeRoleKey(value) {
     .replace(/^_+|_+$/g, "");
 }
 
+function getLoginStyle() {
+  const normalized = String(process.env.DEMO_MEMBER_LOGIN_STYLE || "short")
+    .trim()
+    .toLowerCase();
+  return normalized === "friendly" ? "friendly" : "short";
+}
+
 const ROLE_DEMO_CONFIG = [
   {
     slug: "member",
     roleKey: null,
     label: "General Member",
+    usernames: ["demomember"],
     dashboardPath: "/dashboard/member",
     isSuperuser: false,
     isRoleAdmin: false,
@@ -71,6 +79,7 @@ const ROLE_DEMO_CONFIG = [
     slug: "worship-team",
     roleKey: "worship_team",
     label: "Worship Team",
+    usernames: ["demoworship", "demowt"],
     dashboardPath: "/dashboard/worship",
     isSuperuser: false,
     isRoleAdmin: false,
@@ -79,6 +88,7 @@ const ROLE_DEMO_CONFIG = [
     slug: "worship-leader",
     roleKey: "worship_leader",
     label: "Music Minister",
+    usernames: ["demomusic"],
     dashboardPath: "/dashboard/music-minister",
     isSuperuser: false,
     isRoleAdmin: false,
@@ -87,6 +97,7 @@ const ROLE_DEMO_CONFIG = [
     slug: "media",
     roleKey: "media_team",
     label: "Media Team",
+    usernames: ["demomt"],
     dashboardPath: "/dashboard/media",
     isSuperuser: false,
     isRoleAdmin: false,
@@ -95,6 +106,7 @@ const ROLE_DEMO_CONFIG = [
     slug: "foh",
     roleKey: "foh_sound",
     label: "FOH Sound",
+    usernames: ["demofoh"],
     dashboardPath: "/dashboard/foh",
     isSuperuser: false,
     isRoleAdmin: false,
@@ -103,6 +115,7 @@ const ROLE_DEMO_CONFIG = [
     slug: "youth-minister",
     roleKey: "youth_minister",
     label: "Youth Minister",
+    usernames: ["demoym"],
     dashboardPath: "/dashboard/youth",
     isSuperuser: false,
     isRoleAdmin: false,
@@ -111,6 +124,7 @@ const ROLE_DEMO_CONFIG = [
     slug: "youth-assistant",
     roleKey: "youth_minister_assistant",
     label: "Youth Assistant",
+    usernames: ["demoya"],
     dashboardPath: "/dashboard/youth/assistant",
     isSuperuser: false,
     isRoleAdmin: false,
@@ -119,6 +133,7 @@ const ROLE_DEMO_CONFIG = [
     slug: "kids",
     roleKey: "kids_church",
     label: "Kids Ministry",
+    usernames: ["demokm"],
     dashboardPath: "/dashboard/kids",
     isSuperuser: false,
     isRoleAdmin: false,
@@ -127,6 +142,7 @@ const ROLE_DEMO_CONFIG = [
     slug: "bookkeeper",
     roleKey: "bookkeeper",
     label: "Bookkeeper",
+    usernames: ["demobk"],
     dashboardPath: "/dashboard/bookkeeper",
     isSuperuser: false,
     isRoleAdmin: false,
@@ -135,6 +151,7 @@ const ROLE_DEMO_CONFIG = [
     slug: "pastor",
     roleKey: "pastor",
     label: "Pastor",
+    usernames: ["demopastor"],
     dashboardPath: "/dashboard/pastor",
     isSuperuser: false,
     isRoleAdmin: true,
@@ -143,6 +160,7 @@ const ROLE_DEMO_CONFIG = [
     slug: "superuser",
     roleKey: "superuser",
     label: "Superuser",
+    usernames: ["demosu"],
     dashboardPath: "/dashboard/superuser",
     isSuperuser: true,
     isRoleAdmin: true,
@@ -327,7 +345,29 @@ async function setRoleAssignment(supabase, { memberId, roleId, isRoleAdmin }) {
   }
 }
 
-function buildRoleDemoIdentity(roleConfig, emailDomain) {
+function buildRoleDemoIdentity(roleConfig, { emailDomain, loginStyle, demoPrefix, index, explicitUsername = "" }) {
+  const providedUsername = String(explicitUsername || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, "");
+
+  if (providedUsername) {
+    return {
+      username: providedUsername,
+      email: `${providedUsername}@${emailDomain}`,
+      fullName: `Demo ${roleConfig.label}`,
+    };
+  }
+
+  if (loginStyle === "short") {
+    const alias = `${demoPrefix}${String(index + 1).padStart(2, "0")}`;
+    return {
+      username: alias,
+      email: `${alias}@${emailDomain}`,
+      fullName: `Demo ${roleConfig.label}`,
+    };
+  }
+
   const slug = String(roleConfig.slug || "member")
     .trim()
     .toLowerCase()
@@ -353,8 +393,16 @@ async function main() {
     );
   }
 
+  const loginStyle = getLoginStyle();
   const demoPassword = process.env.DEMO_MEMBER_PASSWORD || "DemoRole123!";
-  const emailDomain = process.env.DEMO_MEMBER_EMAIL_DOMAIN || "golibertychurch.local";
+  const emailDomain =
+    process.env.DEMO_MEMBER_EMAIL_DOMAIN ||
+    (loginStyle === "short" ? "glc.local" : "golibertychurch.local");
+  const demoPrefix = String(process.env.DEMO_MEMBER_SHORT_PREFIX || "d")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "")
+    .slice(0, 8) || "d";
   const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   const supabase = createClient(supabaseUrl, serviceRoleKey, {
@@ -390,48 +438,62 @@ async function main() {
 
   const results = [];
 
-  for (const config of ROLE_DEMO_CONFIG) {
-    const identity = buildRoleDemoIdentity(config, emailDomain);
-    const authUserId = await ensureAuthUser(supabase, {
-      email: identity.email,
-      password: demoPassword,
-      fullName: identity.fullName,
-      phone: "",
-    });
+  for (const [index, config] of ROLE_DEMO_CONFIG.entries()) {
+    const configuredUsernames = Array.isArray(config.usernames)
+      ? config.usernames.map((entry) => String(entry || "").trim()).filter(Boolean)
+      : [];
+    const usernamesToSeed = configuredUsernames.length ? configuredUsernames : [""];
 
-    if (!authUserId) {
-      throw new Error(`No auth user id returned for ${identity.email}`);
+    for (const explicitUsername of usernamesToSeed) {
+      const identity = buildRoleDemoIdentity(config, {
+        emailDomain,
+        loginStyle,
+        demoPrefix,
+        index,
+        explicitUsername,
+      });
+      const authUserId = await ensureAuthUser(supabase, {
+        email: identity.email,
+        password: demoPassword,
+        fullName: identity.fullName,
+        phone: "",
+      });
+
+      if (!authUserId) {
+        throw new Error(`No auth user id returned for ${identity.email}`);
+      }
+
+      const member = await ensureTeamMember(supabase, {
+        authUserId,
+        email: identity.email,
+        username: identity.username,
+        fullName: identity.fullName,
+        notes: `Role demo user for ${config.label}`,
+        isSuperuser: Boolean(config.isSuperuser),
+      });
+
+      const roleId = config.roleKey ? roleIdByKey.get(normalizeRoleKey(config.roleKey)) : null;
+      await setRoleAssignment(supabase, {
+        memberId: member.id,
+        roleId,
+        isRoleAdmin: Boolean(config.isRoleAdmin),
+      });
+
+      results.push({
+        role: config.label,
+        roleKey: config.roleKey || "(none)",
+        email: identity.email,
+        username: identity.username,
+        password: demoPassword,
+        dashboardUrl: `${appBaseUrl}${config.dashboardPath}`,
+        memberAccessUrl: `${appBaseUrl}/member-access`,
+        adminLoginUrl: `${appBaseUrl}/admin/login`,
+      });
     }
-
-    const member = await ensureTeamMember(supabase, {
-      authUserId,
-      email: identity.email,
-      username: identity.username,
-      fullName: identity.fullName,
-      notes: `Role demo user for ${config.label}`,
-      isSuperuser: Boolean(config.isSuperuser),
-    });
-
-    const roleId = config.roleKey ? roleIdByKey.get(normalizeRoleKey(config.roleKey)) : null;
-    await setRoleAssignment(supabase, {
-      memberId: member.id,
-      roleId,
-      isRoleAdmin: Boolean(config.isRoleAdmin),
-    });
-
-    results.push({
-      role: config.label,
-      roleKey: config.roleKey || "(none)",
-      email: identity.email,
-      username: identity.username,
-      password: demoPassword,
-      dashboardUrl: `${appBaseUrl}${config.dashboardPath}`,
-      memberAccessUrl: `${appBaseUrl}/member-access`,
-      adminLoginUrl: `${appBaseUrl}/admin/login`,
-    });
   }
 
   console.log("");
+  console.log(`Login style: ${loginStyle}`);
   console.log("Demo role users are ready:");
   for (const item of results) {
     console.log(`- ${item.role} [${item.roleKey}]`);

@@ -1,140 +1,247 @@
-import { AppShell } from "@/components/app-shell/AppShell";
-import { BackRow } from "@/components/app-shell/BackRow";
-import { MemberAccordion } from "@/components/app-shell/MemberAccordion";
-import { SettingsRow } from "@/components/app-shell/SettingsRow";
-import { YouthGlassCard } from "@/components/app-shell/YouthGlassCard";
-import { DashboardToolCard } from "@/components/dashboard/DashboardToolCard";
+import Link from "next/link";
+import { IconArrowRight } from "@tabler/icons-react";
+import { AdminConsoleShell } from "@/components/dashboard/AdminConsoleShell";
 import { getDashboardIcon } from "@/components/dashboard/dashboard-icons";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { getMemberProfilePhotoUrl } from "@/lib/member-auth";
 
-function DashboardHero({ config, viewer }) {
-  const content = (
-    <>
-      <p className="lc-dashboard-eyebrow">{config.label}</p>
-      <div className="lc-section-head">
-        <h2>{config.heroTitle}</h2>
-        <p className="lc-muted">
-          {viewer.firstName ? `${viewer.firstName}, ` : ""}
-          {config.heroBody}
-        </p>
-      </div>
-      {Array.isArray(config.stats) && config.stats.length ? (
-        <div className="lc-dashboard-stat-strip">
-          {config.stats.map((stat) => (
-            <div key={stat.label} className="lc-dashboard-stat-chip">
-              <strong>{stat.value}</strong>
-              <span>{stat.label}</span>
-            </div>
-          ))}
-        </div>
-      ) : null}
-    </>
-  );
+function buildRoleNavItems(config, viewer) {
+  const navItems = [
+    {
+      label: "Dashboard",
+      href: config.path,
+      icon: "grid",
+      active: true,
+    },
+    {
+      label: "Role Access",
+      href: "/dashboard/role-access",
+      icon: "security",
+      active: false,
+    },
+  ];
+  const seen = new Set([config.path, "/dashboard/role-access"]);
 
-  if (config.theme === "youth") {
-    return <YouthGlassCard>{content}</YouthGlassCard>;
+  for (const tool of Array.isArray(config.primaryTools) ? config.primaryTools : []) {
+    const href = String(tool?.href || "").trim();
+    const key = `${tool?.label || ""}-${href || "disabled"}`;
+    if (seen.has(key)) {
+      continue;
+    }
+
+    navItems.push({
+      label: tool.label || "Tool",
+      href: href || null,
+      icon: tool.icon || "grid",
+      active: false,
+      disabled: !href,
+    });
+    seen.add(key);
+    if (navItems.length >= 8) {
+      break;
+    }
   }
 
-  return <section className="lc-card alt lc-dashboard-hero">{content}</section>;
+  if (navItems.length < 8 && Array.isArray(config.groups)) {
+    for (const group of config.groups) {
+      for (const item of group.items || []) {
+        const href = String(item?.href || "").trim();
+        const key = `${item?.label || ""}-${href || "disabled"}`;
+        if (seen.has(key)) {
+          continue;
+        }
+        navItems.push({
+          label: item.label || "Item",
+          href: href || null,
+          icon: item.icon || "grid",
+          active: false,
+          disabled: !href,
+        });
+        seen.add(key);
+        if (navItems.length >= 8) {
+          break;
+        }
+      }
+      if (navItems.length >= 8) {
+        break;
+      }
+    }
+  }
+
+  if (viewer?.accessibleDashboards?.length > 1) {
+    navItems.push({
+      label: "My Admin Hub",
+      href: "/dashboard",
+      icon: "settings",
+      active: false,
+    });
+  }
+
+  return navItems;
 }
 
-function DashboardSwitcher({ dashboards, currentPath }) {
-  const availableDashboards = dashboards.filter((dashboard) => dashboard.path !== currentPath);
-  if (!availableDashboards.length) {
-    return null;
-  }
+function ProfilePanel({ viewer }) {
+  const member = viewer?.currentMember?.member || null;
+  const user = viewer?.currentMember?.user || null;
+  const profilePhotoUrl = getMemberProfilePhotoUrl(user || member);
+  const displayName = viewer?.displayName || "Liberty Church Member";
+  const email = member?.email || user?.email || "";
 
   return (
-    <section className="lc-card lc-dashboard-switcher-card">
-      <div className="lc-section-head">
-        <h2>My Dashboards</h2>
-        <p className="lc-muted">Switch between the dashboards tied to your current roles.</p>
-      </div>
-      <div className="lc-dashboard-switcher-grid">
-        {availableDashboards.map((dashboard) => (
-          <DashboardToolCard
-            key={dashboard.key}
-            label={dashboard.label}
-            description={dashboard.subtitle}
-            href={dashboard.path}
-            icon={dashboard.theme === "youth" ? "youth" : "grid"}
-          />
-        ))}
-      </div>
-    </section>
+    <Card className="bg-[#303944] py-0">
+      <CardHeader className="px-6 pb-3 pt-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#9eadbb]">User</p>
+      </CardHeader>
+      <CardContent className="space-y-4 px-6 pb-6">
+        <div className="flex justify-center">
+          <span className="inline-flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-[#232b34]">
+            {profilePhotoUrl ? (
+              <img src={profilePhotoUrl} alt={displayName} className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-3xl font-semibold text-[#d9e1e9]">{displayName?.charAt(0) || "M"}</span>
+            )}
+          </span>
+        </div>
+        <div className="space-y-1 text-center">
+          <p className="text-[2rem] font-semibold leading-tight text-white">{displayName}</p>
+          <p className="text-sm text-[#afbbc7]">{email}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SecondaryInfoPanel({ config, viewer }) {
+  const roleKeys = Array.isArray(viewer?.roleKeys) ? viewer.roleKeys : [];
+  const tools = Array.isArray(config.primaryTools) ? config.primaryTools : [];
+  const otherDashboards = (Array.isArray(viewer?.accessibleDashboards) ? viewer.accessibleDashboards : []).filter(
+    (dashboard) => dashboard?.path && dashboard.path !== config.path,
+  );
+
+  return (
+    <Card className="bg-[#303944] py-0">
+      <CardHeader className="px-6 pb-3 pt-6">
+        <CardTitle className="text-2xl font-semibold text-white">{config.title}</CardTitle>
+        <CardDescription className="text-sm text-[#aab6c2]">
+          {config.subtitle || "Role-based tools tied to your current permissions."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4 px-6 pb-6">
+        <div className="flex flex-wrap gap-2">
+          {(roleKeys.length ? roleKeys : ["member"]).map((role) => (
+            <span key={role} className="rounded-none bg-white/8 px-3 py-1 text-xs font-medium uppercase tracking-[0.08em] text-[#d5dde5]">
+              {role.replace(/_/g, " ")}
+            </span>
+          ))}
+        </div>
+
+        <Separator />
+
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-[#dce3ea]">Available Actions</p>
+          <div className="grid gap-2">
+            {tools.length ? (
+              tools.map((tool) => {
+                const Icon = getDashboardIcon(tool.icon || "grid");
+                const hasLink = Boolean(tool.href);
+
+                if (!hasLink) {
+                  return (
+                    <span key={tool.label} className="inline-flex items-center gap-3 rounded-none bg-white/5 px-4 py-3 text-sm text-[#9ba7b3]">
+                      <Icon size={16} stroke={1.9} />
+                      <span>{tool.label}</span>
+                    </span>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={tool.label}
+                    href={tool.href}
+                    className="inline-flex items-center justify-between rounded-none bg-white/6 px-4 py-3 text-sm text-[#dce3ea] transition-colors hover:bg-white/10 hover:text-white"
+                  >
+                    <span className="inline-flex items-center gap-3">
+                      <Icon size={16} stroke={1.9} />
+                      <span>{tool.label}</span>
+                    </span>
+                    <IconArrowRight size={16} stroke={1.9} />
+                  </Link>
+                );
+              })
+            ) : (
+              <span className="rounded-none bg-white/6 px-4 py-3 text-sm text-[#c4ced8]">No actions are configured for this role yet.</span>
+            )}
+          </div>
+        </div>
+
+        {otherDashboards.length ? (
+          <>
+            <Separator />
+
+            <div className="space-y-2">
+              <details className="md:hidden">
+                <summary className="cursor-pointer list-none text-sm font-semibold text-[#dce3ea]">
+                  <span className="inline-flex w-full items-center justify-between border-b border-white/10 py-2">
+                    <span>Also Available</span>
+                    <span className="text-xs text-[#aab6c2]">Tap to open</span>
+                  </span>
+                </summary>
+                <ul className="mt-2 grid gap-1">
+                  {otherDashboards.map((dashboard) => (
+                    <li key={dashboard.key}>
+                      <Link
+                        href={dashboard.path}
+                        className="inline-flex w-full items-center justify-between border-l-2 border-transparent px-2 py-2 text-sm text-[#dce3ea] transition-colors hover:border-[#0f6048] hover:bg-white/6 hover:text-white"
+                      >
+                        <span>{dashboard.label}</span>
+                        <IconArrowRight size={16} stroke={1.9} />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+
+              <div className="hidden md:block">
+                <p className="text-sm font-semibold text-[#dce3ea]">Also Available</p>
+                <ul className="mt-2 grid gap-1">
+                  {otherDashboards.map((dashboard) => (
+                    <li key={dashboard.key}>
+                      <Link
+                        href={dashboard.path}
+                        className="inline-flex w-full items-center justify-between border-l-2 border-transparent px-2 py-2 text-sm text-[#dce3ea] transition-colors hover:border-[#0f6048] hover:bg-white/6 hover:text-white"
+                      >
+                        <span>{dashboard.label}</span>
+                        <IconArrowRight size={16} stroke={1.9} />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }
 
 export function RoleDashboardPage({ config, viewer }) {
-  const headerSubtitle = config.subtitle;
+  const navItems = buildRoleNavItems(config, viewer);
 
   return (
-    <AppShell
-      theme={config.theme}
-      navKey={config.navKey}
-      title={config.title}
-      subtitle={headerSubtitle}
-      kicker={config.kicker}
-      showProfileShortcut
-      compactHeader={false}
-    >
-      {config.backLink ? <BackRow fallbackHref={config.backLink.href} label={config.backLink.label} useHistory={false} /> : null}
+    <AdminConsoleShell viewer={viewer} title={config.title} navItems={navItems} currentPath={config.path}>
+      <section className="space-y-6">
+        <header className="space-y-1">
+          <h1 className="text-3xl font-semibold tracking-tight text-white">Dashboard</h1>
+          <p className="text-sm text-[#9ca8b4]">{config.label}</p>
+        </header>
 
-      <DashboardHero config={config} viewer={viewer} />
-
-      <DashboardSwitcher dashboards={viewer.accessibleDashboards} currentPath={config.path} />
-
-      {Array.isArray(config.primaryTools) && config.primaryTools.length ? (
-        <section className="lc-stack">
-          <div className="lc-section-head">
-            <h2>{config.primaryHeading || "Primary Tools"}</h2>
-            {config.primaryDescription ? <p className="lc-muted">{config.primaryDescription}</p> : null}
-          </div>
-          <div className="lc-dashboard-tool-grid">
-            {config.primaryTools.map((tool) => (
-              <DashboardToolCard
-                key={tool.label}
-                label={tool.label}
-                description={tool.description}
-                href={tool.href}
-                icon={tool.icon}
-                tone={tool.tone}
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {Array.isArray(config.groups)
-        ? config.groups.map((group) => (
-            <MemberAccordion key={group.title} title={group.title} description={group.description} defaultOpen={Boolean(group.defaultOpen)}>
-              <div className="lc-stack">
-                {group.items.map((item) => {
-                  const Icon = getDashboardIcon(item.icon);
-                  return (
-                    <SettingsRow
-                      key={item.label}
-                      icon={Icon}
-                      label={item.label}
-                      description={item.description}
-                      href={item.href}
-                      disabled={Boolean(item.disabled || !item.href)}
-                      tone={item.tone || "default"}
-                    />
-                  );
-                })}
-              </div>
-            </MemberAccordion>
-          ))
-        : null}
-
-      {config.callout ? (
-        <section className="lc-card lc-dashboard-callout">
-          <div className="lc-section-head">
-            <h2>{config.callout.title}</h2>
-          </div>
-          <p className="lc-muted">{config.callout.body}</p>
-        </section>
-      ) : null}
-    </AppShell>
+        <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
+          <ProfilePanel viewer={viewer} />
+          <SecondaryInfoPanel config={config} viewer={viewer} />
+        </div>
+      </section>
+    </AdminConsoleShell>
   );
 }

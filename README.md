@@ -56,11 +56,14 @@ node scripts/seed-role-demo-users.mjs
 
 Defaults:
 - password: `DemoRole123!`
-- email pattern: `demo.<role>@golibertychurch.local`
+- login style: `short`
+- email pattern (short mode): `d01@glc.local`, `d02@glc.local`, ...
 
 Optional env overrides:
 - `DEMO_MEMBER_PASSWORD`
 - `DEMO_MEMBER_EMAIL_DOMAIN`
+- `DEMO_MEMBER_LOGIN_STYLE` (`short` or `friendly`)
+- `DEMO_MEMBER_SHORT_PREFIX` (default `d`)
 - `NEXT_PUBLIC_APP_URL` (for printed links)
 
 ## Docker (Local Development)

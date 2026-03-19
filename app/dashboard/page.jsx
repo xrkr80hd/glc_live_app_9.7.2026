@@ -1,5 +1,6 @@
 import { getDashboardViewerContext } from "@/lib/role-dashboard-config";
 import { redirect } from "next/navigation";
+import { DashboardHubPage } from "@/components/dashboard/DashboardHubPage";
 
 export const dynamic = "force-dynamic";
 
@@ -10,5 +11,5 @@ export default async function DashboardIndexPage() {
     redirect("/member-access");
   }
 
-  redirect(viewer.primaryDashboardPath);
+  return <DashboardHubPage viewer={viewer} />;
 }

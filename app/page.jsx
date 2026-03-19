@@ -1,271 +1,268 @@
-import Script from "next/script";
-import { ChurchHeader } from "@/components/ChurchHeader";
-import { ChurchSiteFooter } from "@/components/ChurchSiteFooter";
-import { HighlightShowcaseCard } from "@/components/HighlightShowcaseCard";
+import Link from "next/link";
+import { PublicSiteShell } from "@/components/public-site/PublicSiteShell";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getHomepageContent } from "@/lib/content";
-import {
-  IconCalendarEvent,
-  IconCompass,
-  IconInfoCircle,
-  IconMapPin,
-  IconMessageCircleHeart,
-  IconPlayerPlay,
-  IconSend,
-  IconUsersGroup,
-} from "@tabler/icons-react";
 
 export const dynamic = "force-dynamic";
 
+const HERO_FALLBACK_VIDEO_URL = "https://www.golibertychurch.com/assets/hero_vids/worship_hero.mp4";
+
+const DAY_PATTERN = /\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/i;
+const TIME_PATTERN = /\b\d{1,2}(:\d{2})?\s?(am|pm)\b/i;
+const SERVICE_PATTERN = /\b(service|gathering|worship)\b/i;
+const MIDWEEK_PATTERN = /\b(midweek|wednesday|weds)\b/i;
+
+function pickHeroVideoUrl(highlightCards) {
+  if (!Array.isArray(highlightCards) || !highlightCards.length) {
+    return HERO_FALLBACK_VIDEO_URL;
+  }
+
+  const heroVideo = highlightCards.find((item) => {
+    const mediaType = String(item?.media_type || "").trim().toLowerCase();
+    const mediaUrl = String(item?.media_url || "").trim();
+    const isVideoType = mediaType === "video";
+    const isDirectVideo = /\.(mp4|webm|ogg)(\?.*)?$/i.test(mediaUrl);
+    return isVideoType && isDirectVideo;
+  });
+
+  return String(heroVideo?.media_url || "").trim() || HERO_FALLBACK_VIDEO_URL;
+}
+
+function splitHomepageMinistries(items) {
+  if (!Array.isArray(items) || !items.length) {
+    return {
+      serviceTimes: [],
+      ministries: [],
+    };
+  }
+
+  const serviceTimes = [];
+  const ministries = [];
+
+  for (const item of items) {
+    const title = String(item?.title || "").trim();
+    const body = String(item?.body || "").trim();
+    if (!title && !body) {
+      continue;
+    }
+
+    const source = `${title} ${body}`.trim();
+    const hasDay = DAY_PATTERN.test(source);
+    const hasTime = TIME_PATTERN.test(source);
+    const hasServiceLanguage = SERVICE_PATTERN.test(source);
+    const hasMidweekLanguage = MIDWEEK_PATTERN.test(source);
+    const isServiceTime = hasTime && (hasDay || hasServiceLanguage);
+
+    if (hasMidweekLanguage) {
+      continue;
+    }
+
+    if (isServiceTime) {
+      serviceTimes.push({
+        id: item.id,
+        title: title || "Service",
+        detail: body || "",
+      });
+      continue;
+    }
+
+    ministries.push({
+      id: item.id,
+      title: title || "Ministry",
+      body,
+    });
+  }
+
+  return {
+    serviceTimes,
+    ministries,
+  };
+}
+
+function formatAnnouncementDate(announcement) {
+  const raw = announcement?.startsAt || announcement?.createdAt || "";
+  if (!raw) {
+    return "This week";
+  }
+
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) {
+    return "This week";
+  }
+
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export default async function HomePage() {
   const { announcements, ministries, highlightCards } = await getHomepageContent();
+  const announcementPreview = announcements.slice(0, 6);
+  const { serviceTimes: dynamicServiceTimes, ministries: dynamicMinistries } = splitHomepageMinistries(ministries);
+  const serviceTimes = dynamicServiceTimes;
+  const ministryPreview = dynamicMinistries.slice(0, 8);
+  const heroVideoUrl = pickHeroVideoUrl(highlightCards);
 
   return (
-    <>
-      <ChurchHeader active="home" />
-
-      <section className="hero">
-        <video autoPlay muted loop playsInline preload="metadata" poster="/assets/youth-backdrop.png" id="heroVideo" className="spawn" />
-        <div className="overlay" />
-        <div className="content container">
-          <div className="kicker">Welcome Home</div>
-          <h1 className="h1">
-            Jesus-centered. Spirit-led.
-            <br />
-            Family-minded.
-          </h1>
-          <p className="sub">
-            Sundays @ 9:20 AM - Youth Devotion
-            <br />
-            10:00 AM - Worship Service • 100 McKeithen Dr, Alexandria, LA
-          </p>
-          <div className="cta-row">
-            <a className="btn" href="#visit">
-              <IconCalendarEvent size={18} stroke={1.9} aria-hidden="true" />
-              Plan Your Visit
-            </a>
-            <a className="btn ghost" href="/sermons">
-              <IconPlayerPlay size={18} stroke={1.9} aria-hidden="true" />
-              Watch Sermons
-            </a>
-          </div>
-          <div className="mt-12">
-            <button id="reopenWelcome" className="btn ghost" type="button">
-              <IconMessageCircleHeart size={18} stroke={1.9} aria-hidden="true" />
-              A welcome message from Pastor Andrew Stokes
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-          <HighlightShowcaseCard cards={highlightCards} />
-        </div>
-      </section>
-
-      <section className="section alt">
-        <div className="container">
-          <h2>Our Ministries</h2>
-          <p className="sub">Ministry highlights and opportunities to get connected.</p>
-          <div className="ann-list" id="ministries">
-            {ministries.length ? (
-              ministries.map((item) => (
-                <div key={item.id} className="ann-item">
-                  <strong>{item.title}</strong> — {item.body}
+    <PublicSiteShell>
+      <div className="bg-[#F6F6F2]">
+        <div className="mx-auto w-full max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+          <BlurFade inView delay={0.04}>
+            <Card className="relative overflow-hidden border border-[#E3E8E6] bg-white py-0 shadow-sm">
+              <video
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover brightness-[0.52]"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+              >
+                <source src={heroVideoUrl} type="video/mp4" />
+              </video>
+              <div className="absolute inset-0 bg-[#3F4D48]/35" aria-hidden="true" />
+              <CardHeader className="relative z-10 px-5 pb-2 pt-6 sm:px-8 sm:pt-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white">Welcome Home</p>
+                <CardTitle className="max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
+                  Jesus-centered. Spirit-led.
+                  <br />
+                  Family-minded.
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="relative z-10 space-y-4 px-5 pb-7 pt-2 sm:px-8 sm:pb-8">
+                <div className="flex flex-wrap gap-3">
+                  <Button asChild className="h-10 w-full rounded-none bg-[#1F4D3A] px-4 text-sm font-semibold text-white hover:bg-[#2E7D32] sm:w-auto">
+                    <Link href="/visit">Plan Your Visit</Link>
+                  </Button>
+                  <Button asChild variant="secondary" className="h-10 w-full rounded-none px-4 text-sm font-semibold sm:w-auto">
+                    <Link href="/sermons">Watch Sermons</Link>
+                  </Button>
                 </div>
-              ))
-            ) : (
-              <div className="ann-item">
-                <strong>Ministries are being updated.</strong> Check back soon for the latest service highlights.
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+                <div className="inline-flex max-w-full items-center rounded-none border border-[#E3E8E6] bg-white px-3 py-2 text-sm text-[#3F4D48]">100 McKeithen Dr, Alexandria, LA 71303</div>
+              </CardContent>
+            </Card>
+          </BlurFade>
 
-      <section className="section announcements">
-        <div className="container">
-          <h2>
-            <span className="heading-inline">
-              <IconInfoCircle size={28} stroke={1.8} aria-hidden="true" />
-              <span>Announcements &amp; Events</span>
-            </span>
-          </h2>
-          <p className="sub">Stay updated with the latest news and upcoming events at Liberty Church.</p>
-          <div className="announcements-container">
-            {announcements.map((item) => (
-              <article key={item.id} className="ann-item">
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-          <div className="pastor-wrap">
-            <div className="pastor-text">
-              <h2>
-                <span className="heading-inline">
-                  <IconUsersGroup size={32} stroke={1.8} aria-hidden="true" />
-                  <span>Meet Our Pastor</span>
-                </span>
-              </h2>
-              <p>
-                Pastor Andrew Stokes has led our church family since October 2013. He and his wife, Erin—our worship leader—serve side by side with their daughters,
-                Ellington and Emery, who are active in media and worship. Though both Andrew and Erin are bi-vocational, their hearts are fully committed to the church
-                God has entrusted to their care. They long for Liberty Church to be a place where everyone can approach the throne of God freely and give Him the praise
-                He deserves. Pastor Andrew teaches the Word with the guidance of the Holy Spirit, encouraging every person—member and guest alike—to pursue Christ
-                wholeheartedly, just as He passionately pursues us.
-              </p>
+          <BlurFade inView delay={0.08} className="space-y-3">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Service Times</p>
+              <h2 className="text-xl font-semibold text-[#3F4D48] sm:text-2xl">Join Us This Sunday</h2>
             </div>
-            <div className="pastor-media">
-              <figure className="pastor-card raw" aria-hidden="true">
+            <div className="border border-[#E3E8E6] bg-white px-4 py-3 sm:px-5 sm:py-4">
+              {serviceTimes.length ? (
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-4">
+                  {serviceTimes.map((item) => (
+                    <p key={item.id} className="text-[15px] text-[#3F4D48]">
+                      <span className="font-semibold">{item.title}</span>
+                      {item.detail ? <span> - {item.detail}</span> : null}
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[15px] text-[#3F4D48]">Service times are updated from admin and will appear here once published.</p>
+              )}
+            </div>
+            <p className="text-sm leading-6 text-[#3F4D48]">Older adults, families, and first-time guests are all welcome. You will be greeted and guided with care.</p>
+          </BlurFade>
+
+          <BlurFade inView delay={0.12} className="space-y-4">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Meet Our Pastor</p>
+              <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">Pastor Andrew Stokes</h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-[240px_1fr]">
+              <article className="mx-auto w-full max-w-[240px] overflow-hidden border border-[#E3E8E6] bg-white md:mx-0 md:max-w-none">
                 <img
-                  className="pastor-photo"
                   src="https://www.golibertychurch.com/assets/Pastor%26Fam.jpg"
                   alt="Pastor Andrew Stokes and family"
+                  className="aspect-square w-full object-cover md:aspect-auto md:h-full md:min-h-[250px]"
                 />
-              </figure>
+              </article>
+              <article className="border border-[#E3E8E6] bg-white p-4 sm:p-5">
+                <p className="text-base leading-7 text-[#3F4D48]">
+                  Pastor Andrew Stokes has led our church family since October 2013. He and his wife, Erin, our worship leader, serve side by side with their daughters,
+                  Ellington and Emery, who are active in media and worship. Though both Andrew and Erin are bi-vocational, their hearts are fully committed to the church
+                  God has entrusted to their care. They long for Liberty Church to be a place where everyone can approach the throne of God freely and give Him the praise
+                  He deserves. Pastor Andrew teaches the Word with the guidance of the Holy Spirit, encouraging every person, member and guest alike, to pursue Christ
+                  wholeheartedly, just as He passionately pursues us.
+                </p>
+              </article>
             </div>
-          </div>
-        </div>
-      </section>
+          </BlurFade>
 
-      <section className="section" id="visit">
-        <div className="container">
-          <h2>
-            <span className="heading-inline">
-              <IconMapPin size={28} stroke={1.8} aria-hidden="true" />
-              <span>Plan Your Visit</span>
-            </span>
-          </h2>
-          <p className="sub">We can&apos;t wait to meet you! Tell us when you&apos;re coming and we&apos;ll save you a seat and show you around.</p>
-          <form className="form" id="visitForm" data-endpoint="/api/visit/">
-            <div className="row">
-              <div>
-                <label>
-                  First &amp; Last Name
-                  <br />
-                  <input required name="name" placeholder="Your name" />
-                </label>
-              </div>
-              <div>
-                <label>
-                  Email
-                  <br />
-                  <input required type="email" name="email" placeholder="you@example.com" />
-                </label>
-              </div>
+          <BlurFade inView delay={0.14} className="space-y-4">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Church Announcements</p>
+              <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">What&apos;s Happening At Liberty</h2>
+              <p className="text-base text-[#3F4D48]">Current church updates, presented in a clean weekly flow.</p>
             </div>
-            <div className="row">
-              <div>
-                <label>
-                  Phone
-                  <br />
-                  <input name="phone" placeholder="(###) ###-####" />
-                </label>
-              </div>
-              <div>
-                <label>
-                  Visit Date
-                  <br />
-                  <input type="date" name="date" />
-                </label>
-              </div>
+            <div className="space-y-3">
+              {announcementPreview.length ? (
+                announcementPreview.map((announcement) => (
+                  <article key={announcement.id} className="space-y-2 border border-[#E3E8E6] bg-white px-4 py-4 sm:px-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#2E7D32]">{formatAnnouncementDate(announcement)}</p>
+                    <h3 className="text-xl font-semibold text-[#3F4D48]">{announcement.title}</h3>
+                    <p className="text-base leading-7 text-[#3F4D48]">{announcement.body}</p>
+                  </article>
+                ))
+              ) : (
+                <article className="space-y-2 border border-[#E3E8E6] bg-white px-4 py-4 sm:px-5">
+                  <h3 className="text-xl font-semibold text-[#3F4D48]">Updates coming soon</h3>
+                  <p className="text-base leading-7 text-[#3F4D48]">Announcements are being prepared for this week. Please check back shortly.</p>
+                </article>
+              )}
             </div>
-            <label>
-              How many are coming?
-              <br />
-              <select name="party" defaultValue="1">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5+">5+</option>
-              </select>
-            </label>
-            <label>
-              Anything we can prepare for?
-              <br />
-              <textarea name="notes" rows={4} placeholder="Kids check-in, accessibility needs, prayer requests..." />
-            </label>
-            <div>
-              <button className="btn" type="submit">
-                <IconSend size={18} stroke={1.9} aria-hidden="true" />
-                Send
-              </button>
+          </BlurFade>
+
+          <BlurFade inView delay={0.16} className="space-y-3">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-semibold tracking-tight text-[#3F4D48] sm:text-3xl">Our Ministries and Service Times</h2>
+              <div className="h-1 w-16 bg-[#2E7D32]" />
+              <p className="pt-1 text-base text-[#3F4D48] sm:text-lg">Below are our ministry highlights and service times; see announcements for updates.</p>
             </div>
-          </form>
-          <div id="visitMsg" className="mt-8" />
-        </div>
-      </section>
+            <div className="space-y-4">
+              {ministryPreview.length ? (
+                ministryPreview.map((ministry) => (
+                  <article key={ministry.id} className="space-y-2 border border-[#E3E8E6] bg-white px-4 py-3 sm:px-5 sm:py-4">
+                    <h3 className="text-xl font-semibold text-[#2E7D32]">{ministry.title}</h3>
+                    <p className="text-base leading-7 text-[#3F4D48]">
+                      <span aria-hidden="true">- </span>
+                      {ministry.body}
+                    </p>
+                  </article>
+                ))
+              ) : (
+                <article className="space-y-2 border border-[#E3E8E6] bg-white px-4 py-3 sm:px-5 sm:py-4">
+                  <p className="text-base leading-7 text-[#3F4D48]">Ministry highlights will appear here as they are added in admin.</p>
+                </article>
+              )}
+            </div>
+          </BlurFade>
 
-      <section className="section">
-        <div className="container">
-          <h2>
-            <span className="heading-inline">
-              <IconCompass size={28} stroke={1.8} aria-hidden="true" />
-              <span>Find Us</span>
-            </span>
-          </h2>
-          <div className="map">
-            <iframe
-              title="Map to Liberty Church"
-              frameBorder="0"
-              src="https://www.google.com/maps?q=100%20McKeithen%20Dr%2C%20Alexandria%2C%20LA%2071303&output=embed"
-              allowFullScreen
-            />
-          </div>
-        </div>
-      </section>
-
-      <ChurchSiteFooter />
-
-      <div id="welcomeModal" className="modal" aria-hidden="true" role="dialog" aria-labelledby="welcomeTitle">
-        <div className="modal-backdrop" />
-        <div className="modal-dialog" role="document">
-          <button className="modal-close" aria-label="Close" type="button">
-            ×
-          </button>
-          <div className="modal-body">
-            <h2 id="welcomeTitle">We&apos;re so glad you&apos;re here!</h2>
-            <div id="welcomeContent" className="welcome-content mt-12" />
-          </div>
+          <BlurFade inView delay={0.18}>
+            <Card className="border border-[#E3E8E6] bg-white py-0 shadow-sm">
+              <CardHeader className="px-5 pb-2 pt-6 sm:px-7 sm:pt-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Learn More</p>
+                <CardTitle className="text-2xl text-[#3F4D48] sm:text-3xl">Discover Liberty Church</CardTitle>
+                <CardDescription className="max-w-3xl text-base text-[#3F4D48]">
+                  Explore what we believe, plan your visit, and see how your family can get involved right away.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-3 px-5 pb-6 pt-1 sm:px-7 sm:pb-7">
+                <Button asChild className="h-10 rounded-none bg-[#1F4D3A] px-4 text-sm font-semibold text-white hover:bg-[#2E7D32]">
+                  <Link href="/beliefs">Learn More About Our Church</Link>
+                </Button>
+                <Button asChild variant="secondary" className="h-10 rounded-none px-4 text-sm font-semibold">
+                  <Link href="/visit">Plan Your Visit</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </BlurFade>
         </div>
       </div>
-
-      <Script id="home-visit-submit" strategy="afterInteractive">{`
-        (function() {
-          const form = document.getElementById('visitForm');
-          const msg = document.getElementById('visitMsg');
-          if (!form || !msg) return;
-          form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            msg.textContent = 'Sending...';
-            const fd = new FormData(form);
-            const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) submitBtn.disabled = true;
-            try {
-              const res = await fetch('/api/visit', { method: 'POST', body: fd });
-              const json = await res.json().catch(() => ({ success: false }));
-              if (res.ok && json.success) {
-                msg.textContent = 'Thanks! Your visit request has been received.';
-                form.reset();
-              } else {
-                msg.textContent = json.message || 'Unable to send. Please try again.';
-              }
-            } catch (err) {
-              msg.textContent = 'Network error sending request.';
-              console.error(err);
-            } finally {
-              if (submitBtn) submitBtn.disabled = false;
-            }
-          });
-        })();
-      `}</Script>
-    </>
+    </PublicSiteShell>
   );
 }

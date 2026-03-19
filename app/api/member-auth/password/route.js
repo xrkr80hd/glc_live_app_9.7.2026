@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { readJsonBody } from "@/lib/admin-api";
 import { requireMemberSession, verifyCurrentMemberPassword } from "@/lib/member-auth";
+import { validateMemberPassword } from "@/lib/security/password-policy";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(request) {
-  const { user, error } = await requireMemberSession();
+  const { member, user, error } = await requireMemberSession();
   if (error) {
     return error;
   }
@@ -28,11 +29,11 @@ export async function POST(request) {
     );
   }
 
-  if (nextPassword.length < 8) {
+  if (nextPassword === currentPassword) {
     return NextResponse.json(
       {
         success: false,
-        message: "Use at least 8 characters for your new password.",
+        message: "Choose a new password that is different from your current password.",
       },
       { status: 400 },
     );
@@ -43,6 +44,21 @@ export async function POST(request) {
       {
         success: false,
         message: "Your new password and confirmation do not match.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const passwordValidation = validateMemberPassword(nextPassword, {
+    fullName: member?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || "",
+    email: member?.email || user?.email || "",
+  });
+
+  if (!passwordValidation.valid) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: passwordValidation.message,
       },
       { status: 400 },
     );
@@ -78,8 +94,11 @@ export async function POST(request) {
     );
   }
 
+  await supabase.auth.signOut();
+
   return NextResponse.json({
     success: true,
-    message: "Your password has been updated.",
+    message: "Your password has been updated. Sign in with your new password.",
+    redirectTo: "/member-access?passwordReset=1",
   });
 }

@@ -85,6 +85,33 @@
   font-size: 0.98rem;
 }
 
+.passwordWrap {
+  position: relative;
+}
+
+.passwordWrap input {
+  padding-right: 3.6rem;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  padding: 0.2rem 0.3rem;
+  background: transparent;
+  color: var(--admin-muted);
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.passwordToggle:disabled {
+  opacity: 0.66;
+  cursor: not-allowed;
+}
+
 .field input:focus-visible {
   outline: 2px solid var(--admin-accent);
   outline-offset: 1px;

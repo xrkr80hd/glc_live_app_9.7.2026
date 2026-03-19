@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   IconCheck,
@@ -27,6 +28,11 @@ const initialCreate = {
 export function MemberAccessScreen({ initialView = "signin", initialMessage = "" }) {
   const router = useRouter();
   const [view, setView] = useState(initialView);
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    signIn: false,
+    create: false,
+    createConfirm: false,
+  });
   const [signIn, setSignIn] = useState(initialSignIn);
   const [create, setCreate] = useState(initialCreate);
   const [message, setMessage] = useState(initialMessage);
@@ -34,6 +40,13 @@ export function MemberAccessScreen({ initialView = "signin", initialMessage = ""
 
   function resetMessage() {
     setMessage("");
+  }
+
+  function togglePasswordVisibility(key) {
+    setPasswordVisibility((current) => ({
+      ...current,
+      [key]: !current[key],
+    }));
   }
 
   async function handleSignIn(event) {
@@ -55,7 +68,7 @@ export function MemberAccessScreen({ initialView = "signin", initialMessage = ""
         throw new Error(data.message || "Unable to sign in right now.");
       }
 
-      router.push("/member");
+      router.push("/dashboard");
       router.refresh();
     } catch (error) {
       setMessage(error.message || "Unable to sign in right now.");
@@ -220,18 +233,32 @@ export function MemberAccessScreen({ initialView = "signin", initialMessage = ""
                 </div>
                 <div className="lc-form-field">
                   <label className="lc-field-label" htmlFor="member-signin-password">Password</label>
-                  <input
-                    id="member-signin-password"
-                    type="password"
-                    className="lc-input"
-                    value={signIn.password}
-                    onChange={(event) => setSignIn((current) => ({ ...current, password: event.target.value }))}
-                    required
-                  />
+                  <div className="lc-password-input">
+                    <input
+                      id="member-signin-password"
+                      type={passwordVisibility.signIn ? "text" : "password"}
+                      className="lc-input"
+                      value={signIn.password}
+                      onChange={(event) => setSignIn((current) => ({ ...current, password: event.target.value }))}
+                      autoComplete="current-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="lc-password-toggle"
+                      onClick={() => togglePasswordVisibility("signIn")}
+                      aria-label={`${passwordVisibility.signIn ? "Hide" : "Show"} password`}
+                    >
+                      {passwordVisibility.signIn ? "Hide" : "Show"}
+                    </button>
+                  </div>
                 </div>
                 <button type="submit" className="lc-action-btn primary" disabled={isSaving}>
                   {isSaving ? "Signing In..." : "Sign In"}
                 </button>
+                <Link href="/member-access/forgot-password" className="lc-action-link ghost">
+                  Forgot Password?
+                </Link>
               </form>
             ) : (
               <form className="lc-form-grid" onSubmit={handleCreateAccount}>
@@ -268,25 +295,47 @@ export function MemberAccessScreen({ initialView = "signin", initialMessage = ""
                 </div>
                 <div className="lc-form-field">
                   <label className="lc-field-label" htmlFor="member-create-password">Password</label>
-                  <input
-                    id="member-create-password"
-                    type="password"
-                    className="lc-input"
-                    value={create.password}
-                    onChange={(event) => setCreate((current) => ({ ...current, password: event.target.value }))}
-                    required
-                  />
+                  <div className="lc-password-input">
+                    <input
+                      id="member-create-password"
+                      type={passwordVisibility.create ? "text" : "password"}
+                      className="lc-input"
+                      value={create.password}
+                      onChange={(event) => setCreate((current) => ({ ...current, password: event.target.value }))}
+                      autoComplete="new-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="lc-password-toggle"
+                      onClick={() => togglePasswordVisibility("create")}
+                      aria-label={`${passwordVisibility.create ? "Hide" : "Show"} password`}
+                    >
+                      {passwordVisibility.create ? "Hide" : "Show"}
+                    </button>
+                  </div>
                 </div>
                 <div className="lc-form-field">
                   <label className="lc-field-label" htmlFor="member-create-confirm-password">Confirm Password</label>
-                  <input
-                    id="member-create-confirm-password"
-                    type="password"
-                    className="lc-input"
-                    value={create.confirmPassword}
-                    onChange={(event) => setCreate((current) => ({ ...current, confirmPassword: event.target.value }))}
-                    required
-                  />
+                  <div className="lc-password-input">
+                    <input
+                      id="member-create-confirm-password"
+                      type={passwordVisibility.createConfirm ? "text" : "password"}
+                      className="lc-input"
+                      value={create.confirmPassword}
+                      onChange={(event) => setCreate((current) => ({ ...current, confirmPassword: event.target.value }))}
+                      autoComplete="new-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="lc-password-toggle"
+                      onClick={() => togglePasswordVisibility("createConfirm")}
+                      aria-label={`${passwordVisibility.createConfirm ? "Hide" : "Show"} password`}
+                    >
+                      {passwordVisibility.createConfirm ? "Hide" : "Show"}
+                    </button>
+                  </div>
                 </div>
                 <button type="submit" className="lc-action-btn primary" disabled={isSaving}>
                   {isSaving ? "Creating..." : "Create Account"}

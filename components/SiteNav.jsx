@@ -1,14 +1,5 @@
 import Link from "next/link";
-
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/live", label: "Watch Live" },
-  { href: "/sermons", label: "Sermons" },
-  { href: "/youth", label: "Youth" },
-  { href: "/give", label: "Give" },
-  { href: "/prayer", label: "Prayer" },
-  { href: "/visit", label: "Plan a Visit" },
-];
+import { PUBLIC_NAV_ITEMS } from "@/lib/public-nav";
 
 export function SiteNav() {
   return (
@@ -18,7 +9,7 @@ export function SiteNav() {
           Liberty Church
         </Link>
         <nav className="nav-links">
-          {links.map((link) => (
+          {PUBLIC_NAV_ITEMS.map((link) => (
             <Link key={link.href} href={link.href}>
               {link.label}
             </Link>
