@@ -17,9 +17,6 @@ function memberLabel(member) {
   }
   const name = String(member.full_name || "").trim();
   const username = String(member.username || "").trim();
-  if (name && username) {
-    return `${name} (${username})`;
-  }
   return name || username || String(member.email || "").trim() || "Unknown member";
 }
 
@@ -191,7 +188,7 @@ export function RoleAccessManager() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="lc-role-access-manager space-y-4">
       <Card className="bg-[#27313b] py-0">
         <CardHeader className="px-5 pb-3 pt-5">
           <CardTitle className="text-xl text-white">Existing Member Role Manager</CardTitle>
@@ -201,7 +198,7 @@ export function RoleAccessManager() {
         </CardHeader>
         <CardContent className="px-5 pb-5">
           <div className="space-y-3">
-            <MemberAccordion title="Find Member" description="Open to search and select from your member pool." defaultOpen>
+            <MemberAccordion title="Find Member" defaultOpen>
               <div className="space-y-3">
                 <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#9ca8b4]">
                   Member Search
@@ -222,17 +219,16 @@ export function RoleAccessManager() {
                         const isSelected = member.id === selectedMemberId;
                         return (
                           <li key={member.id} className="list-none">
-                            <button
-                              type="button"
-                              onClick={() => handleSelectMember(member.id)}
-                              className={`grid w-full gap-1 px-3 py-3 text-left transition-colors ${
-                                isSelected ? "bg-[#2E7D32]/24 text-white" : "text-[#d7dee5] hover:bg-[#2E7D32]/14"
-                              }`}
-                            >
-                              <strong className="truncate text-sm font-semibold text-white">{memberLabel(member)}</strong>
-                              <span className="truncate text-xs text-[#9fb0c2]">{member.email || "No email on file"}</span>
-                            </button>
-                          </li>
+                          <button
+                            type="button"
+                            onClick={() => handleSelectMember(member.id)}
+                            className={`grid w-full gap-1 px-3 py-3 text-left transition-colors ${
+                              isSelected ? "bg-[#2E7D32]/24 text-black" : "text-black hover:bg-[#2E7D32]/14"
+                            }`}
+                          >
+                            <strong className="truncate text-sm font-semibold text-black">{memberLabel(member)}</strong>
+                          </button>
+                        </li>
                         );
                       })}
                     </ul>
@@ -249,7 +245,7 @@ export function RoleAccessManager() {
               <p className="text-xs text-[#aab6c2]">{selectedMember?.email || "No email on file"}</p>
             </div>
 
-            <MemberAccordion title="Assign Roles" description="Open to check permissions for the selected member." defaultOpen>
+            <MemberAccordion title="Assign Roles" defaultOpen>
               <div className="max-h-[320px] overflow-y-auto rounded-none border border-[#3b4757] bg-[#1f2935] p-2">
                 {roles.length ? (
                   <ul className="m-0 grid list-none gap-2 p-0">
@@ -267,7 +263,6 @@ export function RoleAccessManager() {
                             />
                             <span className="grid gap-0.5">
                               <strong className="text-sm text-white">{role.name}</strong>
-                              <span className="text-xs text-[#9fb0c2]">{role.role_key}</span>
                             </span>
                           </label>
                         </li>
@@ -285,17 +280,17 @@ export function RoleAccessManager() {
                 type="button"
                 onClick={handleSave}
                 disabled={!selectedMember || !hasChanges || isSaving}
-                className="h-11 w-full rounded-none bg-[#2E7D32] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#276b2b] disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-10 w-full rounded-none bg-[#2E7D32] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#276b2b] disabled:cursor-not-allowed disabled:bg-[#3b5f41] disabled:text-[#d8e6db]"
               >
-                {isSaving ? "Saving..." : "Save Roles For Selected Member"}
+                {isSaving ? "Saving..." : "Save Roles"}
               </button>
               <button
                 type="button"
                 onClick={() => setSelectedRoleIds(assignedRoleIds)}
                 disabled={!selectedMember || isSaving}
-                className="h-11 w-full rounded-none border border-[#4a596a] bg-[#27313b] px-4 text-sm font-semibold text-[#d7dee5] transition-colors hover:bg-[#313f4d] disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-10 w-full rounded-none border border-[#4a596a] bg-[#27313b] px-3 text-sm font-semibold text-[#f0f4f8] transition-colors hover:bg-[#313f4d] disabled:cursor-not-allowed disabled:bg-[#2f3945] disabled:text-[#bfcad5]"
               >
-                Reset Unsaved Role Changes
+                Reset Changes
               </button>
             </div>
 

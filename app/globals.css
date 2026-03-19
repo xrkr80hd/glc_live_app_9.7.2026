@@ -4615,3 +4615,25 @@ html[data-app-theme="dark"] .lc-app-shell.theme-member .lc-youth-gateway-open {
     overflow-x: hidden;
   }
 }
+/* Role Access: keep accordion color consistent in closed/open states */
+.lc-role-access-manager .lc-accordion-card {
+  border: 1px solid #445262;
+  background: #1b2430;
+  box-shadow: none;
+}
+
+.lc-role-access-manager .lc-accordion-summary {
+  background: #1b2430;
+  color: #ffffff;
+}
+
+.lc-role-access-manager .lc-accordion-card[open] .lc-accordion-summary {
+  background: #1b2430;
+  color: #ffffff;
+}
+
+.lc-role-access-manager .lc-accordion-panel {
+  background: #1b2430;
+  border-top-color: #3b4757;
+}
+
