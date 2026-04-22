@@ -1,7 +1,8 @@
 {
   "church": {
     "name": "Liberty Church",
-    "address": "100 McKeithen Dr, Alexandria, LA 71303"
+    "address": "100 McKeithen Dr, Alexandria, LA 71303",
+    "mailingAddress": "PO BOX 11766 Alexandria, LA 71315"
   },
   "links": {
     "youtube": "https://www.youtube.com/@GoLibertyChurch",

@@ -8,6 +8,17 @@ import {
   requireAdminSession,
   requireAdminSupabase,
 } from "@/lib/admin-api";
+import { toYouTubeEmbedUrl } from "@/lib/youtube";
+
+function normalizeEmbedUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return "";
+  }
+
+  const normalizedYouTubeUrl = toYouTubeEmbedUrl(raw);
+  return normalizedYouTubeUrl || raw;
+}
 
 async function getIdFromContext(context) {
   const params = await Promise.resolve(context?.params);
@@ -32,7 +43,7 @@ export async function GET(request, context) {
 
   const { data, error } = await supabase
     .from("livestreams")
-    .select("id, title, embed_url, fallback_video_url, watch_cta_label, is_active, starts_at, ends_at, created_at")
+    .select("id, title, embed_url, fallback_video_url, is_active, starts_at, ends_at, created_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -78,7 +89,7 @@ export async function PATCH(request, context) {
   }
 
   if (payload?.embed_url !== undefined) {
-    const embedUrl = String(payload.embed_url || "").trim();
+    const embedUrl = normalizeEmbedUrl(payload.embed_url);
     if (!embedUrl) {
       return NextResponse.json({ error: "embed_url cannot be empty" }, { status: 400 });
     }
@@ -87,14 +98,6 @@ export async function PATCH(request, context) {
 
   if (payload?.fallback_video_url !== undefined) {
     update.fallback_video_url = normalizeOptionalText(payload.fallback_video_url);
-  }
-
-  if (payload?.watch_cta_label !== undefined) {
-    const watchLabel = String(payload.watch_cta_label || "").trim();
-    if (!watchLabel) {
-      return NextResponse.json({ error: "watch_cta_label cannot be empty" }, { status: 400 });
-    }
-    update.watch_cta_label = watchLabel;
   }
 
   if (payload?.is_active !== undefined) {
@@ -135,7 +138,7 @@ export async function PATCH(request, context) {
     .from("livestreams")
     .update(update)
     .eq("id", id)
-    .select("id, title, embed_url, fallback_video_url, watch_cta_label, is_active, starts_at, ends_at, created_at")
+    .select("id, title, embed_url, fallback_video_url, is_active, starts_at, ends_at, created_at")
     .maybeSingle();
 
   if (updateError) {
@@ -171,4 +174,3 @@ export async function DELETE(request, context) {
 
   return NextResponse.json({ success: true });
 }
-

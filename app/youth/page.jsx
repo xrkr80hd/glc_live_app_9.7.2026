@@ -2,15 +2,29 @@ import { BodyClass } from "@/components/BodyClass";
 import { ChurchHeader } from "@/components/ChurchHeader";
 import { ChurchSimpleFooter } from "@/components/ChurchSimpleFooter";
 import { BlurFade } from "@/components/ui/blur-fade";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getYouthPageContent } from "@/lib/content";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+
+function getAnnouncementImage(item) {
+  const imageUrl = String(item?.imageUrl || item?.image_url || "").trim();
+  const imageAltRaw = String(item?.imageAlt || item?.image_alt || "").trim();
+  const title = String(item?.title || "").trim();
+  return {
+    imageUrl,
+    imageAlt: imageAltRaw || (title ? `${title} announcement image` : "Announcement image"),
+  };
+}
 
 export default async function YouthPage() {
   const { youthAnnouncements, youthScripture, youthBanner } = await getYouthPageContent();
   const tickerTextRaw = youthBanner?.subtitle || "Sundays @ 9:20 AM - Youth Devotion | Pop-Up Events - Check back for more info";
   const tickerText = tickerTextRaw.replace(/\p{Extended_Pictographic}/gu, "").replace(/\s{2,}/g, " ").trim();
+  const scriptureTitle = String(youthScripture?.title || "").trim();
+  const showScriptureTitle = scriptureTitle && scriptureTitle.toLowerCase() !== "scripture";
 
   return (
     <>
@@ -52,15 +66,17 @@ export default async function YouthPage() {
             <h2>Scripture of the Week</h2>
           </div>
           <article className="glass-card youth-scripture-single">
-            <h3>Scripture</h3>
             <p id="scripture-reference" className="youth-scripture-reference">
               {youthScripture.reference}
             </p>
+            {showScriptureTitle ? <h3>{scriptureTitle}</h3> : null}
             <blockquote className="youth-scripture-verse">
               <p id="scripture-text">{youthScripture.verse_text}</p>
             </blockquote>
-            <h3>Lean In and Reflect</h3>
-            <p id="devotional-text">{youthBanner?.title || "Take this verse with you this week and ask God how to live it out today."}</p>
+            <h3>Lean In</h3>
+            <blockquote className="youth-scripture-verse youth-devotional-copy">
+              <p id="devotional-text">{youthScripture.devotional_text || "Take this verse with you this week and ask God how to live it out today."}</p>
+            </blockquote>
           </article>
         </div>
       </section>
@@ -69,21 +85,44 @@ export default async function YouthPage() {
         <div className="container">
           <div className="section-head">
             <h2>Announcements and Events</h2>
-            <p className="sub">Fresh updates, pop-up hangs, and everything happening next.</p>
+            <p className="sub">Latest youth updates.</p>
           </div>
           <div className="announcements-grid" id="announcements-grid">
             {youthAnnouncements.length ? (
-              youthAnnouncements.map((item) => (
-                <article key={item.id} className="announcement-card">
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
-                </article>
-              ))
+              youthAnnouncements.map((item) => {
+                const { imageUrl, imageAlt } = getAnnouncementImage(item);
+                return (
+                  <article key={item.id} className="announcement-card">
+                    {imageUrl ? (
+                      <div className="announcement-image-wrap">
+                        <img src={imageUrl} alt={imageAlt} loading="lazy" />
+                      </div>
+                    ) : null}
+                    <h3>{item.title}</h3>
+                    <p>{item.body}</p>
+                  </article>
+                );
+              })
             ) : (
               <article className="announcement-card empty" id="announcements-empty">
                 <p className="muted">Announcements are loading...</p>
               </article>
             )}
+          </div>
+        </div>
+      </section>
+
+      <section className="section alt youth-media-section" id="youth-media">
+        <div className="container">
+          <div className="section-head">
+            <h2>Youth Media</h2>
+          </div>
+          <div className="youth-media-actions">
+            <Button asChild variant="youth" className="h-10 rounded-none px-4 text-sm font-semibold !text-white">
+              <Link href="/youth/media">
+                View Youth Media
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -138,7 +177,10 @@ export default async function YouthPage() {
 
             .youth-scripture-reference {
               margin: 0;
-              font-weight: 700;
+              font-size: 0.96rem;
+              font-weight: 800;
+              letter-spacing: 0.05em;
+              text-transform: uppercase;
             }
 
             .youth-scripture-verse {
@@ -149,6 +191,30 @@ export default async function YouthPage() {
 
             .youth-scripture-verse p {
               margin: 0;
+            }
+
+            .youth-devotional-copy {
+              color: rgba(255, 255, 255, 0.92);
+            }
+
+            .announcement-image-wrap {
+              margin-bottom: 0.8rem;
+              border-radius: 12px;
+              overflow: hidden;
+              border: 1px solid rgba(102, 228, 158, 0.32);
+              background: rgba(10, 18, 31, 0.62);
+            }
+
+            .announcement-image-wrap img {
+              width: 100%;
+              aspect-ratio: 16 / 9;
+              object-fit: cover;
+              display: block;
+            }
+
+            .youth-media-actions {
+              display: flex;
+              justify-content: flex-start;
             }
 
             @keyframes tickerScroll {
@@ -168,6 +234,14 @@ export default async function YouthPage() {
               .ticker-item {
                 font-size: 0.95rem;
                 padding: 0 1.5rem;
+              }
+
+              .youth-media-callout {
+                gap: 0.9rem;
+              }
+
+              .youth-media-callout-btn {
+                width: 100%;
               }
             }
           `,

@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import {
   normalizeDate,
   normalizeId,
@@ -7,14 +6,10 @@ import {
   requireAdminSession,
   requireAdminSupabase,
 } from "@/lib/admin-api";
+import { NextResponse } from "next/server";
 
-function normalizeAudience(value) {
-  const audience = String(value || "").trim().toLowerCase();
-  if (audience === "main" || audience === "youth") {
-    return audience;
-  }
-  return "";
-}
+const SCRIPTURE_SELECT_FULL = "id, audience, title, reference, verse_text, devotional_text, week_start, week_end, is_published, created_at";
+const SCRIPTURE_SELECT_LEGACY = "id, audience, reference, verse_text, week_start, week_end, is_published, created_at";
 
 async function getIdFromContext(context) {
   const params = await Promise.resolve(context?.params);
@@ -26,6 +21,22 @@ function validateWeekRange(weekStart, weekEnd) {
     return "week_end must be on or after week_start";
   }
   return "";
+}
+
+function isMissingScriptureColumnError(error) {
+  const message = String(error?.message || "");
+  return message.includes("column scriptures.title does not exist") || message.includes("column scriptures.devotional_text does not exist");
+}
+
+function normalizeLegacyScripture(record) {
+  if (!record) {
+    return record;
+  }
+  return {
+    ...record,
+    title: record.title ?? null,
+    devotional_text: record.devotional_text ?? null,
+  };
 }
 
 export async function GET(request, context) {
@@ -46,18 +57,36 @@ export async function GET(request, context) {
 
   const { data, error } = await supabase
     .from("scriptures")
-    .select("id, audience, reference, verse_text, week_start, week_end, is_published, created_at")
+    .select(SCRIPTURE_SELECT_FULL)
     .eq("id", id)
     .maybeSingle();
 
-  if (error) {
+  if (!error) {
+    if (!data) {
+      return NextResponse.json({ error: "Scripture not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ scripture: data });
+  }
+
+  if (!isMissingScriptureColumnError(error)) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
-  if (!data) {
+
+  const { data: legacyData, error: legacyError } = await supabase
+    .from("scriptures")
+    .select(SCRIPTURE_SELECT_LEGACY)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (legacyError) {
+    return NextResponse.json({ error: legacyError.message }, { status: 400 });
+  }
+  if (!legacyData) {
     return NextResponse.json({ error: "Scripture not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ scripture: data });
+  return NextResponse.json({ scripture: normalizeLegacyScripture(legacyData) });
 }
 
 export async function PATCH(request, context) {
@@ -83,14 +112,6 @@ export async function PATCH(request, context) {
 
   const update = {};
 
-  if (payload?.audience !== undefined) {
-    const audience = normalizeAudience(payload.audience);
-    if (!audience) {
-      return NextResponse.json({ error: "audience must be 'main' or 'youth'" }, { status: 400 });
-    }
-    update.audience = audience;
-  }
-
   if (payload?.reference !== undefined) {
     const reference = String(payload.reference || "").trim();
     if (!reference) {
@@ -99,12 +120,22 @@ export async function PATCH(request, context) {
     update.reference = reference;
   }
 
+  if (payload?.title !== undefined) {
+    const title = String(payload.title || "").trim();
+    update.title = title || null;
+  }
+
   if (payload?.verse_text !== undefined) {
     const verseText = String(payload.verse_text || "").trim();
     if (!verseText) {
       return NextResponse.json({ error: "verse_text cannot be empty" }, { status: 400 });
     }
     update.verse_text = verseText;
+  }
+
+  if (payload?.devotional_text !== undefined) {
+    const devotionalText = String(payload.devotional_text || "").trim();
+    update.devotional_text = devotionalText || null;
   }
 
   if (payload?.week_start !== undefined) {
@@ -130,6 +161,8 @@ export async function PATCH(request, context) {
   if (!Object.keys(update).length) {
     return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
   }
+
+  update.audience = "youth";
 
   const rangeError = validateWeekRange(update.week_start, update.week_end);
   if (rangeError) {
@@ -162,17 +195,37 @@ export async function PATCH(request, context) {
     .from("scriptures")
     .update(update)
     .eq("id", id)
-    .select("id, audience, reference, verse_text, week_start, week_end, is_published, created_at")
+    .select(SCRIPTURE_SELECT_FULL)
     .maybeSingle();
 
-  if (updateError) {
+  if (!updateError) {
+    if (!data) {
+      return NextResponse.json({ error: "Scripture not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ scripture: data });
+  }
+
+  if (!isMissingScriptureColumnError(updateError)) {
     return NextResponse.json({ error: updateError.message }, { status: 400 });
   }
-  if (!data) {
+
+  const { title: _ignoredTitle, devotional_text: _ignoredDevotionalText, ...legacyUpdate } = update;
+  const { data: legacyData, error: legacyUpdateError } = await supabase
+    .from("scriptures")
+    .update(legacyUpdate)
+    .eq("id", id)
+    .select(SCRIPTURE_SELECT_LEGACY)
+    .maybeSingle();
+
+  if (legacyUpdateError) {
+    return NextResponse.json({ error: legacyUpdateError.message }, { status: 400 });
+  }
+  if (!legacyData) {
     return NextResponse.json({ error: "Scripture not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ scripture: data });
+  return NextResponse.json({ scripture: normalizeLegacyScripture(legacyData) });
 }
 
 export async function DELETE(request, context) {

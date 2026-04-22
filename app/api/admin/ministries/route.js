@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import {
+  normalizeOptionalText,
   parseBoolean,
   parseInteger,
   parsePaging,
@@ -7,6 +7,7 @@ import {
   requireAdminSession,
   requireAdminSupabase,
 } from "@/lib/admin-api";
+import { NextResponse } from "next/server";
 
 export async function GET(request) {
   const { error: authError } = requireAdminSession(request);
@@ -25,7 +26,7 @@ export async function GET(request) {
 
   let query = supabase
     .from("ministries")
-    .select("id, title, body, sort_order, is_published, created_at")
+    .select("id, title, body, image_url, image_alt, sort_order, is_published, created_at")
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
@@ -60,6 +61,8 @@ export async function POST(request) {
 
   const title = String(payload?.title || "").trim();
   const body = String(payload?.body || "").trim();
+  const imageUrl = normalizeOptionalText(payload?.image_url);
+  const imageAlt = normalizeOptionalText(payload?.image_alt);
   const sortOrder = parseInteger(payload?.sort_order, 0);
   const isPublished = parseBoolean(payload?.is_published, true);
 
@@ -75,10 +78,12 @@ export async function POST(request) {
     .insert({
       title,
       body,
+      image_url: imageUrl,
+      image_alt: imageAlt,
       sort_order: sortOrder,
       is_published: isPublished,
     })
-    .select("id, title, body, sort_order, is_published, created_at")
+    .select("id, title, body, image_url, image_alt, sort_order, is_published, created_at")
     .single();
 
   if (insertError) {

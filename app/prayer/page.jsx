@@ -2,26 +2,25 @@ import Script from "next/script";
 import { PublicSiteShell } from "@/components/public-site/PublicSiteShell";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { Button } from "@/components/ui/button";
+import { getSocialLinksContent } from "@/lib/content";
 
-export default function PrayerPage() {
+export default async function PrayerPage() {
+  const socialLinks = await getSocialLinksContent();
+
   return (
-    <PublicSiteShell>
+    <PublicSiteShell socialLinks={socialLinks}>
       <div className="bg-[#F6F6F2]">
         <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
           <BlurFade inView delay={0.04} className="space-y-2">
             <h1 className="text-3xl font-semibold text-[#3F4D48] sm:text-4xl">Prayer Requests</h1>
-            <p className="max-w-3xl text-base leading-7 text-[#3F4D48]">
-              We believe in the power of prayer. Share your request and our team will lift it before the Lord. If you would like follow-up, include your email.
-            </p>
+            <p className="max-w-3xl text-base leading-7 text-[#3F4D48]">Send a request.</p>
           </BlurFade>
 
           <BlurFade inView delay={0.08}>
             <section className="border border-[#E3E8E6] bg-white p-4 sm:p-6">
               <div className="space-y-2">
                 <h2 className="text-2xl font-semibold text-[#3F4D48]">Share Your Prayer Request</h2>
-                <p className="text-base leading-7 text-[#3F4D48]">
-                  Every request goes straight to our pastoral care team. We only share publicly if you give us permission.
-                </p>
+                <p className="text-base leading-7 text-[#3F4D48]">Sent to our pastoral care team.</p>
               </div>
 
               <form id="prayerForm" className="mt-5 space-y-4" data-endpoint="/api/prayer-request/" noValidate>

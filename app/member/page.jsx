@@ -36,6 +36,10 @@ export default async function HomePage() {
   const facebookUrl = findSocialUrl(socialLinks, "facebook", SOCIAL_FALLBACKS.facebook);
   const youtubeUrl = findSocialUrl(socialLinks, "youtube", SOCIAL_FALLBACKS.youtube);
   const primaryAnnouncement = announcements[0] || null;
+  const primaryAnnouncementImageUrl = String(primaryAnnouncement?.imageUrl || primaryAnnouncement?.image_url || "").trim();
+  const primaryAnnouncementImageAlt =
+    String(primaryAnnouncement?.imageAlt || primaryAnnouncement?.image_alt || "").trim() ||
+    (primaryAnnouncement?.title ? `${primaryAnnouncement.title} announcement image` : "Announcement image");
   const elevatedDashboardCount = (viewer?.accessibleDashboardKeys || []).filter((key) => key !== "member").length;
   const hasElevatedAccess = elevatedDashboardCount > 0;
   const memberName = currentMember?.member?.full_name || currentMember?.session?.fullName || "";
@@ -86,6 +90,28 @@ export default async function HomePage() {
               <article className="lc-home-announcement-scroll">
                 <h3>{primaryAnnouncement.title}</h3>
                 <p className="lc-muted">{formatMemberDate(primaryAnnouncement.startsAt || primaryAnnouncement.createdAt)}</p>
+                {primaryAnnouncementImageUrl ? (
+                  <div
+                    style={{
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      border: "1px solid rgba(140, 152, 164, 0.24)",
+                      margin: "0.45rem 0 0.7rem",
+                    }}
+                  >
+                    <img
+                      src={primaryAnnouncementImageUrl}
+                      alt={primaryAnnouncementImageAlt}
+                      loading="lazy"
+                      style={{
+                        width: "100%",
+                        display: "block",
+                        aspectRatio: "16 / 9",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </div>
+                ) : null}
                 <p>{primaryAnnouncement.body}</p>
               </article>
               <Link href={`/member/announcements/${primaryAnnouncement.id}`} className="lc-action-link primary">

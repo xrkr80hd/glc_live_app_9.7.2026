@@ -11,14 +11,14 @@ export default function VisitPage() {
       <main>
         <section className="section">
           <div className="container">
-          <div className="section-head">
+            <div className="section-head">
               <h1>
                 <span className="title-inline">
                   <IconMapPin size={32} stroke={1.8} aria-hidden="true" />
                   <span>Plan Your Visit</span>
                 </span>
               </h1>
-              <p className="muted">We can&apos;t wait to meet you.</p>
+              <p className="muted">Plan your first visit.</p>
             </div>
             <form className="form" id="visitForm">
               <div className="row">

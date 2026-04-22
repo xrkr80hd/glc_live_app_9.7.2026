@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   normalizeId,
+  normalizeOptionalText,
   normalizeTimestamp,
   parseBoolean,
   parseInteger,
@@ -13,6 +14,25 @@ function normalizeCategory(value) {
   const category = String(value || "").trim().toLowerCase();
   if (category === "main" || category === "youth") {
     return category;
+  }
+  return "";
+}
+
+function validateAnnouncementTiming({ startsAt, endsAt }) {
+  if (!endsAt) {
+    return "";
+  }
+
+  const endsMs = new Date(endsAt).getTime();
+  const startsMs = new Date(startsAt).getTime();
+  if (!Number.isFinite(endsMs)) {
+    return "ends_at must be a valid date/time";
+  }
+  if (endsMs < Date.now()) {
+    return "ends_at cannot be earlier than now";
+  }
+  if (Number.isFinite(startsMs) && endsMs < startsMs) {
+    return "ends_at cannot be earlier than starts_at";
   }
   return "";
 }
@@ -40,7 +60,7 @@ export async function GET(request, context) {
 
   const { data, error } = await supabase
     .from("announcements")
-    .select("id, category, title, body, starts_at, ends_at, sort_order, is_published, created_at")
+    .select("id, category, title, body, image_url, image_alt, starts_at, ends_at, sort_order, is_published, created_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -101,6 +121,14 @@ export async function PATCH(request, context) {
     update.body = body;
   }
 
+  if (payload?.image_url !== undefined) {
+    update.image_url = normalizeOptionalText(payload.image_url);
+  }
+
+  if (payload?.image_alt !== undefined) {
+    update.image_alt = normalizeOptionalText(payload.image_alt);
+  }
+
   if (payload?.starts_at !== undefined) {
     const startsAt = normalizeTimestamp(payload.starts_at);
     if (!startsAt) {
@@ -130,6 +158,33 @@ export async function PATCH(request, context) {
     update.is_published = parseBoolean(payload.is_published, false);
   }
 
+  if (update.starts_at !== undefined || Object.prototype.hasOwnProperty.call(update, "ends_at")) {
+    const { data: existingAnnouncement, error: existingError } = await supabase
+      .from("announcements")
+      .select("id, starts_at, ends_at")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (existingError) {
+      return NextResponse.json({ error: existingError.message }, { status: 400 });
+    }
+    if (!existingAnnouncement) {
+      return NextResponse.json({ error: "Announcement not found" }, { status: 404 });
+    }
+
+    const nextStartsAt = update.starts_at !== undefined ? update.starts_at : existingAnnouncement.starts_at;
+    const nextEndsAt = Object.prototype.hasOwnProperty.call(update, "ends_at")
+      ? update.ends_at
+      : existingAnnouncement.ends_at;
+    const timingError = validateAnnouncementTiming({
+      startsAt: nextStartsAt,
+      endsAt: nextEndsAt,
+    });
+    if (timingError) {
+      return NextResponse.json({ error: timingError }, { status: 400 });
+    }
+  }
+
   if (!Object.keys(update).length) {
     return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
   }
@@ -138,7 +193,7 @@ export async function PATCH(request, context) {
     .from("announcements")
     .update(update)
     .eq("id", id)
-    .select("id, category, title, body, starts_at, ends_at, sort_order, is_published, created_at")
+    .select("id, category, title, body, image_url, image_alt, starts_at, ends_at, sort_order, is_published, created_at")
     .maybeSingle();
 
   if (updateError) {
@@ -174,4 +229,3 @@ export async function DELETE(request, context) {
 
   return NextResponse.json({ success: true });
 }
-

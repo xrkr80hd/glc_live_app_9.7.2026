@@ -8,6 +8,17 @@ import {
   requireAdminSession,
   requireAdminSupabase,
 } from "@/lib/admin-api";
+import { toYouTubeEmbedUrl } from "@/lib/youtube";
+
+function normalizeEmbedUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return "";
+  }
+
+  const normalizedYouTubeUrl = toYouTubeEmbedUrl(raw);
+  return normalizedYouTubeUrl || raw;
+}
 
 export async function GET(request) {
   const { error: authError } = requireAdminSession(request);
@@ -26,7 +37,7 @@ export async function GET(request) {
 
   let query = supabase
     .from("livestreams")
-    .select("id, title, embed_url, fallback_video_url, watch_cta_label, is_active, starts_at, ends_at, created_at")
+    .select("id, title, embed_url, fallback_video_url, is_active, starts_at, ends_at, created_at")
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -59,10 +70,9 @@ export async function POST(request) {
   }
 
   const title = String(payload?.title || "").trim();
-  const embedUrl = String(payload?.embed_url || "").trim();
+  const embedUrl = normalizeEmbedUrl(payload?.embed_url);
   const fallbackVideoUrl = normalizeOptionalText(payload?.fallback_video_url);
-  const watchCtaLabel = String(payload?.watch_cta_label || "").trim() || "Watch Live Now";
-  const isActive = parseBoolean(payload?.is_active, true);
+  const isActive = parseBoolean(payload?.is_active, false);
   const startsAtRaw = payload?.starts_at;
   const endsAtRaw = payload?.ends_at;
   const startsAt = startsAtRaw == null || String(startsAtRaw).trim() === "" ? null : normalizeTimestamp(startsAtRaw);
@@ -87,12 +97,11 @@ export async function POST(request) {
       title,
       embed_url: embedUrl,
       fallback_video_url: fallbackVideoUrl,
-      watch_cta_label: watchCtaLabel,
       is_active: isActive,
       starts_at: startsAt,
       ends_at: endsAt,
     })
-    .select("id, title, embed_url, fallback_video_url, watch_cta_label, is_active, starts_at, ends_at, created_at")
+    .select("id, title, embed_url, fallback_video_url, is_active, starts_at, ends_at, created_at")
     .single();
 
   if (insertError) {
@@ -101,4 +110,3 @@ export async function POST(request) {
 
   return NextResponse.json({ livestream: data }, { status: 201 });
 }
-

@@ -1,0 +1,55 @@
+# Completed Work
+
+## Workflow
+
+- Log completed work here after finishing a task.
+- Before closing a task, re-check `PLANNED_WORK.md` and make sure anything missed is either completed or still explicitly queued.
+
+## Completed Items
+
+- Fixed the public-shell footer data path so the main public pages now receive admin-managed social links instead of relying on footer fallbacks.
+- Moved the media resources into the `Youth Page` accordion in admin and removed the sidebar group-count number from the drawer.
+- Added a public youth-media route pair:
+  - `/youth/media`
+  - `/youth/media/[id]`
+- Added a youth-media entry point on the public `Youth` page below announcements so media is reachable from the youth page without adding it to the top nav.
+- Built successfully after the social-link footer fix, admin youth/media regrouping, and new public youth-media pages.
+- Removed all other `.md` files from the repo tree so only `AGENTS.md`, `PLANNED_WORK.md`, and `COMPLETED_WORK.md` remain.
+- Confirmed the repo-visible work-log flow is now `AGENTS.md` -> `PLANNED_WORK.md` -> `COMPLETED_WORK.md`.
+- Updated `AGENTS.md` so future work does not rely on extra markdown handoff/planning files.
+- Refreshed `PLANNED_WORK.md` to hold the active queue instead of stale root markdown docs.
+- Started the side-by-side local dev servers again per repo guardrail:
+  - admin/CMS: `http://localhost:3000/admin`
+  - website/public: `http://localhost:3001`
+- Created the repo-visible root work log files `PLANNED_WORK.md` and `COMPLETED_WORK.md` so workspace agents can read the plan and completed history directly.
+- Restored the admin runtime on `localhost:3000` after fetch failures caused by the admin server not running.
+- Finished the scripture admin change so `Scripture OTW` is youth-only in the admin flow.
+- Added a repo-level workflow guardrail in `AGENTS.md` tying LICL to `PLANNED_WORK.md` and `COMPLETED_WORK.md`.
+- Renamed scripture admin labels from `Top Line` to `Title` and from `Reference` to `Scripture`.
+- Updated create-button wording so the relevant actions use `Post Devotional`, `Post Announcement`, and `Post Ministry`.
+- Added legacy-schema fallback in the scripture admin API so fetch/create/update no longer hard-fail when the `title` and `devotional_text` columns are missing from the database.
+- Verified the youth ticker admin API returns successfully again from `/api/admin/youth-banners`.
+- Logged work state into session memory.
+- Created the separate session log files `/memories/session/planned_work.md` and `/memories/session/completed_work.md`.
+- Updated persistent working-style memory so LICL now explicitly means: inspect local context, read planned work, implement the current plan, re-check for missed items, then log finished work in completed work.
+- Verified the current admin config for `photo-albums`, `album-photos`, and `gallery-videos` does not expose a `Published` checkbox in `components/admin/AdminDashboard.jsx`.
+- Replaced the one-off youth CTA styling with a shared `youth` button variant so the public `Youth` page and youth media pages use the same youth-theme button language instead of the site-green button.
+- Simplified the public `Youth` page media entry section so it no longer uses the oversized promo card/copy block and now keeps the call to action compact.
+- Tightened the public youth media album cards for phones by capping the mobile card width, reducing the mobile image footprint, and scaling down the album title/button spacing.
+- Compacted the shared site footer on mobile by reducing top/bottom padding and changing the top section into a tighter mobile grid so it stops making pages excessively long on phones.
+- Built successfully after the youth button, youth media mobile-card, and mobile footer changes.
+- Re-read the repo work log under LICL and added the livestream-tab cleanup to `PLANNED_WORK.md` so the live embed-link flow and fallback-video replacement flow stay explicitly queued.
+- Added a new repo workflow guardrail to `AGENTS.md` and `PLANNED_WORK.md`: if the user does not explicitly say `STOP`, add the new issue to the TODO queue and keep working through the current operation.
+- Suppressed `is_active` and `is_published` from the admin renderer so those Active/Published checkboxes no longer appear in create forms, edit forms, or preview blocks across the admin UI.
+- Matched the posted ministries/service-times accordion to the same accordion treatment as the create row above it and removed the extra `Open` text from the toggle behavior.
+- Matched the posted announcements accordion to the same accordion treatment and chevron-only toggle pattern.
+- Built successfully after the latest admin checkbox suppression and accordion cleanup.
+- Added an idempotent social-links compatibility migration so `public.social_links` can be created or repaired in databases that missed the original migration.
+- Restyled the fallback-video upload accordion so it matches the rest of the admin accordion language instead of looking like a one-off upload block.
+- Moved the admin app-drawer launcher into a fixed, higher viewport position so it stays reachable while scrolling long admin screens.
+- Rebuilt the public youth album detail page to be more mobile-first by shrinking the album hero, turning oversized inline video cards into compact video tiles, and opening videos in a closable viewer instead of bloating each card.
+- Trimmed the youth media landing-page header copy down to a short title and short browse line.
+- Built successfully after the latest app-drawer positioning and youth media layout changes.
+- Hid `Photos in Albums` and `Gallery Videos` from the admin app drawer so the youth media flow can stay consolidated under one cleaner entry point.
+- Restored the admin login flow by turning the dev auto-bypass off by default so `/admin/login` behaves like a real login page again unless explicitly re-enabled by env.
+- Added `._*` to `.gitignore` so macOS metadata junk does not get staged into the repo.

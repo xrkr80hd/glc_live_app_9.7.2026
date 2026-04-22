@@ -7,7 +7,6 @@ export function LiveStreamClient({
   isLive,
   liveEmbedUrl,
   fallbackVideoUrl,
-  watchCtaLabel,
   note,
   autoSwitchEnabled = false,
   statusPollMs = 30000,
@@ -17,10 +16,9 @@ export function LiveStreamClient({
     isLive: Boolean(isLive),
     liveEmbedUrl: liveEmbedUrl || "",
     fallbackVideoUrl: fallbackVideoUrl || "",
-    watchCtaLabel: watchCtaLabel || "Watch Live Now",
     note: note || "",
   });
-  const [showLive, setShowLive] = useState(autoSwitchEnabled && Boolean(isLive));
+  const [showLive, setShowLive] = useState(Boolean(isLive));
 
   useEffect(() => {
     setLiveState({
@@ -28,10 +26,10 @@ export function LiveStreamClient({
       isLive: Boolean(isLive),
       liveEmbedUrl: liveEmbedUrl || "",
       fallbackVideoUrl: fallbackVideoUrl || "",
-      watchCtaLabel: watchCtaLabel || "Watch Live Now",
       note: note || "",
     });
-  }, [title, isLive, liveEmbedUrl, fallbackVideoUrl, watchCtaLabel, note]);
+    setShowLive(Boolean(isLive));
+  }, [title, isLive, liveEmbedUrl, fallbackVideoUrl, note]);
 
   useEffect(() => {
     if (!autoSwitchEnabled) {
@@ -57,7 +55,6 @@ export function LiveStreamClient({
           isLive: Boolean(data.isLive),
           liveEmbedUrl: data.liveEmbedUrl || "",
           fallbackVideoUrl: data.fallbackVideoUrl || fallbackVideoUrl || "",
-          watchCtaLabel: data.watchCtaLabel || "Watch Live Now",
           note: data.note || note || "",
         });
 
@@ -110,18 +107,6 @@ export function LiveStreamClient({
 
         {!showLive && !showVideoPlayer ? (
           <div className="video-empty">Fallback video is not configured yet.</div>
-        ) : null}
-      </div>
-
-      <div className="live-actions">
-        {liveState.isLive && liveState.liveEmbedUrl ? (
-          <button
-            type="button"
-            className="btn btn-solid"
-            onClick={() => setShowLive((value) => !value)}
-          >
-            {showLive ? "Back to Fallback Video" : liveState.watchCtaLabel || "Watch Live Now"}
-          </button>
         ) : null}
       </div>
 

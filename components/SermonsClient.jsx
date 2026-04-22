@@ -90,9 +90,7 @@ export function SermonsClient({ videos = [] }) {
       <section className="space-y-3">
         <div className="space-y-1">
           <h1 className="text-3xl font-semibold text-[#3F4D48] sm:text-4xl">Watch Sermons</h1>
-          <p className="text-base leading-7 text-[#3F4D48]">
-            Watch recent uploads, browse series, or view archived sermons. Select any message to play below.
-          </p>
+          <p className="text-base leading-7 text-[#3F4D48]">Recent messages, series, and archives.</p>
         </div>
         <div id="sermonPlayer" className="overflow-hidden border border-[#E3E8E6] bg-white">
           {selectedEmbed ? (
@@ -238,7 +236,7 @@ export function SermonsClient({ videos = [] }) {
         <div className="space-y-1">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Archive</p>
           <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">Archived Sermons</h2>
-          <p className="text-base text-[#3F4D48]">Older messages curated by our team.</p>
+          <p className="text-base text-[#3F4D48]">Older messages.</p>
         </div>
         <div className="border border-[#E3E8E6] bg-white p-4 sm:p-5">
           <button
@@ -272,4 +270,3 @@ export function SermonsClient({ videos = [] }) {
     </div>
   );
 }
-

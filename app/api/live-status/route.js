@@ -29,7 +29,6 @@ export async function GET() {
     title: livestream.title || "Live Stream",
     liveEmbedUrl: livestream.liveEmbedUrl || "",
     fallbackVideoUrl: livestream.fallbackVideoUrl || "",
-    watchCtaLabel: livestream.watchCtaLabel || "Watch Live Now",
     note: livestream.note || "",
     checkedAt: new Date().toISOString(),
   };

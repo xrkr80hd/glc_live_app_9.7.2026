@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import {
   normalizeOptionalText,
   normalizeTimestamp,
@@ -9,6 +8,7 @@ import {
   requireAdminSession,
   requireAdminSupabase,
 } from "@/lib/admin-api";
+import { NextResponse } from "next/server";
 
 export async function GET(request) {
   const { error: authError } = requireAdminSession(request);
@@ -60,7 +60,7 @@ export async function POST(request) {
     return error;
   }
 
-  const title = String(payload?.title || "").trim();
+  const title = String(payload?.title || "Youth ticker").trim();
   const subtitle = normalizeOptionalText(payload?.subtitle);
   const imageUrl = normalizeOptionalText(payload?.image_url);
   const ctaLabel = normalizeOptionalText(payload?.cta_label);

@@ -7,6 +7,10 @@ import { IconCalendarWeek } from "@tabler/icons-react";
 export default async function AnnouncementDetailPage({ params }) {
   const resolvedParams = await params;
   const announcement = await getMemberAnnouncementById(resolvedParams?.id);
+  const imageUrl = String(announcement?.imageUrl || announcement?.image_url || "").trim();
+  const imageAlt =
+    String(announcement?.imageAlt || announcement?.image_alt || "").trim() ||
+    (announcement?.title ? `${announcement.title} announcement image` : "Announcement image");
 
   return (
     <AppShell navKey="home" title="Announcement Detail" subtitle="Full announcement reading page.">
@@ -22,6 +26,28 @@ export default async function AnnouncementDetailPage({ params }) {
             <div className="lc-stack">
               <h2>{announcement.title}</h2>
               <div className="lc-rich-copy">
+                {imageUrl ? (
+                  <div
+                    style={{
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      border: "1px solid rgba(140, 152, 164, 0.24)",
+                      marginBottom: "0.8rem",
+                    }}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={imageAlt}
+                      loading="lazy"
+                      style={{
+                        width: "100%",
+                        display: "block",
+                        aspectRatio: "16 / 9",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </div>
+                ) : null}
                 <p>{announcement.body}</p>
               </div>
             </div>

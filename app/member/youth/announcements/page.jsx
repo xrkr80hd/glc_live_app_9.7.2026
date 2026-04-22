@@ -1,20 +1,21 @@
 import { AnnouncementCard } from "@/components/app-shell/AnnouncementCard";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { BackRow } from "@/components/app-shell/BackRow";
-import { getMemberAnnouncementsContent } from "@/lib/content";
+import { getYouthAnnouncementsContent } from "@/lib/content";
 import { formatMemberDate, summarizeText } from "@/lib/member-page-data";
+import Link from "next/link";
 
-export default async function AnnouncementsPage() {
-  const announcements = await getMemberAnnouncementsContent();
+export default async function YouthAnnouncementsPage() {
+  const announcements = await getYouthAnnouncementsContent();
 
   return (
-    <AppShell navKey="home" title="Announcements" subtitle="Church-wide updates and event notices.">
-      <BackRow fallbackHref="/member" />
+    <AppShell navKey="youth" theme="youth" title="Youth Announcements" subtitle="Youth-only updates, reminders, and event notices.">
+      <BackRow fallbackHref="/member/youth" />
 
       <section className="lc-stack">
         <div className="lc-section-head">
-          <h2>All Announcements</h2>
-          <p className="lc-muted">Browse current updates, reminders, and upcoming event notices.</p>
+          <h2>All Youth Announcements</h2>
+          <p className="lc-muted">Browse current youth updates, reminders, and upcoming event notices.</p>
         </div>
         {announcements.length ? (
           announcements.map((item) => (
@@ -25,15 +26,16 @@ export default async function AnnouncementsPage() {
               date={formatMemberDate(item.startsAt || item.createdAt)}
               imageUrl={item.imageUrl || item.image_url || ""}
               imageAlt={item.imageAlt || item.image_alt || ""}
-              href={`/member/announcements/${item.id}`}
+              href={`/member/youth/announcements/${item.id}`}
               ctaLabel="Read Detail"
             />
           ))
         ) : (
           <section className="lc-card alt">
-            <p className="lc-muted">Announcements will appear here as soon as they are published on the church site.</p>
+            <p className="lc-muted">Youth announcements will appear here as soon as they are published.</p>
           </section>
         )}
+        <Link href="/member/youth" className="lc-link-inline">Back to Youth</Link>
       </section>
     </AppShell>
   );

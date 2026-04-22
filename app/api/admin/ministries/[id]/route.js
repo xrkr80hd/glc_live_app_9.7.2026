@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server";
 import {
   normalizeId,
+  normalizeOptionalText,
   parseBoolean,
   parseInteger,
   readJsonBody,
   requireAdminSession,
   requireAdminSupabase,
 } from "@/lib/admin-api";
+import { NextResponse } from "next/server";
 
 async function getIdFromContext(context) {
   const params = await Promise.resolve(context?.params);
@@ -31,7 +32,7 @@ export async function GET(request, context) {
 
   const { data, error } = await supabase
     .from("ministries")
-    .select("id, title, body, sort_order, is_published, created_at")
+    .select("id, title, body, image_url, image_alt, sort_order, is_published, created_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -84,6 +85,14 @@ export async function PATCH(request, context) {
     update.body = body;
   }
 
+  if (payload?.image_url !== undefined) {
+    update.image_url = normalizeOptionalText(payload.image_url);
+  }
+
+  if (payload?.image_alt !== undefined) {
+    update.image_alt = normalizeOptionalText(payload.image_alt);
+  }
+
   if (payload?.sort_order !== undefined) {
     update.sort_order = parseInteger(payload.sort_order, 0);
   }
@@ -100,7 +109,7 @@ export async function PATCH(request, context) {
     .from("ministries")
     .update(update)
     .eq("id", id)
-    .select("id, title, body, sort_order, is_published, created_at")
+    .select("id, title, body, image_url, image_alt, sort_order, is_published, created_at")
     .maybeSingle();
 
   if (updateError) {
