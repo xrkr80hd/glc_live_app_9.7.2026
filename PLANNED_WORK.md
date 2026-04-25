@@ -27,8 +27,6 @@
   - keep posted timestamp and move up/down controls backend-only
   - keep edit, save, and delete behavior obvious
 - Fix the `Livestream` admin tab so it behaves like one usable live-stream manager instead of an awkward generic form:
-  - a pasted YouTube live/watch/share/embed link should save cleanly and show on `/live`
-  - the fallback video should save cleanly and be easy to replace later
   - review whether the tab should act like one current stream record instead of a loose stack of entries
 - Fix the admin app-drawer launcher so it stays reachable while scrolling long admin pages instead of feeling parked back at the top.
 - Tighten the public youth album detail page with a smaller mobile-first hero, smaller video cards, and a clean closable video viewer so videos stop dominating the screen.
@@ -36,4 +34,5 @@
 - Standardize the remaining public footer styling/details now that admin-managed social links are flowing through the main public shell.
 - Do a broader pass on status/publish controls after the media workflow reorganization so remaining unwanted publish/active controls are removed intentionally instead of piecemeal.
 - Remove prefab/default ministry rows from the homepage so the ministry section is backend-managed only.
+- Fix the homepage pastor photo mobile crop so the top of the photo is not cut off on phone-sized screens.
 - Do a full frontend parity pass page by page once the current footer and admin cleanup work stabilizes.

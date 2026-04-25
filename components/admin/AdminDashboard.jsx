@@ -808,34 +808,32 @@ const CONTENT_RESOURCES = [
     key: "livestreams",
     label: "Livestream",
     singularLabel: "Livestream",
-    description: "Switch the public live page between the saved YouTube stream and the fallback video.",
+    description: "Save the stream settings, then switch the public live page live or back to the fallback loop.",
     icon: IconBroadcast,
     listEndpoint: "/api/admin/livestreams?include_inactive=true&limit=120",
     createEndpoint: "/api/admin/livestreams",
     itemEndpoint: (id) => `/api/admin/livestreams/${id}`,
     listKey: "livestreams",
     fields: [
-      { name: "title", label: "Title", type: "text", required: true, placeholder: "Sunday Service Live", compact: true },
-      { name: "embed_url", label: "YouTube Link", type: "text", required: true, placeholder: "Paste the YouTube live, share, watch, or embed link", compact: true },
+      { name: "title", label: "Stream Title", type: "text", required: true, placeholder: "Sunday Service Live", fullWidth: true },
+      { name: "embed_url", label: "Stream Link or Embed", type: "text", required: true, placeholder: "Paste the YouTube live, share, watch, or embed link", fullWidth: true },
       {
         name: "fallback_video_url",
         label: "Fallback Video",
         type: "text",
-        compact: true,
+        fullWidth: true,
         upload: {
           folder: "livestream/fallback",
           accept: "video/*",
-          helperText: "Upload fallback video file for outage scenarios.",
+          helperText: "Upload the looping fallback video used when the stream is offline.",
           uploadOnly: true,
-          accordion: true,
-          accordionLabel: "Fallback Video",
         },
       },
     ],
     preview: [
-      { label: "Title", name: "title" },
-      { label: "Embed URL", name: "embed_url" },
-      { label: "Fallback", name: "fallback_video_url" },
+      { label: "Stream Title", name: "title" },
+      { label: "Saved Stream", name: "embed_url" },
+      { label: "Fallback Video", name: "fallback_video_url" },
       { label: "Created", name: "created_at", format: formatDateTime },
     ],
   },
@@ -1181,6 +1179,9 @@ function getSingularLabel(resource) {
 function getCreateButtonLabel(resource) {
   if (!resource) {
     return "Post Item";
+  }
+  if (resource.key === "livestreams") {
+    return "Save Stream Settings";
   }
   if (resource.key === "scriptures") {
     return "Post Devotional";
@@ -1904,6 +1905,69 @@ function FieldInput({ field, value, onChange, idPrefix, relationOptions = [] }) 
         onChange={(event) => onChange(field.name, event.target.value)}
       />
     </label>
+  );
+}
+
+function LivestreamAccordion({ label, children, defaultOpen = true }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <div className={styles.formAccordionCard}>
+      <button
+        type="button"
+        className={styles.formAccordionToggle}
+        onClick={() => setIsOpen((current) => !current)}
+        aria-expanded={isOpen}
+      >
+        <span>{label}</span>
+        {isOpen ? <IconChevronUp size={16} stroke={1.9} aria-hidden="true" /> : <IconChevronDown size={16} stroke={1.9} aria-hidden="true" />}
+      </button>
+      {isOpen ? <div className={styles.formAccordionBody}>{children}</div> : null}
+    </div>
+  );
+}
+
+function LivestreamMonitor({ item }) {
+  const fallbackVideo =
+    String(item?.fallback_video_url || "").trim() ||
+    process.env.NEXT_PUBLIC_FALLBACK_STREAM_VIDEO_URL ||
+    "/assets/stream_fallback_loop/stream_fall_back_loop.mp4";
+  const isLive = Boolean(item?.is_active && item?.embed_url);
+
+  return (
+    <div className={styles.livestreamMonitorPanel}>
+      <div className={styles.livestreamMonitorStage}>
+        {isLive && item?.embed_url ? (
+          <iframe
+            src={item.embed_url}
+            title={item.title || "Live Stream Preview"}
+            className={styles.livestreamMonitorFrame}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            loading="lazy"
+          />
+        ) : fallbackVideo ? (
+          <video className={styles.livestreamMonitorVideo} autoPlay muted loop playsInline preload="metadata">
+            <source src={fallbackVideo} />
+          </video>
+        ) : (
+          <div className={styles.livestreamMonitorEmpty}>Add a fallback video to preview the offline state.</div>
+        )}
+      </div>
+      <div className={styles.livestreamMonitorMeta}>
+        <p>
+          <strong>Showing:</strong> {isLive ? "Live stream" : "Fallback loop"}
+        </p>
+        <p>
+          <strong>Stream Title:</strong> {formatValue(item?.title)}
+        </p>
+        <p className={styles.livestreamMonitorNote}>
+          {isLive
+            ? "This is the player the public live page will show while the stream is active."
+            : "When you stop the stream, the public live page returns to this looping fallback video."}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -2688,10 +2752,26 @@ export function AdminDashboard({ username, sessionInfo }) {
     if (!target) {
       return;
     }
+    if (shouldGoLive && !String(target.embed_url || "").trim()) {
+      setFormNotice("Save a stream link or embed before going live.", true);
+      return;
+    }
+    if (!shouldGoLive && typeof window !== "undefined") {
+      const shouldStop = window.confirm("Stop the live stream and return the public page to the fallback video?");
+      if (!shouldStop) {
+        return;
+      }
+    }
 
     const actionKey = `livestream-mode:${itemId}:${shouldGoLive ? "live" : "fallback"}`;
-    setBusyAction(actionKey);
-    setFormNotice("");
+    const viewport =
+      typeof window !== "undefined"
+        ? { x: window.scrollX, y: window.scrollY }
+        : null;
+    preserveViewportPosition(() => {
+      setBusyAction(actionKey);
+      setFormNotice("");
+    });
 
     try {
       if (shouldGoLive) {
@@ -2720,7 +2800,15 @@ export function AdminDashboard({ username, sessionInfo }) {
       }
 
       await loadContentResource(resource);
-      setFormNotice(shouldGoLive ? "Livestream switched to Go Live." : "Livestream switched back to fallback video.");
+      if (viewport && typeof window !== "undefined") {
+        window.requestAnimationFrame(() => {
+          window.scrollTo(viewport.x, viewport.y);
+          window.requestAnimationFrame(() => {
+            window.scrollTo(viewport.x, viewport.y);
+          });
+        });
+      }
+      setFormNotice(shouldGoLive ? "Stream is live." : "Stream returned to the fallback video.");
     } catch (error) {
       setFormNotice(error.message || "Unable to switch livestream mode.", true);
     } finally {
@@ -2786,6 +2874,118 @@ export function AdminDashboard({ username, sessionInfo }) {
     isSingleColumnForm
       ? `${styles.fieldsGrid} ${styles.fieldsGridSingle}`
       : styles.fieldsGrid;
+  const isLivestreamResource = activeContentResource?.key === "livestreams";
+  const livestreamTitleField = isLivestreamResource ? visibleFormFields.find((field) => field.name === "title") : null;
+  const livestreamEmbedField = isLivestreamResource ? visibleFormFields.find((field) => field.name === "embed_url") : null;
+  const livestreamFallbackField = isLivestreamResource ? visibleFormFields.find((field) => field.name === "fallback_video_url") : null;
+
+  function renderLivestreamEditor({ draft, onDraftChange, onSubmit, idPrefix, submitLabel }) {
+    return (
+      <form
+        className={styles.form}
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit();
+        }}
+      >
+        <div className={fieldsGridClassName}>
+          {livestreamTitleField ? (
+            <FieldInput
+              field={livestreamTitleField}
+              value={draft[livestreamTitleField.name]}
+              relationOptions={getRelationOptionsForField(livestreamTitleField)}
+              onChange={onDraftChange}
+              idPrefix={idPrefix}
+            />
+          ) : null}
+        </div>
+
+        {livestreamEmbedField ? (
+          <LivestreamAccordion label="Live Stream">
+            <div className={`${styles.fieldsGrid} ${styles.fieldsGridSingle}`}>
+              <FieldInput
+                field={livestreamEmbedField}
+                value={draft[livestreamEmbedField.name]}
+                relationOptions={getRelationOptionsForField(livestreamEmbedField)}
+                onChange={onDraftChange}
+                idPrefix={idPrefix}
+              />
+            </div>
+          </LivestreamAccordion>
+        ) : null}
+
+        {livestreamFallbackField ? (
+          <LivestreamAccordion label="Fallback Video" defaultOpen={false}>
+            <div className={`${styles.fieldsGrid} ${styles.fieldsGridSingle}`}>
+              <FieldInput
+                field={livestreamFallbackField}
+                value={draft[livestreamFallbackField.name]}
+                relationOptions={getRelationOptionsForField(livestreamFallbackField)}
+                onChange={onDraftChange}
+                idPrefix={idPrefix}
+              />
+            </div>
+          </LivestreamAccordion>
+        ) : null}
+
+        <div className={styles.formActions}>
+          <button type="submit" className={styles.primaryBtn} disabled={Boolean(busyAction)}>
+            <IconDeviceFloppy size={16} stroke={1.9} aria-hidden="true" />
+            {submitLabel}
+          </button>
+        </div>
+        <p className={styles.livestreamActionHint}>Save stream settings first. Then use the live controls below.</p>
+      </form>
+    );
+  }
+
+  function renderLivestreamPreview(item) {
+    const isLive = Boolean(item?.is_active);
+    const hasSavedStream = Boolean(String(item?.embed_url || "").trim());
+    const hasFallbackVideo = Boolean(String(item?.fallback_video_url || "").trim());
+
+    return (
+      <div className={styles.livestreamPanelStack}>
+        <div className={styles.previewGrid}>
+          <p>
+            <strong>Saved stream:</strong> {hasSavedStream ? "Ready" : "Not set yet"}
+          </p>
+          <p>
+            <strong>Fallback video:</strong> {hasFallbackVideo ? "Ready" : "Using the site fallback loop"}
+          </p>
+          <p>
+            <strong>Created:</strong> {formatDateTime(item?.created_at)}
+          </p>
+        </div>
+
+        <div className={styles.livestreamControlBox}>
+          <p className={styles.livestreamStatusText}>Status: {isLive ? "Live now" : "Offline"}</p>
+          <div className={styles.livestreamControlButtons}>
+            <button
+              type="button"
+              className={!isLive ? styles.primaryBtn : styles.secondaryBtn}
+              onClick={() => setLivestreamMode(item.id, true)}
+              disabled={Boolean(busyAction) || !hasSavedStream}
+            >
+              Go Live
+            </button>
+            <button
+              type="button"
+              className={isLive ? styles.dangerBtn : styles.secondaryBtn}
+              onClick={() => setLivestreamMode(item.id, false)}
+              disabled={Boolean(busyAction)}
+            >
+              Stop Live
+            </button>
+          </div>
+        </div>
+
+        <LivestreamAccordion label="Stream Monitor" defaultOpen={false}>
+          <LivestreamMonitor item={item} />
+        </LivestreamAccordion>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.shell}>
@@ -2924,42 +3124,52 @@ export function AdminDashboard({ username, sessionInfo }) {
                   </button>
                 ) : null}
                 {!useCreateFormAccordion || !isCreateFormCollapsed ? (
-                  <form
-                    className={styles.form}
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      createItem(activeContentResource);
-                    }}
-                  >
-                    <div className={fieldsGridClassName}>
-                      {visibleFormFields.map((field) => (
-                        <FieldInput
-                          key={`create-${activeContentResource.key}-${field.name}`}
-                          field={field}
-                          value={createDraft[field.name]}
-                          relationOptions={getRelationOptionsForField(field)}
-                          onChange={(fieldName, nextValue) => onCreateDraftChange(activeContentResource.key, fieldName, nextValue)}
-                          idPrefix={`create-${activeContentResource.key}`}
-                        />
-                      ))}
-                    </div>
-                    <div className={styles.formActions}>
-                      <button type="submit" className={styles.primaryBtn} disabled={Boolean(busyAction)}>
-                        <IconPlus size={17} stroke={1.9} aria-hidden="true" />
-                        {getCreateButtonLabel(activeContentResource)}
-                      </button>
-                      {activeContentResource.key === "team-roles" ? (
-                        <button
-                          type="button"
-                          className={styles.secondaryBtn}
-                          onClick={applyLibertyRolePresets}
-                          disabled={Boolean(busyAction)}
-                        >
-                          Load Liberty Role Presets
+                  isLivestreamResource ? (
+                    renderLivestreamEditor({
+                      draft: createDraft,
+                      onDraftChange: (fieldName, nextValue) => onCreateDraftChange(activeContentResource.key, fieldName, nextValue),
+                      onSubmit: () => createItem(activeContentResource),
+                      idPrefix: `create-${activeContentResource.key}`,
+                      submitLabel: "Save Stream Settings",
+                    })
+                  ) : (
+                    <form
+                      className={styles.form}
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        createItem(activeContentResource);
+                      }}
+                    >
+                      <div className={fieldsGridClassName}>
+                        {visibleFormFields.map((field) => (
+                          <FieldInput
+                            key={`create-${activeContentResource.key}-${field.name}`}
+                            field={field}
+                            value={createDraft[field.name]}
+                            relationOptions={getRelationOptionsForField(field)}
+                            onChange={(fieldName, nextValue) => onCreateDraftChange(activeContentResource.key, fieldName, nextValue)}
+                            idPrefix={`create-${activeContentResource.key}`}
+                          />
+                        ))}
+                      </div>
+                      <div className={styles.formActions}>
+                        <button type="submit" className={styles.primaryBtn} disabled={Boolean(busyAction)}>
+                          <IconPlus size={17} stroke={1.9} aria-hidden="true" />
+                          {getCreateButtonLabel(activeContentResource)}
                         </button>
-                      ) : null}
-                    </div>
-                  </form>
+                        {activeContentResource.key === "team-roles" ? (
+                          <button
+                            type="button"
+                            className={styles.secondaryBtn}
+                            onClick={applyLibertyRolePresets}
+                            disabled={Boolean(busyAction)}
+                          >
+                            Load Liberty Role Presets
+                          </button>
+                        ) : null}
+                      </div>
+                    </form>
+                  )
                 ) : null}
               </div>
             ) : null}
@@ -3183,26 +3393,6 @@ export function AdminDashboard({ username, sessionInfo }) {
                                   </button>
                                 </>
                               ) : null}
-                              {activeContentResource.key === "livestreams" ? (
-                                <>
-                                  <button
-                                    type="button"
-                                    className={item.is_active ? styles.primaryBtn : styles.secondaryBtn}
-                                    onClick={() => setLivestreamMode(item.id, true)}
-                                    disabled={Boolean(busyAction)}
-                                  >
-                                    Go Live
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={!item.is_active ? styles.primaryBtn : styles.secondaryBtn}
-                                    onClick={() => setLivestreamMode(item.id, false)}
-                                    disabled={Boolean(busyAction)}
-                                  >
-                                    Fallback Video
-                                  </button>
-                                </>
-                              ) : null}
                               {!activeContentResource.readOnly ? (
                                 <>
                                   <button
@@ -3253,58 +3443,72 @@ export function AdminDashboard({ username, sessionInfo }) {
 
                           {itemIsExpanded ? (
                             itemIsEditing ? (
-                              <form
-                                className={styles.form}
-                                onSubmit={(event) => {
-                                  event.preventDefault();
-                                  saveItem(activeContentResource, item.id);
-                                }}
-                              >
-                                <div className={fieldsGridClassName}>
-                                  {visibleFormFields.map((field) => (
-                                    <FieldInput
-                                      key={`edit-${item.id}-${field.name}`}
-                                      field={field}
-                                      value={editDraft[field.name]}
-                                      relationOptions={getRelationOptionsForField(field)}
-                                      onChange={(fieldName, nextValue) => onEditDraftChange(activeContentResource.key, fieldName, nextValue)}
-                                      idPrefix={`edit-${item.id}`}
-                                    />
-                                  ))}
-                                </div>
-                                <div className={styles.formActions}>
-                                  <button type="submit" className={styles.primaryBtn} disabled={Boolean(busyAction)}>
-                                    <IconDeviceFloppy size={16} stroke={1.9} aria-hidden="true" />
-                                    Save Changes
-                                  </button>
-                                </div>
-                              </form>
+                              isLivestreamResource ? (
+                                renderLivestreamEditor({
+                                  draft: editDraft,
+                                  onDraftChange: (fieldName, nextValue) => onEditDraftChange(activeContentResource.key, fieldName, nextValue),
+                                  onSubmit: () => saveItem(activeContentResource, item.id),
+                                  idPrefix: `edit-${item.id}`,
+                                  submitLabel: "Save Stream Settings",
+                                })
+                              ) : (
+                                <form
+                                  className={styles.form}
+                                  onSubmit={(event) => {
+                                    event.preventDefault();
+                                    saveItem(activeContentResource, item.id);
+                                  }}
+                                >
+                                  <div className={fieldsGridClassName}>
+                                    {visibleFormFields.map((field) => (
+                                      <FieldInput
+                                        key={`edit-${item.id}-${field.name}`}
+                                        field={field}
+                                        value={editDraft[field.name]}
+                                        relationOptions={getRelationOptionsForField(field)}
+                                        onChange={(fieldName, nextValue) => onEditDraftChange(activeContentResource.key, fieldName, nextValue)}
+                                        idPrefix={`edit-${item.id}`}
+                                      />
+                                    ))}
+                                  </div>
+                                  <div className={styles.formActions}>
+                                    <button type="submit" className={styles.primaryBtn} disabled={Boolean(busyAction)}>
+                                      <IconDeviceFloppy size={16} stroke={1.9} aria-hidden="true" />
+                                      Save Changes
+                                    </button>
+                                  </div>
+                                </form>
+                              )
                             ) : (
-                              <div className={styles.previewGrid}>
-                                {visiblePreviewEntries.map((entry) => {
-                                  const raw = item[entry.name];
-                                  const value = entry.format ? entry.format(raw) : formatValue(raw);
-                                  return (
-                                    <p key={`${item.id}-${entry.name}`}>
-                                      <strong>{entry.label}:</strong> {value}
-                                    </p>
-                                  );
-                                })}
-                              </div>
+                              isLivestreamResource ? renderLivestreamPreview(item) : (
+                                <div className={styles.previewGrid}>
+                                  {visiblePreviewEntries.map((entry) => {
+                                    const raw = item[entry.name];
+                                    const value = entry.format ? entry.format(raw) : formatValue(raw);
+                                    return (
+                                      <p key={`${item.id}-${entry.name}`}>
+                                        <strong>{entry.label}:</strong> {value}
+                                      </p>
+                                    );
+                                  })}
+                                </div>
+                              )
                             )
                           ) : (
                             !useAccordionCards ? (
-                              <div className={styles.previewGrid}>
-                                {visiblePreviewEntries.slice(0, 3).map((entry) => {
-                                  const raw = item[entry.name];
-                                  const value = entry.format ? entry.format(raw) : formatValue(raw);
-                                  return (
-                                    <p key={`${item.id}-${entry.name}`}>
-                                      <strong>{entry.label}:</strong> {value}
-                                    </p>
-                                  );
-                                })}
-                              </div>
+                              isLivestreamResource ? renderLivestreamPreview(item) : (
+                                <div className={styles.previewGrid}>
+                                  {visiblePreviewEntries.slice(0, 3).map((entry) => {
+                                    const raw = item[entry.name];
+                                    const value = entry.format ? entry.format(raw) : formatValue(raw);
+                                    return (
+                                      <p key={`${item.id}-${entry.name}`}>
+                                        <strong>{entry.label}:</strong> {value}
+                                      </p>
+                                    );
+                                  })}
+                                </div>
+                              )
                             ) : null
                           )}
 

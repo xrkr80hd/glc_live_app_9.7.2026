@@ -53,3 +53,8 @@
 - Hid `Photos in Albums` and `Gallery Videos` from the admin app drawer so the youth media flow can stay consolidated under one cleaner entry point.
 - Restored the admin login flow by turning the dev auto-bypass off by default so `/admin/login` behaves like a real login page again unless explicitly re-enabled by env.
 - Added `._*` to `.gitignore` so macOS metadata junk does not get staged into the repo.
+- Reworked the `Livestream` admin flow in `components/admin/AdminDashboard.jsx` so stream setup now reads save-first, then `Go Live` / `Stop Live`, with full-width accordion sections for the stream embed and fallback video, stop confirmation, and a built-in stream monitor preview.
+- Kept the public live fallback on the looping fallback video path instead of sermon-handoff behavior when the stream is stopped, and preserved viewport position during live/offline toggles so the admin page does not jump around.
+- Confirmed the dev servers are running again per repo guardrail:
+  - admin/CMS: `http://localhost:3000/admin`
+  - website/public: `http://localhost:3001/live`

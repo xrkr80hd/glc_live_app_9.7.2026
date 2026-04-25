@@ -923,6 +923,88 @@
   line-height: 1.4;
 }
 
+.livestreamPanelStack {
+  margin-top: 0.2rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.livestreamControlBox {
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(13, 18, 17, 0.96), rgba(8, 11, 10, 0.98));
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.72rem;
+}
+
+.livestreamStatusText {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.livestreamControlButtons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.livestreamActionHint {
+  margin: -0.1rem 0 0.2rem;
+  color: var(--admin-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.livestreamMonitorPanel {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.livestreamMonitorStage {
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  background: #050606;
+}
+
+.livestreamMonitorFrame,
+.livestreamMonitorVideo {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  border: 0;
+  background: #050606;
+}
+
+.livestreamMonitorEmpty {
+  min-height: 12rem;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  color: var(--admin-muted);
+  text-align: center;
+}
+
+.livestreamMonitorMeta {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.livestreamMonitorMeta p {
+  margin: 0;
+  color: var(--admin-text);
+  line-height: 1.45;
+}
+
+.livestreamMonitorNote {
+  color: var(--admin-muted);
+  font-size: 0.82rem;
+}
+
 .uploadThumbButton {
   border: 1px solid var(--admin-border);
   border-radius: 12px;
