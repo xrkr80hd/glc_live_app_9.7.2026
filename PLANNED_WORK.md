@@ -1,3 +1,15 @@
+## Connected Supabase checkpoint — 2026-09-07
+
+- The user authorized Git pushes as the ongoing change-tracking/deployment workflow. Live PHP site cutover remains outside this task.
+- Configured the approved project URL and supplied publishable key in ignored .env.local. Publishable credentials do not grant database administration. No service-role key is configured locally.
+- Direct REST verification: published announcements returned HTTP 200 with two rows. The exact announcement columns used by the app also returned 200 with two rows. Published ministries returned 200 with three rows (query limited to three). No returned record content or key is recorded here.
+- The social_links query returned HTTP 404 / PGRST205: the relation was not found in the API schema cache. Existing social-links migrations are present in the repository; schema existence, exposure and migration state still require privileged inspection before applying changes.
+- Configured local homepage returned 200. Login page returned 200. An empty POST to /api/member-auth/login returned 500 with 'Member sign-in is not configured yet.' Source confirms isMemberAuthConfigured requires a server-side service key for profile lookup/provisioning. Successful login is NOT verified.
+- Supabase management connector currently reports Unknown tool. The supplied publishable key permits tested public reads but cannot replace management credentials or run migrations.
+- The designated Vercel project still returns 404 for the connected team. There is no .github deployment workflow in this checkout. External Vercel/Supabase integrations may exist but have not been verified; a Git push is not evidence that migrations ran.
+- No database records, application code, CSS, or migration files changed in this checkpoint. Existing app fallbacks have not been removed. Visual/mobile/installed-PWA QA remains outstanding.
+- Stage gate: HOLD. Next: make the approved test project's server-side service credential available through private environment configuration and restore management access; inspect migration state and API exposure; then test member login and real-content rendering. Do not paste a secret into chat or commit it to Git.
+
 ## Current user direction — 2026-09-07
 
 This section supersedes conflicting historical instructions below.
