@@ -20,3 +20,9 @@ Thumbs.db
 
 .vercel
 .env*.local
+
+# Local baseline builds and private runtime configuration
+.next-*/
+.env.*
+!.env.example
+node_modules

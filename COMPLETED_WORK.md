@@ -1,3 +1,18 @@
+## Baseline runtime checkpoint — 2026-09-07
+
+- Verified the uploaded app and repository source files are identical at initial commit 671a28f.
+- Restored the four user-provided project control documents with the latest app-only direction taking precedence over historical site-merge instructions.
+- Production build: PASS (`ADMIN_ONLY_MODE=false NEXT_DIST_DIR=.next-baseline-build npm run build`, exit 0). All 50 static pages generated. A webpack cache-performance warning is non-blocking.
+- Local HTTP checks: homepage, Youth, member login and manifest returned 200.
+- Logged-out member route returned 307 to /member-access. Logged-out admin returned 307 to /admin/login. Admin session API returned 401.
+- These checks used no active Supabase environment file. They demonstrate rendering and logged-out guards, not real content loading or successful login. Existing content fallbacks remain unchanged.
+- Visual/mobile/installed-PWA QA: NOT TESTED. agent-browser is unavailable in this runtime (command not found).
+- Supabase project ywfvbgblyuqwofejmasv still returns permission denied after the user resumed it. No database mutation attempted.
+- Vercel project prj_Mfe4wogitvlctngsjHX2Gemxj5iZ remains unverified; last connector check returned 404 under the connected team.
+- Application source, styles, routes and database schema remain unchanged. Git exclusions now protect all .env variants except the template, dependency directories and test build output.
+- Stage gate: HOLD for database-backed authentication/content checks and visual/mobile/PWA review.
+- Next action: obtain connector access to the designated test project, inspect its existing schema, configure the app privately, then repeat functional and visual QA. Preserve the existing YouTube key without committing it.
+
 # Completed Work
 
 ## Workflow

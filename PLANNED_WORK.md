@@ -1,3 +1,24 @@
+## Current user direction — 2026-09-07
+
+This section supersedes conflicting historical instructions below.
+
+- Active project name: `glc_live_app_9_7_2026`.
+- Source baseline: the uploaded app (`glc_live_app-main.zip`). Its source files were byte-for-byte identical to repository main at `671a28f5c135a20e80db9dfd58adad996227cacc` when checked.
+- Repository destination: `https://github.com/xrkr80hd/glc_live_app_9.7.2026.git`. Git pushes are authorized. The user confirms this repository does not serve the live site.
+- Build the app and its existing public pages. Do not use `glc_live_site` as the build source or merge its site files into this app. Earlier site audits remain historical evidence only.
+- This is a test environment. Do not change the live PHP site, its hosting, domains, or production database. Final cutover is a separate task.
+- Approved Supabase test project: `ywfvbgblyuqwofejmasv`; current connector returns permission denied. Do not substitute the fitness database.
+- User-specified Vercel project: `prj_Mfe4wogitvlctngsjHX2Gemxj5iZ`; current connected team returns 404. Do not substitute another project.
+- Preserve Youth's distinct appearance and standalone CSS requirement; test it independently after shared styling changes.
+- Reuse the existing restricted YouTube key already identified in the supplied material. Never print it or commit it. No request for a replacement/upload is needed. Transfer and restriction verification remain pending.
+- Continue the staged QA loop, starting with baseline runtime verification. Do not mark login, database, visual, or installed-PWA QA passed without testing.
+
+## Active checkpoint
+
+1. Finish baseline build, startup, route and visual verification using the uploaded app source.
+2. Resolve connector access to the user-designated test services; inspect existing schema before migrations.
+3. Preserve historical youth-admin queue below; do not advance past a failed baseline gate.
+
 # Planned Work
 
 ## Workflow
