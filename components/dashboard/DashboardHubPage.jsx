@@ -9,7 +9,7 @@ function buildHubNavItems(viewer) {
 
   const items = [
     { label: "Dashboard", href: "/dashboard", icon: "grid", active: true },
-    { label: "Chats", href: "/chat", icon: "people", active: false },
+    { label: "Chats", href: "/member/chat", icon: "people", active: false },
     ...dashboards
       .filter((dashboard) => dashboard.path !== "/dashboard")
       .slice(0, 8)
@@ -46,6 +46,12 @@ export function DashboardHubPage({ viewer }) {
   return (
     <AdminConsoleShell viewer={viewer} title="My Liberty" navItems={navItems}>
       <section className="space-y-5">
+        <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm text-[#9eb0a7]">
+          <Link href="/" className="font-semibold text-[#8ee0c2] hover:underline">Home</Link>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page" className="font-semibold text-white">Dashboard</span>
+        </nav>
+
         <header>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#6ec897]">Liberty Church</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">Welcome, {viewer.displayName}</h1>
@@ -77,7 +83,7 @@ export function DashboardHubPage({ viewer }) {
                   <h2 className="text-xl font-bold text-white">Stay Connected</h2>
                   <p className="mt-1 text-sm text-[#aab8b0]">Church chat and direct messages are available from one place.</p>
                 </div>
-                <Link href="/chat" className="rounded-xl bg-[#2d7a53] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#246343]">Open Chats</Link>
+                <Link href="/member/chat" className="rounded-xl bg-[#2d7a53] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#246343]">Open Chats</Link>
               </div>
             </section>
 
