@@ -1,3 +1,10 @@
+## Deployed configuration follow-up — 2026-09-08
+
+- Configuration commit ccee832 deployed successfully to glc-new-preview (dpl_6Xg8JqJTv31tiZWMKvrZgzWZqHWS). Build logs confirm .env.production was loaded.
+- Login page returned HTTP 200, but empty login POST still returned the existing configuration-error HTTP 500. The earlier change did not resolve the whole problem.
+- Added missing-configuration name diagnostics to the login route's server log. The client response and auth requirements are unchanged. No credentials or submitted input are logged.
+- Next: deploy this diagnostic, trigger a single empty login request, read the server log and identify the exact missing setting. Successful login remains unverified.
+
 ## Deployment configuration repair — 2026-09-08
 
 - User confirmed the service-role key was added to Vercel Production and Preview and redeployed; its value has not been read or committed.

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { readJsonBody } from "@/lib/admin-api";
-import { ensureMemberProfileForAuthUser, isMemberAuthConfigured } from "@/lib/member-auth";
+import { ensureMemberProfileForAuthUser, getMissingMemberAuthConfig } from "@/lib/member-auth";
 import {
   checkIpLoginThrottle,
   clearAccountLoginFailuresByEmail,
@@ -16,7 +16,10 @@ function normalizeEmail(value) {
 }
 
 export async function POST(request) {
-  if (!isMemberAuthConfigured()) {
+  const missingConfig = getMissingMemberAuthConfig();
+  if (missingConfig.length) {
+    // Report names only in server logs; never log credentials or submitted input.
+    console.error("Member sign-in missing runtime configuration:", missingConfig.join(", "));
     return NextResponse.json(
       {
         success: false,
