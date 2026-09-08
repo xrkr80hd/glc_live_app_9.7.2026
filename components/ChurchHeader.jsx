@@ -51,7 +51,7 @@ export function ChurchHeader({ active = "", youthBrand = false }) {
 
       <div className="hidden items-center gap-2 md:flex">
         <Button asChild variant="ghost" className="h-9 rounded-none border border-white/35 px-3 text-white hover:bg-[#2E7D32]">
-          <Link href="/member-access">Member Access</Link>
+          <Link href="/member-access">Login</Link>
         </Button>
         <Button asChild className="h-9 rounded-none border border-[#2E7D32] bg-[#2E7D32] px-3 text-white hover:bg-[#1F4D3A]">
           <Link href="/visit">
@@ -61,31 +61,37 @@ export function ChurchHeader({ active = "", youthBrand = false }) {
         </Button>
       </div>
 
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon-sm" className="rounded-none text-white hover:bg-[#2E7D32] md:hidden" aria-label="Open navigation">
-            <Menu className="size-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="right" className="w-[82%] max-w-sm border-l border-[#2E7D32]/45 bg-[#1F4D3A] text-white">
-          <SheetHeader className="px-5 pt-8">
-            <SheetTitle className="text-white">Liberty Church</SheetTitle>
-            <SheetDescription className="text-white/85">Simple navigation and quick access.</SheetDescription>
-          </SheetHeader>
-          <nav className="grid gap-2 px-5 pb-6">
-            <PublicNavLinks active={active} mobile />
-            <Button asChild className="mt-3 h-10 rounded-none border border-[#2E7D32] bg-[#2E7D32] text-white hover:bg-[#1F4D3A]">
-              <Link href="/visit">
-                Plan Visit
-                <ArrowUpRight className="size-4" />
-              </Link>
+      <div className="ml-auto flex items-center gap-1 md:hidden">
+        <Button asChild variant="ghost" className="h-9 rounded-none border border-white/35 px-3 text-white hover:bg-[#2E7D32]">
+          <Link href="/member-access">Login</Link>
+        </Button>
+
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon-sm" className="rounded-none text-white hover:bg-[#2E7D32]" aria-label="Open navigation">
+              <Menu className="size-5" />
             </Button>
-            <Button asChild variant="outline" className="h-10 rounded-none border-white/35 bg-transparent text-white hover:bg-[#2E7D32]">
-              <Link href="/member-access">Member Access</Link>
-            </Button>
-          </nav>
-        </SheetContent>
-      </Sheet>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[82%] max-w-sm border-l border-[#2E7D32]/45 bg-[#1F4D3A] text-white">
+            <SheetHeader className="px-5 pt-8">
+              <SheetTitle className="text-white">Liberty Church</SheetTitle>
+              <SheetDescription className="text-white/85">Simple navigation and quick access.</SheetDescription>
+            </SheetHeader>
+            <nav className="grid gap-2 px-5 pb-6">
+              <PublicNavLinks active={active} mobile />
+              <Button asChild className="mt-3 h-10 rounded-none border border-[#2E7D32] bg-[#2E7D32] text-white hover:bg-[#1F4D3A]">
+                <Link href="/visit">
+                  Plan Visit
+                  <ArrowUpRight className="size-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-10 rounded-none border-white/35 bg-transparent text-white hover:bg-[#2E7D32]">
+                <Link href="/member-access">Login</Link>
+              </Button>
+            </nav>
+          </SheetContent>
+        </Sheet>
+      </div>
     </GlobalHeaderBar>
   );
 }
