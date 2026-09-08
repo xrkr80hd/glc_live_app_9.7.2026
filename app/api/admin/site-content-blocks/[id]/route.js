@@ -23,7 +23,7 @@ function normalizeMediaType(value) {
 
 const SELECT_FIELDS = "id, section_key, eyebrow, title, body, image_url, image_alt, media_url, media_type, cta_label, cta_url, sort_order, is_published, created_at, updated_at";
 
-export async function PUT(request, { params }) {
+async function updateContentBlock(request, { params }) {
   const { error: authError } = requireAdminSession(request);
   if (authError) return authError;
 
@@ -62,6 +62,9 @@ export async function PUT(request, { params }) {
   if (updateError) return NextResponse.json({ error: updateError.message }, { status: 400 });
   return NextResponse.json({ siteContentBlock: data });
 }
+
+export const PATCH = updateContentBlock;
+export const PUT = updateContentBlock;
 
 export async function DELETE(request, { params }) {
   const { error: authError } = requireAdminSession(request);
