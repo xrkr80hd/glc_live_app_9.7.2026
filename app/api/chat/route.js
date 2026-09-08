@@ -24,40 +24,63 @@ async function getViewer(request) {
   if (!member?.id) return null;
   const { data: assignments } = await db
     .from("team_member_roles")
-    .select("role_id,team_roles(role_key,name)")
+    .select("role_id,is_role_admin,team_roles(role_key,name)")
     .eq("member_id", member.id);
-  const roles = (assignments || [])
-    .map((row) => row.team_roles)
-    .filter(Boolean);
+  const roles = (assignments || []).map((row) => row.team_roles).filter(Boolean);
   return {
     db,
     member,
     roleIds: new Set((assignments || []).map((row) => row.role_id).filter(Boolean)),
+    roleAdminIds: new Set((assignments || []).filter((row) => row.is_role_admin).map((row) => row.role_id).filter(Boolean)),
     roleKeys: new Set(roles.map((role) => String(role.role_key || "").toLowerCase())),
   };
 }
 
-function canUseRoom(viewer, room, roleRows = [], memberRows = []) {
-  if (!room?.is_active) return false;
-  if (viewer.member.is_superuser) return true;
-  if (room.room_type === "members") return true;
-  if (room.room_type === "pastoral") return viewer.roleKeys.has("pastor");
+function roomAccess(viewer, room, roleRows = [], memberRows = []) {
+  if (!room?.is_active) return { canRead: false, canPost: false };
+  if (viewer.member.is_superuser) return { canRead: true, canPost: true };
+  if (room.room_type === "members") return { canRead: true, canPost: true };
+  if (room.room_type === "pastoral") {
+    const allowed = viewer.roleKeys.has("pastor") || viewer.roleKeys.has("assiciate_pastor");
+    return { canRead: allowed, canPost: allowed };
+  }
+
+  const matchingRoleRows = roleRows.filter((row) => viewer.roleIds.has(row.role_id));
+  const matchingMember = memberRows.find((row) => row.member_id === viewer.member.id);
+
   if (room.room_type === "leadership") {
-    if (viewer.roleKeys.has("pastor")) return true;
-    return roleRows.some((row) => viewer.roleIds.has(row.role_id) && row.can_read !== false);
+    if (viewer.roleKeys.has("pastor") || viewer.roleKeys.has("assiciate_pastor")) {
+      return { canRead: true, canPost: true };
+    }
+    const canRead = matchingRoleRows.some((row) => row.can_read !== false) || Boolean(matchingMember?.can_read);
+    const canPost = matchingRoleRows.some((row) => row.can_post !== false) || Boolean(matchingMember?.can_post);
+    return { canRead, canPost };
   }
+
   if (room.room_type === "ministry") {
-    if (viewer.roleKeys.has("pastor")) return true;
-    if (room.ministry_role_id && viewer.roleIds.has(room.ministry_role_id)) return true;
-    return roleRows.some((row) => viewer.roleIds.has(row.role_id) && row.can_read !== false);
+    if (viewer.roleKeys.has("pastor") || viewer.roleKeys.has("assiciate_pastor")) {
+      return { canRead: true, canPost: true };
+    }
+    const ownsMinistryRole = Boolean(room.ministry_role_id && viewer.roleIds.has(room.ministry_role_id));
+    const ministryGrant = matchingRoleRows.find((row) => row.role_id === room.ministry_role_id);
+    const canRead = ownsMinistryRole || matchingRoleRows.some((row) => row.can_read !== false) || Boolean(matchingMember?.can_read);
+    const canPost = ownsMinistryRole
+      ? ministryGrant?.can_post !== false
+      : matchingRoleRows.some((row) => row.can_post !== false) || Boolean(matchingMember?.can_post);
+    return { canRead, canPost };
   }
+
   if (room.room_type === "dm") {
-    return memberRows.some((row) => row.member_id === viewer.member.id && row.can_read !== false);
+    return {
+      canRead: Boolean(matchingMember?.can_read),
+      canPost: Boolean(matchingMember?.can_post),
+    };
   }
-  return false;
+
+  return { canRead: false, canPost: false };
 }
 
-async function loadRooms(viewer) {
+async function loadRoomAccess(viewer) {
   const { db } = viewer;
   const { data: rooms, error } = await db
     .from("chat_rooms")
@@ -74,19 +97,26 @@ async function loadRooms(viewer) {
       ? db.from("chat_room_members").select("room_id,member_id,can_read,can_post,last_read_at").in("room_id", roomIds)
       : Promise.resolve({ data: [] }),
   ]);
-  return (rooms || []).filter((room) => canUseRoom(
-    viewer,
-    room,
-    (roleRows || []).filter((row) => row.room_id === room.id),
-    (memberRows || []).filter((row) => row.room_id === room.id),
-  ));
+
+  return (rooms || []).map((room) => {
+    const access = roomAccess(
+      viewer,
+      room,
+      (roleRows || []).filter((row) => row.room_id === room.id),
+      (memberRows || []).filter((row) => row.room_id === room.id),
+    );
+    return { room, ...access };
+  });
 }
 
 export async function GET(request) {
   const viewer = await getViewer(request);
   if (!viewer) return NextResponse.json({ error: "Please sign in to use chat." }, { status: 401 });
   try {
-    const rooms = await loadRooms(viewer);
+    const roomAccessRows = await loadRoomAccess(viewer);
+    const rooms = roomAccessRows
+      .filter((entry) => entry.canRead)
+      .map((entry) => ({ ...entry.room, can_post: entry.canPost }));
     const roomIds = rooms.map((room) => room.id);
     const [{ data: messages }, { data: people }] = await Promise.all([
       roomIds.length
@@ -109,12 +139,7 @@ export async function GET(request) {
       ...message,
       sender: peopleMap.get(message.sender_member_id) || null,
     }));
-    return NextResponse.json({
-      me: viewer.member,
-      rooms,
-      people: people || [],
-      messages: hydratedMessages,
-    });
+    return NextResponse.json({ me: viewer.member, rooms, people: people || [], messages: hydratedMessages });
   } catch (error) {
     return NextResponse.json({ error: error?.message || "Unable to load chat." }, { status: 500 });
   }
@@ -128,9 +153,7 @@ export async function POST(request) {
   try {
     if (action === "start-dm") {
       const otherId = String(body?.memberId || "").trim();
-      if (!otherId || otherId === viewer.member.id) {
-        return NextResponse.json({ error: "Choose another member." }, { status: 400 });
-      }
+      if (!otherId || otherId === viewer.member.id) return NextResponse.json({ error: "Choose another member." }, { status: 400 });
       const { data: other } = await viewer.db
         .from("team_members")
         .select("id,full_name,is_active")
@@ -144,12 +167,14 @@ export async function POST(request) {
       if (!room) {
         const created = await viewer.db
           .from("chat_rooms")
-          .insert({ room_key: roomKey, name: other.full_name || "Direct Message", room_type: "dm", created_by_member_id: viewer.member.id })
+          .insert({ room_key: roomKey, name: "Direct Message", room_type: "dm", created_by_member_id: viewer.member.id })
           .select("id")
           .single();
         if (created.error) throw created.error;
         room = created.data;
-        const { error: participantError } = await viewer.db.from("chat_room_members").insert(ids.map((memberId) => ({ room_id: room.id, member_id: memberId })));
+        const { error: participantError } = await viewer.db
+          .from("chat_room_members")
+          .insert(ids.map((memberId) => ({ room_id: room.id, member_id: memberId, can_read: true, can_post: true })));
         if (participantError) throw participantError;
       }
       return NextResponse.json({ roomId: room.id });
@@ -157,11 +182,12 @@ export async function POST(request) {
 
     const roomId = String(body?.roomId || "").trim();
     if (!roomId) return NextResponse.json({ error: "Chat room required." }, { status: 400 });
-    const rooms = await loadRooms(viewer);
-    const room = rooms.find((item) => item.id === roomId);
-    if (!room) return NextResponse.json({ error: "You do not have access to this chat." }, { status: 403 });
+    const roomAccessRows = await loadRoomAccess(viewer);
+    const accessEntry = roomAccessRows.find((entry) => entry.room.id === roomId);
+    if (!accessEntry?.canRead) return NextResponse.json({ error: "You do not have access to this chat." }, { status: 403 });
 
     if (action === "send") {
+      if (!accessEntry.canPost) return NextResponse.json({ error: "You can read this chat, but posting is not enabled for your role." }, { status: 403 });
       const text = String(body?.message || "").trim();
       if (!text) return NextResponse.json({ error: "Message cannot be empty." }, { status: 400 });
       if (text.length > 4000) return NextResponse.json({ error: "Message is too long." }, { status: 400 });
@@ -185,6 +211,7 @@ export async function POST(request) {
     }
 
     if (action === "edit") {
+      if (!accessEntry.canPost) return NextResponse.json({ error: "Posting is not enabled for your role." }, { status: 403 });
       const messageId = Number(body?.messageId);
       const text = String(body?.message || "").trim();
       if (!Number.isFinite(messageId) || !text) return NextResponse.json({ error: "Message required." }, { status: 400 });
