@@ -1,3 +1,12 @@
+## Verified remaining deployment blocker — 2026-09-08
+
+- Diagnostic commit d452aa3 built successfully and is READY on deployment dpl_2uU3CrzukLYpFhfrqAaUQAoH2Uzm.
+- A single empty login POST reproduced HTTP 500 without submitting credentials or changing account records.
+- Vercel runtime log at 05:57:15 UTC identifies exactly one missing variable: SUPABASE_SERVICE_ROLE_KEY. The two public configuration values are now present.
+- Required next action: make the service-role secret available to Production in the confirmed glc-new-preview Vercel project (prj_cBDegCZgScr5e8qb9f6zjqXnL2An), redeploy, then retest. The user reported adding it earlier; the log proves the current deployment cannot read it. Do not assume which other project/environment may contain it.
+- Current Vercel connector exposes no environment-variable write action, and no authenticated Vercel CLI/REST credential is available locally. Do not request or commit a raw secret in chat/Git or remove the auth guard to bypass this dependency.
+- Auth guard verification passed locally for absent public configuration and all four existing service-key aliases. Successful member login and Stage 0 remain unverified/HOLD.
+
 ## Deployed configuration follow-up — 2026-09-08
 
 - Configuration commit ccee832 deployed successfully to glc-new-preview (dpl_6Xg8JqJTv31tiZWMKvrZgzWZqHWS). Build logs confirm .env.production was loaded.
