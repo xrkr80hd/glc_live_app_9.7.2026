@@ -1,5 +1,6 @@
 import { HomeAnnouncementsCarousel } from "@/components/public-site/HomeAnnouncementsCarousel";
 import { PublicSiteShell } from "@/components/public-site/PublicSiteShell";
+import { VisitPlanner } from "@/components/public-site/VisitPlanner";
 import { HomeRuntime } from "@/components/HomeRuntime";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { Button } from "@/components/ui/button";
@@ -112,7 +113,7 @@ export default async function HomePage() {
 
                 <div className="flex flex-wrap gap-3">
                   <Button asChild className="h-10 w-full rounded-none bg-[#1F4D3A] px-4 text-sm font-semibold text-white hover:bg-[#2E7D32] sm:w-auto">
-                    <Link href="/visit">Plan Your Visit</Link>
+                    <Link href="#visit">Plan Your Visit</Link>
                   </Button>
                   <Button asChild variant="secondary" className="h-10 w-full rounded-none px-4 text-sm font-semibold sm:w-auto">
                     <Link href="/sermons">Watch Sermons</Link>
@@ -216,6 +217,10 @@ export default async function HomePage() {
           </BlurFade>
 
           <BlurFade inView delay={0.16}>
+            <VisitPlanner compact />
+          </BlurFade>
+
+          <BlurFade inView delay={0.18}>
             <Card className="border border-[#E3E8E6] bg-white py-0 shadow-sm">
               <CardHeader className="px-5 pb-2 pt-6 sm:px-7 sm:pt-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Learn More</p>
@@ -229,7 +234,7 @@ export default async function HomePage() {
                   <Link href="/beliefs">Learn More About Our Church</Link>
                 </Button>
                 <Button asChild variant="secondary" className="h-10 rounded-none px-4 text-sm font-semibold">
-                  <Link href="/visit">Plan Your Visit</Link>
+                  <Link href="#visit">Plan Your Visit</Link>
                 </Button>
               </CardContent>
             </Card>
