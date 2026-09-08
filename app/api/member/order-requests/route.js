@@ -35,14 +35,20 @@ async function getViewer(request) {
     grants = data || [];
   }
   const permissionsByRole = new Map();
+  const permissionKeys = new Set();
   for (const grant of grants) {
     const key = grant.permissions?.permission_key;
     if (!key) continue;
+    permissionKeys.add(key);
     const set = permissionsByRole.get(grant.role_id) || new Set();
     set.add(key);
     permissionsByRole.set(grant.role_id, set);
   }
-  return { db, member, roles, permissionsByRole };
+  return { db, member, roles, permissionsByRole, permissionKeys };
+}
+
+function hasPermission(viewer, key) {
+  return viewer.member.is_superuser || viewer.permissionKeys.has(key);
 }
 
 function canSubmitForRole(viewer, roleId) {
@@ -53,7 +59,7 @@ function canSubmitForRole(viewer, roleId) {
 function canViewMinistryRole(viewer, roleId) {
   if (viewer.member.is_superuser) return true;
   const permissions = viewer.permissionsByRole.get(roleId);
-  return Boolean(permissions?.has("order_requests_view_ministry") || permissions?.has("order_requests_full_visibility"));
+  return Boolean(permissions?.has("order_requests_view_ministry"));
 }
 
 async function hydrate(db, rows) {
@@ -76,6 +82,7 @@ export async function GET(request) {
   const viewer = await getViewer(request);
   if (!viewer) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
   try {
+    const canViewAll = hasPermission(viewer, "order_requests_full_visibility");
     const visibleRoleIds = viewer.roles
       .filter((role) => canViewMinistryRole(viewer, role.id) || canSubmitForRole(viewer, role.id))
       .map((role) => role.id);
@@ -84,7 +91,7 @@ export async function GET(request) {
       .select("id,role_id,requested_by_member_id,title,request_details,needed_by_date,estimated_cost,status,pastor_notes,created_at,updated_at")
       .order("created_at", { ascending: false })
       .limit(200);
-    if (!viewer.member.is_superuser) {
+    if (!viewer.member.is_superuser && !canViewAll) {
       if (visibleRoleIds.length) {
         query = query.or(`requested_by_member_id.eq.${viewer.member.id},role_id.in.(${visibleRoleIds.join(",")})`);
       } else {
@@ -95,7 +102,13 @@ export async function GET(request) {
     if (error) throw error;
     const hydrated = await hydrate(viewer.db, data || []);
     const submitRoles = viewer.roles.filter((role) => canSubmitForRole(viewer, role.id));
-    return NextResponse.json({ requests: hydrated, submitRoles });
+    return NextResponse.json({
+      requests: hydrated,
+      submitRoles,
+      canReview: hasPermission(viewer, "order_requests_review"),
+      canApprove: hasPermission(viewer, "order_requests_approve"),
+      canViewBudget: hasPermission(viewer, "order_requests_budget_view"),
+    });
   } catch (error) {
     return NextResponse.json({ error: error?.message || "Unable to load ministry requests." }, { status: 500 });
   }
