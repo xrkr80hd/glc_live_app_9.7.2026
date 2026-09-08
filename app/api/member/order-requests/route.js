@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
+const REVIEW_STATUSES = new Set(["new", "reviewing", "ordered", "fulfilled", "declined"]);
+
 function bearerToken(request) {
   return String(request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
 }
@@ -58,8 +60,7 @@ function canSubmitForRole(viewer, roleId) {
 
 function canViewMinistryRole(viewer, roleId) {
   if (viewer.member.is_superuser) return true;
-  const permissions = viewer.permissionsByRole.get(roleId);
-  return Boolean(permissions?.has("order_requests_view_ministry"));
+  return Boolean(viewer.permissionsByRole.get(roleId)?.has("order_requests_view_ministry"));
 }
 
 async function hydrate(db, rows) {
@@ -155,4 +156,33 @@ export async function POST(request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   const hydrated = await hydrate(viewer.db, [data]);
   return NextResponse.json({ request: hydrated[0] }, { status: 201 });
+}
+
+export async function PATCH(request) {
+  const viewer = await getViewer(request);
+  if (!viewer) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
+  if (!hasPermission(viewer, "order_requests_review")) {
+    return NextResponse.json({ error: "Your account cannot review ministry requests." }, { status: 403 });
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const requestId = String(body?.request_id || "").trim();
+  const status = String(body?.status || "").trim().toLowerCase();
+  const pastorNotes = String(body?.pastor_notes || "").trim() || null;
+  if (!requestId) return NextResponse.json({ error: "Request is required." }, { status: 400 });
+  if (!REVIEW_STATUSES.has(status)) return NextResponse.json({ error: "Choose a valid status." }, { status: 400 });
+  if (["ordered", "fulfilled", "declined"].includes(status) && !hasPermission(viewer, "order_requests_approve")) {
+    return NextResponse.json({ error: "Approval permission is required for that status." }, { status: 403 });
+  }
+
+  const { data, error } = await viewer.db
+    .from("ministry_order_requests")
+    .update({ status, pastor_notes: pastorNotes, updated_at: new Date().toISOString() })
+    .eq("id", requestId)
+    .select("id,role_id,requested_by_member_id,title,request_details,needed_by_date,estimated_cost,status,pastor_notes,created_at,updated_at")
+    .maybeSingle();
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (!data) return NextResponse.json({ error: "Request not found." }, { status: 404 });
+  const hydrated = await hydrate(viewer.db, [data]);
+  return NextResponse.json({ request: hydrated[0] });
 }
