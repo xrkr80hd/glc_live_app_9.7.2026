@@ -37,12 +37,15 @@ export default async function CustomMinistryDashboardPage({ params }) {
     .select("permission_id,permissions(permission_key,name,description,module_key)")
     .eq("role_id", role.id);
   const permissions = (grants || []).map((row) => row.permissions).filter(Boolean);
+  const permissionKeys = new Set(permissions.map((permission) => permission.permission_key));
+  const canRequest = permissionKeys.has("order_requests_submit");
 
   const navItems = [
     { label: "My Dashboard", href: "/dashboard", icon: "grid", active: false },
     { label: role.name, href: `/dashboard/ministry/${role.role_key}`, icon: "people", active: true },
     { label: "Chats", href: "/member/chat", icon: "people", active: false },
   ];
+  if (canRequest) navItems.push({ label: "Requests", href: "/member/requests", icon: "finance", active: false });
 
   return (
     <AdminConsoleShell viewer={viewer} title={role.name} navItems={navItems} currentPath={`/dashboard/ministry/${role.role_key}`}>
@@ -64,9 +67,16 @@ export default async function CustomMinistryDashboardPage({ params }) {
         <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
           <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-5">
             <h2 className="text-xl font-bold text-white">Ministry Tools</h2>
-            <p className="mt-1 text-sm text-[#aab8b0]">Only permissions actually granted to this ministry are listed.</p>
+            <p className="mt-1 text-sm text-[#aab8b0]">Only permissions actually granted to this ministry are shown.</p>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              {permissions.map((permission) => (
+              {canRequest ? (
+                <Link href="/member/requests" className="rounded-xl border border-[#4d8769] bg-[#17392a] p-4 transition hover:border-[#77b090] hover:bg-[#1d4934]">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-[#72c99a]">Requests</p>
+                  <strong className="mt-1 block text-sm text-white">Supplies & Restocking</strong>
+                  <p className="mt-1 text-xs leading-5 text-[#b9d0c3]">Tell leadership when this ministry needs supplies, equipment, or restocking.</p>
+                </Link>
+              ) : null}
+              {permissions.filter((permission) => permission.permission_key !== "order_requests_submit").map((permission) => (
                 <div key={permission.permission_key} className="rounded-xl border border-white/10 bg-black/10 p-4">
                   <p className="text-[11px] font-bold uppercase tracking-wide text-[#72c99a]">{pretty(permission.module_key || "Access")}</p>
                   <strong className="mt-1 block text-sm text-white">{permission.name}</strong>
@@ -85,6 +95,13 @@ export default async function CustomMinistryDashboardPage({ params }) {
               <p className="mt-1 text-sm leading-5 text-[#b6cfc1]">Talk with everyone assigned to this ministry.</p>
               <Link href="/member/chat" className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-[#1f6846]">Open Chat</Link>
             </section>
+            {canRequest ? (
+              <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+                <h2 className="text-sm font-bold text-white">Need Something?</h2>
+                <p className="mt-1 text-xs leading-5 text-[#aab8b0]">Send a supply or restocking request directly to church leadership.</p>
+                <Link href="/member/requests" className="mt-3 inline-flex text-sm font-bold text-[#8ee0c2] hover:underline">Open Requests</Link>
+              </section>
+            ) : null}
             <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
               <h2 className="text-sm font-bold text-white">Access</h2>
               <p className="mt-1 text-xs leading-5 text-[#aab8b0]">Your access comes from the <strong className="text-white">{role.name}</strong> role. If this assignment changes, this ministry area updates with it.</p>
