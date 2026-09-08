@@ -176,9 +176,9 @@ export function MemberAccessScreen({ initialView = "signin", initialMessage = ""
         <div className="lc-auth-copy">
           <span className="lc-hero-eyebrow">
             <IconKey size={14} stroke={1.8} />
-            Member Beta
+            Liberty Church
           </span>
-          <h1>Member Access</h1>
+          <h1>Login</h1>
           <p className="lc-muted">
             Create your account, verify your email, and sign in with your email address and password.
           </p>
@@ -187,7 +187,7 @@ export function MemberAccessScreen({ initialView = "signin", initialMessage = ""
         <section className="lc-auth-note">
           <div className="lc-announcement-meta">
             <IconShieldCheck size={16} stroke={1.8} />
-            <span>This beta is for Liberty Church members and trusted testers.</span>
+            <span>Secure access for Liberty Church members and staff.</span>
           </div>
         </section>
 
@@ -352,7 +352,7 @@ export function MemberAccessScreen({ initialView = "signin", initialMessage = ""
         <section className="lc-auth-note">
           <div className="lc-announcement-meta">
             <IconCheck size={16} stroke={1.8} />
-            <span>After you sign in, open More and use the install card to save the member area to your home screen.</span>
+            <span>After you sign in, open More and use the install card to save Liberty Church to your home screen.</span>
           </div>
         </section>
       </section>
