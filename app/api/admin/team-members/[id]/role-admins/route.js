@@ -10,6 +10,31 @@ function normalizeIds(value) {
   return Array.from(new Set((Array.isArray(value) ? value : []).map((entry) => normalizeId(entry)).filter(Boolean)));
 }
 
+async function syncLeadershipChat(supabase, memberId, isLeader) {
+  const { data: leadershipRoom, error: roomError } = await supabase
+    .from("chat_rooms")
+    .select("id")
+    .eq("room_key", "leadership")
+    .maybeSingle();
+  if (roomError || !leadershipRoom?.id) return;
+
+  if (isLeader) {
+    await supabase.from("chat_room_members").upsert({
+      room_id: leadershipRoom.id,
+      member_id: memberId,
+      can_read: true,
+      can_post: true,
+      last_read_at: new Date().toISOString(),
+    }, { onConflict: "room_id,member_id" });
+  } else {
+    await supabase
+      .from("chat_room_members")
+      .delete()
+      .eq("room_id", leadershipRoom.id)
+      .eq("member_id", memberId);
+  }
+}
+
 export async function GET(request, context) {
   const { error: authError } = requireAdminSession(request);
   if (authError) return authError;
@@ -65,6 +90,8 @@ export async function PATCH(request, context) {
       .in("role_id", requestedAdminIds);
     if (setError) return NextResponse.json({ error: setError.message }, { status: 400 });
   }
+
+  await syncLeadershipChat(supabase, memberId, requestedAdminIds.length > 0);
 
   return NextResponse.json({ success: true, roleAdminIds: requestedAdminIds });
 }
