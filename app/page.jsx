@@ -65,39 +65,35 @@ export default async function HomePage() {
 
   const heroMedia = String(hero.media_url || "").trim();
   const heroMediaType = String(hero.media_type || "video").trim().toLowerCase();
+  const heroBody = String(hero.body || "").trim();
+  const heroAddress = /\d/.test(heroBody)
+    ? heroBody
+    : "100 McKeithen Dr, Alexandria, LA 71303";
 
   return (
     <PublicSiteShell socialLinks={socialLinks}>
-      <section className="relative h-[340px] overflow-hidden bg-[#1F4D3A] sm:h-[380px]">
-        {heroMedia && heroMediaType === "image" ? (
-          <img src={heroMedia} alt={hero.image_alt || "Liberty Church"} className="absolute inset-0 h-full w-full object-cover" />
-        ) : heroMedia ? (
-          <video id="heroVideo" className="pointer-events-none absolute inset-0 h-full w-full object-cover" autoPlay loop muted playsInline preload="metadata">
-            <source src={heroMedia} type="video/mp4" />
-          </video>
-        ) : null}
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,58,43,.88),rgba(24,62,47,.58),rgba(20,58,43,.78))]" />
+      <section className="bg-white py-6 sm:py-7">
+        <div className="mx-auto w-full max-w-[1100px] px-5">
+          <div className="relative h-[340px] overflow-hidden bg-[#1F4D3A] sm:h-[380px]">
+            {heroMedia && heroMediaType === "image" ? (
+              <img src={heroMedia} alt={hero.image_alt || "Liberty Church"} className="absolute inset-0 h-full w-full object-cover" />
+            ) : heroMedia ? (
+              <video id="heroVideo" className="pointer-events-none absolute inset-0 h-full w-full object-cover" autoPlay loop muted playsInline preload="metadata">
+                <source src={heroMedia} type="video/mp4" />
+              </video>
+            ) : null}
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(18,58,43,.58),rgba(26,65,49,.22),rgba(18,58,43,.46))]" />
 
-        <div className="relative z-10 mx-auto flex h-full w-full max-w-[1100px] flex-col justify-center px-5 py-6 sm:px-7 lg:px-5">
-          <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-white/90">{hero.eyebrow || "Welcome Home"}</p>
-          <h1 className="mt-2 max-w-3xl text-[2rem] font-extrabold leading-[1.06] tracking-[-0.035em] text-white sm:text-[2.55rem]">
-            {hero.title || "Jesus-centered. Spirit-led. Family-minded."}
-          </h1>
-          <div className="mt-4 w-fit border-l-4 border-[#78C99A] bg-black/20 px-3 py-2 text-white backdrop-blur-[2px]">
-            <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-white/80">Sunday Services</p>
-            <p className="mt-0.5 text-[0.92rem] font-bold">9:20 AM – Youth Devotion</p>
-            <p className="text-[0.92rem] font-bold">10:00 AM – Worship Service</p>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2.5">
-            <Link href="/visit" className="inline-flex min-h-10 items-center justify-center rounded-[8px] bg-[#1F8A4C] px-4 text-sm font-bold text-white shadow-sm hover:bg-[#16643A]">
-              {hero.cta_label || "Plan Your Visit"}
-            </Link>
-            <Link href="/sermons" className="inline-flex min-h-10 items-center justify-center rounded-[8px] border border-white/65 bg-white/10 px-4 text-sm font-bold text-white backdrop-blur-sm hover:bg-white/20">
-              Watch Sermons
-            </Link>
-            <button id="reopenWelcome" type="button" className="inline-flex min-h-10 items-center justify-center rounded-[8px] border border-white/45 bg-transparent px-4 text-sm font-bold text-white hover:bg-white/10">
-              Pastor&apos;s Welcome
-            </button>
+            <div className="relative z-10 flex h-full flex-col justify-start px-5 py-7 sm:px-8 sm:py-9">
+              <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-white/95">{hero.eyebrow || "Welcome Home"}</p>
+              <h1 className="mt-3 max-w-[620px] text-[2rem] font-extrabold leading-[1.06] tracking-[-0.035em] text-white sm:text-[2.55rem]">
+                {hero.title || "Jesus-centered. Spirit-led. Family-minded."}
+              </h1>
+
+              <div className="mt-5 inline-flex w-fit max-w-full bg-white/96 px-4 py-3 text-[0.94rem] font-medium leading-5 text-[#4B6354] shadow-sm sm:px-5 sm:text-base">
+                {heroAddress}
+              </div>
+            </div>
           </div>
         </div>
       </section>
