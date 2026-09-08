@@ -1,5 +1,6 @@
 import Script from "next/script";
 import { Manrope, Sora } from "next/font/google";
+import { PwaRuntime } from "@/components/PwaRuntime";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${manrope.variable} ${sora.variable}`}>
         {children}
+        <PwaRuntime />
         <Script src="/assets/site.js" strategy="beforeInteractive" />
       </body>
     </html>
