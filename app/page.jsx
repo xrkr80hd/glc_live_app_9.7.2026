@@ -2,48 +2,18 @@ import { HomeAnnouncementsCarousel } from "@/components/public-site/HomeAnnounce
 import { PublicSiteShell } from "@/components/public-site/PublicSiteShell";
 import { VisitPlanner } from "@/components/public-site/VisitPlanner";
 import { HomeRuntime } from "@/components/HomeRuntime";
-import { BlurFade } from "@/components/ui/blur-fade";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getHomepageContent, getSocialLinksContent } from "@/lib/content";
+import { getPublicSiteContentBlocks } from "@/lib/site-content";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-const HERO_FALLBACK_VIDEO_URL = "https://www.golibertychurch.com/assets/hero_vids/worship_hero.mp4";
-
-function pickHeroVideoUrl(highlightCards) {
-  if (!Array.isArray(highlightCards) || !highlightCards.length) {
-    return HERO_FALLBACK_VIDEO_URL;
-  }
-
-  const heroVideo = highlightCards.find((item) => {
-    const mediaType = String(item?.media_type || "").trim().toLowerCase();
-    const mediaUrl = String(item?.media_url || "").trim();
-    const isVideoType = mediaType === "video";
-    const isDirectVideo = /\.(mp4|webm|ogg)(\?.*)?$/i.test(mediaUrl);
-    return isVideoType && isDirectVideo;
-  });
-
-  return String(heroVideo?.media_url || "").trim() || HERO_FALLBACK_VIDEO_URL;
-}
-
 function formatAnnouncementDate(announcement) {
   const raw = announcement?.startsAt || announcement?.createdAt || "";
-  if (!raw) {
-    return "This week";
-  }
-
+  if (!raw) return "";
   const date = new Date(raw);
-  if (Number.isNaN(date.getTime())) {
-    return "This week";
-  }
-
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
 function getAnnouncementImage(announcement) {
@@ -56,14 +26,29 @@ function getAnnouncementImage(announcement) {
   };
 }
 
+function SectionHeading({ title, subtitle }) {
+  return (
+    <div className="mb-5 space-y-2">
+      <h2 className="text-[1.65rem] font-extrabold leading-tight tracking-[-0.025em] text-[#112016] sm:text-3xl">{title}</h2>
+      <div className="h-[3px] w-12 rounded-full bg-[#7BC89A]" aria-hidden="true" />
+      {subtitle ? <p className="text-[0.95rem] leading-6 text-[#4B6354] sm:text-base">{subtitle}</p> : null}
+    </div>
+  );
+}
+
 export default async function HomePage() {
-  const [{ announcements, ministries, highlightCards }, socialLinks] = await Promise.all([
+  const [{ announcements, ministries }, socialLinks, blocks] = await Promise.all([
     getHomepageContent(),
     getSocialLinksContent(),
+    getPublicSiteContentBlocks(),
   ]);
-  const announcementPreview = announcements.slice(0, 6).map((announcement) => {
-    const { imageUrl, imageAlt } = getAnnouncementImage(announcement);
 
+  const hero = blocks.home_hero || {};
+  const pastor = blocks.home_pastor || {};
+  const discover = blocks.home_discover || {};
+
+  const announcementPreview = announcements.slice(0, 8).map((announcement) => {
+    const { imageUrl, imageAlt } = getAnnouncementImage(announcement);
     return {
       id: announcement.id,
       title: announcement.title,
@@ -73,174 +58,114 @@ export default async function HomePage() {
       imageAlt,
     };
   });
+
   const ministryPreview = Array.isArray(ministries)
     ? ministries.filter((item) => String(item?.title || "").trim() || String(item?.body || "").trim())
     : [];
-  const heroVideoUrl = pickHeroVideoUrl(highlightCards);
+
+  const heroMedia = String(hero.media_url || "").trim();
+  const heroMediaType = String(hero.media_type || "video").trim().toLowerCase();
 
   return (
     <PublicSiteShell socialLinks={socialLinks}>
-      <div className="bg-[#F6F6F2]">
-        <div className="mx-auto w-full max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
-          <BlurFade inView delay={0.04}>
-            <Card className="relative overflow-hidden border border-[#E3E8E6] bg-white py-0 shadow-sm">
-              <video
-                id="heroVideo"
-                className="pointer-events-none absolute inset-0 h-full w-full object-cover brightness-[0.52]"
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="metadata"
-              >
-                <source src={heroVideoUrl} type="video/mp4" />
-              </video>
-              <div className="absolute inset-0 bg-[#3F4D48]/35" aria-hidden="true" />
-              <CardHeader className="relative z-10 px-5 pb-2 pt-6 sm:px-8 sm:pt-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white">Welcome Home</p>
-                <CardTitle className="max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
-                  Jesus-centered. Spirit-led.
-                  <br />
-                  Family-minded.
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="relative z-10 space-y-4 px-5 pb-7 pt-2 sm:px-8 sm:pb-8">
-                <div className="w-fit border-l-4 border-[#2E7D32] bg-black/30 px-4 py-3 text-white backdrop-blur-sm">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/80">Sunday Services</p>
-                  <p className="mt-1 text-sm font-semibold sm:text-base">9:20 AM – Youth Devotion</p>
-                  <p className="text-sm font-semibold sm:text-base">10:00 AM – Worship Service</p>
-                </div>
+      <section className="relative h-[340px] overflow-hidden bg-[#1F4D3A] sm:h-[380px]">
+        {heroMedia && heroMediaType === "image" ? (
+          <img src={heroMedia} alt={hero.image_alt || "Liberty Church"} className="absolute inset-0 h-full w-full object-cover" />
+        ) : heroMedia ? (
+          <video id="heroVideo" className="pointer-events-none absolute inset-0 h-full w-full object-cover" autoPlay loop muted playsInline preload="metadata">
+            <source src={heroMedia} type="video/mp4" />
+          </video>
+        ) : null}
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,58,43,.88),rgba(24,62,47,.58),rgba(20,58,43,.78))]" />
 
-                <div className="flex flex-wrap gap-3">
-                  <Button asChild className="h-10 w-full rounded-none bg-[#1F4D3A] px-4 text-sm font-semibold text-white hover:bg-[#2E7D32] sm:w-auto">
-                    <Link href="#visit">Plan Your Visit</Link>
-                  </Button>
-                  <Button asChild variant="secondary" className="h-10 w-full rounded-none px-4 text-sm font-semibold sm:w-auto">
-                    <Link href="/sermons">Watch Sermons</Link>
-                  </Button>
-                </div>
+        <div className="relative z-10 mx-auto flex h-full w-full max-w-[1100px] flex-col justify-center px-5 py-6 sm:px-7 lg:px-5">
+          <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-white/90">{hero.eyebrow || "Welcome Home"}</p>
+          <h1 className="mt-2 max-w-3xl text-[2rem] font-extrabold leading-[1.06] tracking-[-0.035em] text-white sm:text-[2.55rem]">
+            {hero.title || "Jesus-centered. Spirit-led. Family-minded."}
+          </h1>
+          <div className="mt-4 w-fit border-l-4 border-[#78C99A] bg-black/20 px-3 py-2 text-white backdrop-blur-[2px]">
+            <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-white/80">Sunday Services</p>
+            <p className="mt-0.5 text-[0.92rem] font-bold">9:20 AM – Youth Devotion</p>
+            <p className="text-[0.92rem] font-bold">10:00 AM – Worship Service</p>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            <Link href="/visit" className="inline-flex min-h-10 items-center justify-center rounded-[8px] bg-[#1F8A4C] px-4 text-sm font-bold text-white shadow-sm hover:bg-[#16643A]">
+              {hero.cta_label || "Plan Your Visit"}
+            </Link>
+            <Link href="/sermons" className="inline-flex min-h-10 items-center justify-center rounded-[8px] border border-white/65 bg-white/10 px-4 text-sm font-bold text-white backdrop-blur-sm hover:bg-white/20">
+              Watch Sermons
+            </Link>
+            <button id="reopenWelcome" type="button" className="inline-flex min-h-10 items-center justify-center rounded-[8px] border border-white/45 bg-transparent px-4 text-sm font-bold text-white hover:bg-white/10">
+              Pastor&apos;s Welcome
+            </button>
+          </div>
+        </div>
+      </section>
 
-                <button
-                  id="reopenWelcome"
-                  type="button"
-                  className="inline-flex min-h-10 w-full items-center justify-center border border-white/45 bg-transparent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10 sm:w-auto"
-                >
-                  A welcome message from Pastor Andrew Stokes
-                </button>
-
-                <div className="inline-flex max-w-full items-center rounded-none border border-[#E3E8E6] bg-white px-3 py-2 text-sm text-[#3F4D48]">100 McKeithen Dr, Alexandria, LA 71303</div>
-              </CardContent>
-            </Card>
-          </BlurFade>
-
-          <BlurFade inView delay={0.08} className="space-y-3">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-semibold tracking-tight text-[#3F4D48] sm:text-3xl">Our Ministries and Service Times</h2>
-              <div className="h-1 w-16 bg-[#2E7D32]" />
-              <p className="pt-1 text-sm text-[#3F4D48] sm:text-base">Below are our ministry highlights and service times; see announcements for updates.</p>
-            </div>
-            <div className="space-y-2.5">
-              {ministryPreview.length ? (
-                ministryPreview.map((item) => (
-                  <article key={item.id} className="border border-[#E3E8E6] bg-white px-3.5 py-2.5 sm:px-4 sm:py-3">
-                    <div className="flex items-start gap-3">
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <h3 className="text-base font-semibold leading-tight text-[#2E7D32] sm:text-lg">{item.title}</h3>
-                        <p className="text-sm leading-6 text-[#3F4D48] sm:text-[15px] sm:leading-6">
-                          <span aria-hidden="true">- </span>
-                          {item.body}
-                        </p>
-                      </div>
-                      {String(item?.imageUrl || item?.image_url || "").trim() ? (
-                        <div className="relative hidden w-24 shrink-0 overflow-hidden border border-[#E3E8E6] bg-[#EEF1ED] sm:block" style={{ aspectRatio: "4 / 3" }}>
-                          <img
-                            src={String(item.imageUrl || item.image_url || "").trim()}
-                            alt={String(item.imageAlt || item.image_alt || item.title || "Ministry image").trim()}
-                            loading="lazy"
-                            className="absolute inset-0 h-full w-full object-cover"
-                          />
-                        </div>
-                      ) : null}
-                    </div>
-                    {String(item?.imageUrl || item?.image_url || "").trim() ? (
-                      <div className="relative mt-3 overflow-hidden border border-[#E3E8E6] bg-[#EEF1ED] sm:hidden" style={{ aspectRatio: "4 / 3" }}>
-                        <img
-                          src={String(item.imageUrl || item.image_url || "").trim()}
-                          alt={String(item.imageAlt || item.image_alt || item.title || "Ministry image").trim()}
-                          loading="lazy"
-                          className="absolute inset-0 h-full w-full object-cover"
-                        />
-                      </div>
-                    ) : null}
-                  </article>
-                ))
-              ) : (
-                <article className="space-y-2 border border-[#E3E8E6] bg-white px-4 py-3 sm:px-5 sm:py-4">
-                  <p className="text-base leading-7 text-[#3F4D48]">Ministry highlights will appear here as they are added in admin.</p>
-                </article>
-              )}
-            </div>
-          </BlurFade>
-
-          <BlurFade inView delay={0.12} className="space-y-4">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Church Announcements</p>
-              <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">What&apos;s Happening At Liberty</h2>
-              <p className="text-base text-[#3F4D48]">Current church updates, presented in a clean weekly flow.</p>
-            </div>
-            <HomeAnnouncementsCarousel announcements={announcementPreview} />
-          </BlurFade>
-
-          <BlurFade inView delay={0.14} className="space-y-4">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Meet Our Pastor</p>
-              <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">Pastor Andrew Stokes</h2>
-            </div>
-            <div className="grid gap-4 md:grid-cols-[380px_1fr] md:gap-6">
-              <article className="mx-auto w-full max-w-[380px] overflow-hidden border border-[#E3E8E6] bg-white md:mx-0 md:max-w-none">
-                <img
-                  src="https://www.golibertychurch.com/assets/Pastor%26Fam.jpg"
-                  alt="Pastor Andrew Stokes and family"
-                  className="aspect-[4/3] w-full object-cover md:aspect-auto md:h-full md:min-h-[420px]"
-                />
-              </article>
-              <article className="flex h-full items-center border border-[#E3E8E6] bg-white p-5 sm:p-6">
-                <p className="text-[17px] leading-8 text-[#3F4D48] sm:text-lg sm:leading-8">
-                  Pastor Andrew Stokes has led our church family since October 2013. He and his wife, Erin, our worship leader, serve side by side with their daughters,
-                  Ellington and Emery, who are active in media and worship. Though both Andrew and Erin are bi-vocational, their hearts are fully committed to the church
-                  God has entrusted to their care. They long for Liberty Church to be a place where everyone can approach the throne of God freely and give Him the praise
-                  He deserves. Pastor Andrew teaches the Word with the guidance of the Holy Spirit, encouraging every person, member and guest alike, to pursue Christ
-                  wholeheartedly, just as He passionately pursues us.
+      <section className="bg-white py-8 sm:py-10">
+        <div className="mx-auto w-full max-w-[1100px] px-5">
+          <SectionHeading title="Our Ministries and Service Times" subtitle="Below are our ministry highlights and service times; see announcements for updates." />
+          <div className="space-y-3.5">
+            {ministryPreview.length ? ministryPreview.map((item) => (
+              <article key={item.id} className="relative rounded-[16px] border border-[#CFEAD9] bg-white px-5 py-4 shadow-[0_8px_24px_rgba(17,32,22,0.05)]">
+                <span className="absolute bottom-3 left-0 top-3 w-[3px] rounded-r-full bg-[#7BC89A]" aria-hidden="true" />
+                <p className="text-[0.95rem] leading-6 text-[#4B6354] sm:text-base">
+                  <strong className="font-extrabold text-[#1F8A4C]">{item.title}</strong>
+                  <span aria-hidden="true"> — </span>
+                  {item.body}
                 </p>
               </article>
-            </div>
-          </BlurFade>
-
-          <BlurFade inView delay={0.16}>
-            <VisitPlanner compact />
-          </BlurFade>
-
-          <BlurFade inView delay={0.18}>
-            <Card className="border border-[#E3E8E6] bg-white py-0 shadow-sm">
-              <CardHeader className="px-5 pb-2 pt-6 sm:px-7 sm:pt-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Learn More</p>
-                <CardTitle className="text-2xl text-[#3F4D48] sm:text-3xl">Discover Liberty Church</CardTitle>
-                <CardDescription className="max-w-3xl text-base text-[#3F4D48]">
-                  Explore what we believe, plan your visit, and see how your family can get involved right away.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-3 px-5 pb-6 pt-1 sm:px-7 sm:pb-7">
-                <Button asChild className="h-10 rounded-none bg-[#1F4D3A] px-4 text-sm font-semibold text-white hover:bg-[#2E7D32]">
-                  <Link href="/beliefs">Learn More About Our Church</Link>
-                </Button>
-                <Button asChild variant="secondary" className="h-10 rounded-none px-4 text-sm font-semibold">
-                  <Link href="#visit">Plan Your Visit</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </BlurFade>
+            )) : (
+              <div className="rounded-[16px] border border-[#CFEAD9] bg-white px-5 py-4 text-[#4B6354]">Ministry information will appear here.</div>
+            )}
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section className="bg-[#F8FBF9] py-8 sm:py-10">
+        <div className="mx-auto w-full max-w-[1100px] px-5">
+          <SectionHeading title={pastor.eyebrow || "Meet Our Pastor"} />
+          <div className="grid gap-5 md:grid-cols-[1fr_380px] md:items-center md:gap-7">
+            <div>
+              <h3 className="mb-3 text-xl font-extrabold text-[#112016] sm:text-2xl">{pastor.title || "Pastor Andrew Stokes"}</h3>
+              <p className="text-[0.96rem] leading-7 text-[#4B6354] sm:text-base sm:leading-8">{pastor.body}</p>
+            </div>
+            {pastor.image_url ? (
+              <div className="overflow-hidden rounded-[18px] border border-[#CFEAD9] bg-white shadow-[0_8px_24px_rgba(17,32,22,0.08)]">
+                <img src={pastor.image_url} alt={pastor.image_alt || pastor.title || "Pastor Andrew Stokes and family"} className="aspect-[4/3] w-full object-cover" />
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-8 sm:py-10">
+        <div className="mx-auto w-full max-w-[1100px] px-5">
+          <SectionHeading title="What&apos;s Happening At Liberty" subtitle="Stay updated with the latest news and upcoming events at Liberty Church." />
+          <HomeAnnouncementsCarousel announcements={announcementPreview} />
+        </div>
+      </section>
+
+      <section className="bg-[#F8FBF9] py-8 sm:py-10">
+        <div className="mx-auto w-full max-w-[1100px] px-5">
+          <SectionHeading title={discover.title || "Discover Liberty Church"} subtitle={discover.body} />
+          <div className="flex flex-wrap gap-3">
+            <Link href={discover.cta_url || "/beliefs"} className="inline-flex min-h-11 items-center justify-center rounded-[8px] bg-[#1F8A4C] px-5 text-sm font-bold text-white hover:bg-[#16643A]">
+              {discover.cta_label || "Learn More About Our Church"}
+            </Link>
+            <Link href="/visit" className="inline-flex min-h-11 items-center justify-center rounded-[8px] border border-[#B9DCC7] bg-white px-5 text-sm font-bold text-[#16643A] hover:bg-[#EFF8F2]">
+              Plan Your Visit
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-8 sm:py-10">
+        <div className="mx-auto w-full max-w-[1100px] px-5">
+          <VisitPlanner compact />
+        </div>
+      </section>
+
       <HomeRuntime />
     </PublicSiteShell>
   );
