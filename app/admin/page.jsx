@@ -26,6 +26,8 @@ export default async function AdminPage() {
             <p className="text-sm text-white/75">Manage the public church app and Sunday operations from one place.</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Link href="/admin/people-roles" className="inline-flex h-10 items-center border border-[#8ee0c2]/50 bg-[#0f6048] px-4 text-sm font-semibold text-white hover:bg-[#12755a]">People & Roles</Link>
+            <Link href="/admin/announcements" className="inline-flex h-10 items-center border border-[#8ee0c2]/50 bg-[#0f6048] px-4 text-sm font-semibold text-white hover:bg-[#12755a]">Announcements</Link>
             <Link href="/admin/homepage" className="inline-flex h-10 items-center border border-[#8ee0c2]/50 bg-[#0f6048] px-4 text-sm font-semibold text-white hover:bg-[#12755a]">Homepage Content</Link>
             <Link href="/admin/service-planning" className="inline-flex h-10 items-center border border-white/25 px-4 text-sm font-semibold text-white hover:bg-white/8">Service Planner</Link>
             <Link href="/admin/service-team" className="inline-flex h-10 items-center border border-white/25 px-4 text-sm font-semibold text-white hover:bg-white/8">Service Team</Link>

@@ -1,6 +1,5 @@
 import { HomeAnnouncementsCarousel } from "@/components/public-site/HomeAnnouncementsCarousel";
 import { PublicSiteShell } from "@/components/public-site/PublicSiteShell";
-import { VisitPlanner } from "@/components/public-site/VisitPlanner";
 import { HomeRuntime } from "@/components/HomeRuntime";
 import { getHomepageContent, getSocialLinksContent } from "@/lib/content";
 import { getPublicSiteContentBlocks } from "@/lib/site-content";
@@ -153,12 +152,6 @@ export default async function HomePage() {
               Plan Your Visit
             </Link>
           </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-8 sm:py-10">
-        <div className="mx-auto w-full max-w-[1100px] px-5">
-          <VisitPlanner compact />
         </div>
       </section>
 

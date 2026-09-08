@@ -1,6 +1,7 @@
 import { BodyClass } from "@/components/BodyClass";
 import { ChurchHeader } from "@/components/ChurchHeader";
 import { ChurchSimpleFooter } from "@/components/ChurchSimpleFooter";
+import { HomeAnnouncementsCarousel } from "@/components/public-site/HomeAnnouncementsCarousel";
 import { Button } from "@/components/ui/button";
 import { getYouthPageContent } from "@/lib/content";
 import Link from "next/link";
@@ -17,6 +18,14 @@ function getAnnouncementImage(item) {
   };
 }
 
+function formatAnnouncementDate(item) {
+  const raw = item?.startsAt || item?.starts_at || item?.createdAt || item?.created_at || "";
+  if (!raw) return "";
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
 function isSyntheticAnnouncement(item) {
   return String(item?.id || "").trim().toLowerCase().startsWith("fallback-");
 }
@@ -31,6 +40,17 @@ function getTickerItems(announcements) {
 export default async function YouthPage() {
   const { youthAnnouncements, youthScripture } = await getYouthPageContent();
   const publicAnnouncements = (youthAnnouncements || []).filter((item) => !isSyntheticAnnouncement(item));
+  const announcementSlides = publicAnnouncements.map((item) => {
+    const { imageUrl, imageAlt } = getAnnouncementImage(item);
+    return {
+      id: item.id,
+      title: item.title,
+      body: item.body,
+      dateLabel: formatAnnouncementDate(item),
+      imageUrl,
+      imageAlt,
+    };
+  });
   const tickerItems = getTickerItems(publicAnnouncements);
   const scriptureTitle = String(youthScripture?.title || "").trim();
   const showScriptureTitle = scriptureTitle && scriptureTitle.toLowerCase() !== "scripture";
@@ -78,20 +98,14 @@ export default async function YouthPage() {
         </div>
       </section>
 
-      <section className="section alt youth-announcements" id="announcements">
-        <div className="container">
-          <div className="section-head"><h2>Announcements and Events</h2><p className="sub">Latest youth updates.</p></div>
-          <div className="announcements-grid" id="announcements-grid">
-            {publicAnnouncements.length ? publicAnnouncements.map((item) => {
-              const { imageUrl, imageAlt } = getAnnouncementImage(item);
-              return (
-                <article key={item.id} className="announcement-card">
-                  {imageUrl ? <div className="announcement-image-wrap"><img src={imageUrl} alt={imageAlt} loading="lazy" /></div> : null}
-                  <h3>{item.title}</h3><p>{item.body}</p>
-                </article>
-              );
-            }) : <article className="announcement-card empty" id="announcements-empty"><p className="muted">Announcements are coming soon. Stay tuned for our next hangout!</p></article>}
+      <section className="bg-[#0a1423] py-8 sm:py-10" id="announcements">
+        <div className="mx-auto w-full max-w-[1100px] px-5">
+          <div className="mb-5 space-y-2">
+            <h2 className="text-[1.65rem] font-extrabold leading-tight tracking-[-0.025em] text-white sm:text-3xl">Announcements and Events</h2>
+            <div className="h-[3px] w-12 rounded-full bg-[#66e49e]" aria-hidden="true" />
+            <p className="text-[0.95rem] leading-6 text-[#b7c8dc] sm:text-base">Latest youth updates.</p>
           </div>
+          <HomeAnnouncementsCarousel announcements={announcementSlides} variant="youth" />
         </div>
       </section>
 
@@ -110,7 +124,7 @@ export default async function YouthPage() {
         .youth-ticker{background:linear-gradient(90deg,#172034 0%,#21314f 50%,#172034 100%);border-top:1px solid rgba(102,228,158,.35);border-bottom:1px solid rgba(102,228,158,.35);padding:.95rem 0;overflow:hidden;position:relative;box-shadow:0 12px 32px rgba(2,8,22,.4)}
         .ticker-track{display:flex;min-width:max-content;animation:tickerScroll 28s linear infinite}.ticker-track:hover{animation-play-state:paused}.ticker-item{color:#fff;font-size:1.1rem;font-weight:600;white-space:nowrap;padding:0 2.5rem;display:flex;align-items:center;letter-spacing:.04em}
         .youth-scripture-single{display:grid;gap:.85rem}.youth-scripture-single h3{margin:0;font-size:.96rem;letter-spacing:.05em;text-transform:uppercase}.youth-scripture-reference{margin:0;font-size:.96rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.youth-scripture-verse{margin:0;padding-left:.9rem;border-left:3px solid rgba(102,228,158,.55)}.youth-scripture-verse p{margin:0}.youth-devotional-copy{color:rgba(255,255,255,.92)}
-        .announcement-image-wrap{margin-bottom:.8rem;border-radius:12px;overflow:hidden;border:1px solid rgba(102,228,158,.32);background:rgba(10,18,31,.62)}.announcement-image-wrap img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.youth-media-actions{display:flex;justify-content:flex-start}
+        .youth-media-actions{display:flex;justify-content:flex-start}
         @keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
         @media(max-width:768px){.youth-ticker{padding:.8rem 0}.ticker-item{font-size:.95rem;padding:0 1.5rem}.youth-media-callout{gap:.9rem}.youth-media-callout-btn{width:100%}}
       ` }} />

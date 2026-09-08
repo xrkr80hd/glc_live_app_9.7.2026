@@ -1,17 +1,28 @@
 import { BodyClass } from "@/components/BodyClass";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { BackRow } from "@/components/app-shell/BackRow";
+import { HomeAnnouncementsCarousel } from "@/components/public-site/HomeAnnouncementsCarousel";
 import { getYouthPageContent } from "@/lib/content";
 import { formatMemberDate } from "@/lib/member-page-data";
-import Link from "next/link";
+
+function announcementSlides(items) {
+  return (items || []).map((item) => {
+    const imageUrl = String(item?.imageUrl || item?.image_url || "").trim();
+    const imageAlt = String(item?.imageAlt || item?.image_alt || "").trim() || (item?.title ? `${item.title} announcement image` : "Announcement image");
+    return {
+      id: item.id,
+      title: item.title,
+      body: item.body,
+      dateLabel: formatMemberDate(item.startsAt || item.starts_at || item.createdAt || item.created_at),
+      imageUrl,
+      imageAlt,
+    };
+  });
+}
 
 export default async function YouthPage() {
   const { youthAnnouncements, youthScripture } = await getYouthPageContent();
-  const primaryAnnouncement = youthAnnouncements[0] || null;
-  const primaryAnnouncementImageUrl = String(primaryAnnouncement?.imageUrl || primaryAnnouncement?.image_url || "").trim();
-  const primaryAnnouncementImageAlt =
-    String(primaryAnnouncement?.imageAlt || primaryAnnouncement?.image_alt || "").trim() ||
-    (primaryAnnouncement?.title ? `${primaryAnnouncement.title} announcement image` : "Announcement image");
+  const slides = announcementSlides(youthAnnouncements);
 
   return (
     <AppShell navKey="youth" theme="youth" title="Youth" subtitle="Youth devotional and latest updates.">
@@ -36,58 +47,11 @@ export default async function YouthPage() {
         </section>
 
         <section className="lc-stack">
-          <details className="lc-accordion-card lc-home-announcement-accordion">
-            <summary className="lc-accordion-summary">
-              <span className="lc-accordion-copy">
-                <strong>Announcements and Events</strong>
-                <span>Open to read the latest update.</span>
-              </span>
-              <span className="lc-accordion-chevron" aria-hidden="true">v</span>
-            </summary>
-            <div className="lc-accordion-panel">
-              {primaryAnnouncement ? (
-                <article className="lc-home-announcement-scroll">
-                  <h3>{primaryAnnouncement.title}</h3>
-                  <p className="lc-muted">{formatMemberDate(primaryAnnouncement.startsAt || primaryAnnouncement.createdAt)}</p>
-                  {primaryAnnouncementImageUrl ? (
-                    <div
-                      style={{
-                        borderRadius: "12px",
-                        overflow: "hidden",
-                        border: "1px solid rgba(140, 152, 164, 0.24)",
-                        margin: "0.45rem 0 0.7rem",
-                      }}
-                    >
-                      <img
-                        src={primaryAnnouncementImageUrl}
-                        alt={primaryAnnouncementImageAlt}
-                        loading="lazy"
-                        style={{
-                          width: "100%",
-                          display: "block",
-                          aspectRatio: "16 / 9",
-                          objectFit: "cover",
-                        }}
-                      />
-                    </div>
-                  ) : null}
-                  <p>{primaryAnnouncement.body}</p>
-                  <p>
-                    <Link href="/member/youth/announcements" className="lc-link-inline">View all youth announcements</Link>
-                  </p>
-                </article>
-              ) : (
-                <article className="lc-home-announcement-scroll">
-                  <p className="lc-muted">No youth announcements have been published yet.</p>
-                  <p>
-                    <Link href="/member/youth/announcements" className="lc-link-inline">Open youth announcements</Link>
-                  </p>
-                </article>
-              )}
-            </div>
-          </details>
+          <div className="lc-section-head">
+            <h2>Announcements and Events</h2>
+          </div>
+          <HomeAnnouncementsCarousel announcements={slides} variant="youth" />
         </section>
-
       </div>
     </AppShell>
   );

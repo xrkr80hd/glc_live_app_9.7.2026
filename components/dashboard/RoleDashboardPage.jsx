@@ -1,101 +1,45 @@
 import Link from "next/link";
-import { IconArrowRight } from "@tabler/icons-react";
 import { AdminConsoleShell } from "@/components/dashboard/AdminConsoleShell";
 import { getDashboardIcon } from "@/components/dashboard/dashboard-icons";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { getMemberProfilePhotoUrl } from "@/lib/member-auth";
 
 const SERVICE_PLAN_DASHBOARD_KEYS = new Set(["worship", "musicMinister", "media", "foh", "pastor", "superuser"]);
+const REQUEST_DASHBOARD_KEYS = new Set(["musicMinister", "media", "foh", "youth", "youthAssistant", "kids", "pastor", "superuser"]);
+
+function prettyRole(role) {
+  return String(role || "member")
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
 function buildRoleNavItems(config, viewer) {
   const navItems = [
-    {
-      label: "Dashboard",
-      href: config.path,
-      icon: "grid",
-      active: true,
-    },
-    {
-      label: "Role Access",
-      href: "/dashboard/role-access",
-      icon: "security",
-      active: false,
-    },
+    { label: "My Dashboard", href: "/dashboard", icon: "grid", active: false },
+    { label: config.label, href: config.path, icon: config.theme === "youth" ? "youth" : "grid", active: true },
+    { label: "Chats", href: "/member/chat", icon: "people", active: false },
   ];
 
-  if (SERVICE_PLAN_DASHBOARD_KEYS.has(config.key)) {
-    navItems.push({
-      label: "Service Plan",
-      href: "/dashboard/services",
-      icon: "planning",
-      active: false,
-    });
-  }
+  if (SERVICE_PLAN_DASHBOARD_KEYS.has(config.key)) navItems.push({ label: "Service Plan", href: "/dashboard/services", icon: "planning", active: false });
+  if (REQUEST_DASHBOARD_KEYS.has(config.key)) navItems.push({ label: "Ministry Requests", href: "/member/requests", icon: "finance", active: false });
 
-  const seen = new Set(navItems.map((item) => item.href).filter(Boolean));
+  const realLinks = [
+    ...(Array.isArray(config.primaryTools) ? config.primaryTools : []),
+    ...(Array.isArray(config.groups) ? config.groups.flatMap((group) => group.items || []) : []),
+  ].filter((item) => String(item?.href || "").trim());
 
-  for (const tool of Array.isArray(config.primaryTools) ? config.primaryTools : []) {
-    const href = String(tool?.href || "").trim();
-    const key = `${tool?.label || ""}-${href || "disabled"}`;
-    if (seen.has(key) || (href && seen.has(href))) {
-      continue;
-    }
-
-    navItems.push({
-      label: tool.label || "Tool",
-      href: href || null,
-      icon: tool.icon || "grid",
-      active: false,
-      disabled: !href,
-    });
-    seen.add(key);
-    if (href) seen.add(href);
-    if (navItems.length >= 8) {
-      break;
-    }
-  }
-
-  if (navItems.length < 8 && Array.isArray(config.groups)) {
-    for (const group of config.groups) {
-      for (const item of group.items || []) {
-        const href = String(item?.href || "").trim();
-        const key = `${item?.label || ""}-${href || "disabled"}`;
-        if (seen.has(key) || (href && seen.has(href))) {
-          continue;
-        }
-        navItems.push({
-          label: item.label || "Item",
-          href: href || null,
-          icon: item.icon || "grid",
-          active: false,
-          disabled: !href,
-        });
-        seen.add(key);
-        if (href) seen.add(href);
-        if (navItems.length >= 8) {
-          break;
-        }
-      }
-      if (navItems.length >= 8) {
-        break;
-      }
-    }
-  }
-
-  if (viewer?.accessibleDashboards?.length > 1) {
-    navItems.push({
-      label: "My Admin Hub",
-      href: "/dashboard",
-      icon: "settings",
-      active: false,
-    });
+  const seen = new Set(navItems.map((item) => item.href));
+  for (const item of realLinks) {
+    const href = String(item.href).trim();
+    if (!href || seen.has(href)) continue;
+    navItems.push({ label: item.label || "Tool", href, icon: item.icon || "grid", active: false });
+    seen.add(href);
+    if (navItems.length >= 9) break;
   }
 
   return navItems;
 }
 
-function ProfilePanel({ viewer }) {
+function ProfileCard({ viewer }) {
   const member = viewer?.currentMember?.member || null;
   const user = viewer?.currentMember?.user || null;
   const profilePhotoUrl = getMemberProfilePhotoUrl(user || member);
@@ -103,173 +47,108 @@ function ProfilePanel({ viewer }) {
   const email = member?.email || user?.email || "";
 
   return (
-    <Card className="bg-[#303944] py-0">
-      <CardHeader className="px-6 pb-3 pt-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#9eadbb]">User</p>
-      </CardHeader>
-      <CardContent className="space-y-4 px-6 pb-6">
-        <div className="flex justify-center">
-          <span className="inline-flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-[#232b34]">
-            {profilePhotoUrl ? (
-              <img src={profilePhotoUrl} alt={displayName} className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-3xl font-semibold text-[#d9e1e9]">{displayName?.charAt(0) || "M"}</span>
-            )}
-          </span>
-        </div>
-        <div className="space-y-1 text-center">
-          <p className="text-[2rem] font-semibold leading-tight text-white">{displayName}</p>
-          <p className="text-sm text-[#afbbc7]">{email}</p>
-        </div>
-      </CardContent>
-    </Card>
+    <aside className="rounded-2xl border border-white/10 bg-white/[0.06] p-5">
+      <div className="flex justify-center">
+        <span className="grid h-28 w-28 place-items-center overflow-hidden rounded-full bg-[#203028] text-3xl font-bold text-white">
+          {profilePhotoUrl ? <img src={profilePhotoUrl} alt={displayName} className="h-full w-full object-cover" /> : displayName.charAt(0)}
+        </span>
+      </div>
+      <div className="mt-4 text-center">
+        <h2 className="text-xl font-bold text-white">{displayName}</h2>
+        <p className="mt-1 break-all text-xs text-[#aab8b0]">{email}</p>
+      </div>
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {(viewer?.roleKeys?.length ? viewer.roleKeys : ["member"]).map((role) => (
+          <span key={role} className="rounded-full border border-[#4f7a65] bg-[#17392a] px-2.5 py-1 text-[11px] font-semibold text-[#bfe5cf]">{prettyRole(role)}</span>
+        ))}
+      </div>
+    </aside>
   );
 }
 
-function SecondaryInfoPanel({ config, viewer }) {
-  const roleKeys = Array.isArray(viewer?.roleKeys) ? viewer.roleKeys : [];
-  const tools = Array.isArray(config.primaryTools) ? config.primaryTools : [];
-  const otherDashboards = (Array.isArray(viewer?.accessibleDashboards) ? viewer.accessibleDashboards : []).filter(
-    (dashboard) => dashboard?.path && dashboard.path !== config.path,
-  );
-  const hasServicePlan = SERVICE_PLAN_DASHBOARD_KEYS.has(config.key);
+function RoleTools({ config, viewer }) {
+  const tools = (Array.isArray(config.primaryTools) ? config.primaryTools : []).filter((tool) => String(tool?.href || "").trim());
+  const groupItems = (Array.isArray(config.groups) ? config.groups : [])
+    .flatMap((group) => (group.items || []).map((item) => ({ ...item, groupTitle: group.title })))
+    .filter((item) => String(item?.href || "").trim());
+  const allTools = [...tools, ...groupItems];
+  const otherDashboards = (Array.isArray(viewer?.accessibleDashboards) ? viewer.accessibleDashboards : [])
+    .filter((dashboard) => dashboard?.path && dashboard.path !== config.path);
 
   return (
-    <Card className="bg-[#303944] py-0">
-      <CardHeader className="px-6 pb-3 pt-6">
-        <CardTitle className="text-2xl font-semibold text-white">{config.title}</CardTitle>
-        <CardDescription className="text-sm text-[#aab6c2]">
-          {config.subtitle || "Role-based tools tied to your current permissions."}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4 px-6 pb-6">
-        <div className="flex flex-wrap gap-2">
-          {(roleKeys.length ? roleKeys : ["member"]).map((role) => (
-            <span key={role} className="rounded-none bg-white/8 px-3 py-1 text-xs font-medium uppercase tracking-[0.08em] text-[#d5dde5]">
-              {role.replace(/_/g, " ")}
-            </span>
-          ))}
+    <div className="space-y-4">
+      <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-5">
+        <h2 className="text-xl font-bold text-white">{config.label}</h2>
+        <p className="mt-1 text-sm leading-6 text-[#aab8b0]">{config.subtitle}</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link href="/member/chat" className="rounded-xl bg-[#2d7a53] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#246343]">Open Ministry Chats</Link>
+          {SERVICE_PLAN_DASHBOARD_KEYS.has(config.key) ? <Link href="/dashboard/services" className="rounded-xl border border-white/25 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10">Service Plan</Link> : null}
+          {REQUEST_DASHBOARD_KEYS.has(config.key) ? <Link href="/member/requests" className="rounded-xl border border-white/25 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10">Ministry Requests</Link> : null}
         </div>
+      </section>
 
-        {hasServicePlan ? (
-          <Link
-            href="/dashboard/services"
-            className="flex items-center justify-between border border-[#8ee0c2]/30 bg-[#0f6048]/35 px-4 py-4 text-white transition-colors hover:bg-[#0f6048]/55"
-          >
-            <span>
-              <strong className="block text-base">Shared Service Plan</strong>
-              <span className="mt-1 block text-sm text-[#c7d5cf]">
-                Open the live Worship → Media → FOH plan, set list, lead vocalist assignments and readiness status.
-              </span>
-            </span>
-            <IconArrowRight size={18} stroke={1.9} />
-          </Link>
-        ) : null}
-
-        <Separator />
-
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-[#dce3ea]">Available Actions</p>
-          <div className="grid gap-2">
-            {tools.length ? (
-              tools.map((tool) => {
-                const Icon = getDashboardIcon(tool.icon || "grid");
-                const hasLink = Boolean(tool.href);
-
-                if (!hasLink) {
-                  return (
-                    <span key={tool.label} className="inline-flex items-center gap-3 rounded-none bg-white/5 px-4 py-3 text-sm text-[#9ba7b3]">
-                      <Icon size={16} stroke={1.9} />
-                      <span>{tool.label}</span>
+      {allTools.length ? (
+        <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-5">
+          <h2 className="text-lg font-bold text-white">Available Tools</h2>
+          <p className="mt-1 text-sm text-[#aab8b0]">Only working destinations are shown here.</p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {allTools.map((tool) => {
+              const Icon = getDashboardIcon(tool.icon || "grid");
+              return (
+                <Link key={`${tool.label}-${tool.href}`} href={tool.href} className="rounded-xl border border-white/10 bg-black/10 p-4 transition hover:border-[#4f8f70] hover:bg-[#17392a]">
+                  <div className="flex items-start gap-3">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#204331] text-[#8ee0c2]"><Icon size={18} stroke={1.9} /></span>
+                    <span>
+                      <strong className="block text-sm text-white">{tool.label}</strong>
+                      {tool.description ? <span className="mt-1 block text-xs leading-5 text-[#aab8b0]">{tool.description}</span> : null}
                     </span>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={tool.label}
-                    href={tool.href}
-                    className="inline-flex items-center justify-between rounded-none bg-white/6 px-4 py-3 text-sm text-[#dce3ea] transition-colors hover:bg-white/10 hover:text-white"
-                  >
-                    <span className="inline-flex items-center gap-3">
-                      <Icon size={16} stroke={1.9} />
-                      <span>{tool.label}</span>
-                    </span>
-                    <IconArrowRight size={16} stroke={1.9} />
-                  </Link>
-                );
-              })
-            ) : (
-              <span className="rounded-none bg-white/6 px-4 py-3 text-sm text-[#c4ced8]">No actions are configured for this role yet.</span>
-            )}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-        </div>
+        </section>
+      ) : (
+        <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-5">
+          <h2 className="text-lg font-bold text-white">Ministry Access</h2>
+          <p className="mt-1 text-sm leading-6 text-[#aab8b0]">Your role is active. Chat and any connected ministry tools are available above.</p>
+        </section>
+      )}
 
-        {otherDashboards.length ? (
-          <>
-            <Separator />
-
-            <div className="space-y-2">
-              <details className="md:hidden">
-                <summary className="cursor-pointer list-none text-sm font-semibold text-[#dce3ea]">
-                  <span className="inline-flex w-full items-center justify-between border-b border-white/10 py-2">
-                    <span>Also Available</span>
-                    <span className="text-xs text-[#aab6c2]">Tap to open</span>
-                  </span>
-                </summary>
-                <ul className="mt-2 grid gap-1">
-                  {otherDashboards.map((dashboard) => (
-                    <li key={dashboard.key}>
-                      <Link
-                        href={dashboard.path}
-                        className="inline-flex w-full items-center justify-between border-l-2 border-transparent px-2 py-2 text-sm text-[#dce3ea] transition-colors hover:border-[#0f6048] hover:bg-white/6 hover:text-white"
-                      >
-                        <span>{dashboard.label}</span>
-                        <IconArrowRight size={16} stroke={1.9} />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-
-              <div className="hidden md:block">
-                <p className="text-sm font-semibold text-[#dce3ea]">Also Available</p>
-                <ul className="mt-2 grid gap-1">
-                  {otherDashboards.map((dashboard) => (
-                    <li key={dashboard.key}>
-                      <Link
-                        href={dashboard.path}
-                        className="inline-flex w-full items-center justify-between border-l-2 border-transparent px-2 py-2 text-sm text-[#dce3ea] transition-colors hover:border-[#0f6048] hover:bg-white/6 hover:text-white"
-                      >
-                        <span>{dashboard.label}</span>
-                        <IconArrowRight size={16} stroke={1.9} />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </>
-        ) : null}
-      </CardContent>
-    </Card>
+      {otherDashboards.length ? (
+        <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-5">
+          <h2 className="text-lg font-bold text-white">My Other Areas</h2>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {otherDashboards.map((dashboard) => (
+              <Link key={dashboard.key} href={dashboard.path} className="rounded-xl border border-white/10 bg-black/10 px-4 py-3 text-sm font-semibold text-white hover:border-[#4f8f70] hover:bg-[#17392a]">
+                {dashboard.label}
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </div>
   );
 }
 
 export function RoleDashboardPage({ config, viewer }) {
   const navItems = buildRoleNavItems(config, viewer);
-
   return (
     <AdminConsoleShell viewer={viewer} title={config.title} navItems={navItems} currentPath={config.path}>
-      <section className="space-y-6">
-        <header className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight text-white">Dashboard</h1>
-          <p className="text-sm text-[#9ca8b4]">{config.label}</p>
+      <section className="space-y-5">
+        <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm text-[#9eb0a7]">
+          <Link href="/" className="font-semibold text-[#8ee0c2] hover:underline">Home</Link><span aria-hidden="true">/</span>
+          <Link href="/dashboard" className="font-semibold text-[#8ee0c2] hover:underline">Dashboard</Link><span aria-hidden="true">/</span>
+          <span aria-current="page" className="font-semibold text-white">{config.label}</span>
+        </nav>
+        <header>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#6ec897]">{config.kicker || "Ministry"}</p>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">{config.title}</h1>
+          <p className="mt-1 text-sm text-[#aab8b0]">{config.subtitle}</p>
         </header>
-
-        <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-          <ProfilePanel viewer={viewer} />
-          <SecondaryInfoPanel config={config} viewer={viewer} />
+        <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+          <ProfileCard viewer={viewer} />
+          <RoleTools config={config} viewer={viewer} />
         </div>
       </section>
     </AdminConsoleShell>

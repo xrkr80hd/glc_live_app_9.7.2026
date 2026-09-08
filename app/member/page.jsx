@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { HomeQuickLinksAccordion } from "@/components/app-shell/HomeQuickLinksAccordion";
+import { HomeAnnouncementsCarousel } from "@/components/public-site/HomeAnnouncementsCarousel";
 import { getHomepageContent, getSocialLinksContent } from "@/lib/content";
 import { getCurrentMemberFromServerCookies } from "@/lib/member-auth";
 import { formatMemberDate } from "@/lib/member-page-data";
@@ -9,11 +10,9 @@ import {
   IconBrandFacebook,
   IconBrandYoutube,
   IconPhone,
-  IconChevronDown,
   IconClockHour3,
   IconBible,
   IconMapPin,
-  IconSpeakerphone,
 } from "@tabler/icons-react";
 
 const SOCIAL_FALLBACKS = {
@@ -28,18 +27,29 @@ function findSocialUrl(links, platformKey, fallback = "") {
   return url || fallback;
 }
 
+function toAnnouncementSlides(announcements) {
+  return (announcements || []).map((announcement) => {
+    const imageUrl = String(announcement?.imageUrl || announcement?.image_url || "").trim();
+    const imageAlt = String(announcement?.imageAlt || announcement?.image_alt || "").trim() || (announcement?.title ? `${announcement.title} announcement image` : "Announcement image");
+    return {
+      id: announcement.id,
+      title: announcement.title,
+      body: announcement.body,
+      dateLabel: formatMemberDate(announcement.startsAt || announcement.starts_at || announcement.createdAt || announcement.created_at),
+      imageUrl,
+      imageAlt,
+    };
+  });
+}
+
 export default async function HomePage() {
   const viewer = await getDashboardViewerContext();
   const currentMember = viewer?.currentMember || (await getCurrentMemberFromServerCookies());
   const [homepageContent, socialLinks] = await Promise.all([getHomepageContent(), getSocialLinksContent()]);
   const { announcements, memberScripture } = homepageContent;
+  const announcementSlides = toAnnouncementSlides(announcements);
   const facebookUrl = findSocialUrl(socialLinks, "facebook", SOCIAL_FALLBACKS.facebook);
   const youtubeUrl = findSocialUrl(socialLinks, "youtube", SOCIAL_FALLBACKS.youtube);
-  const primaryAnnouncement = announcements[0] || null;
-  const primaryAnnouncementImageUrl = String(primaryAnnouncement?.imageUrl || primaryAnnouncement?.image_url || "").trim();
-  const primaryAnnouncementImageAlt =
-    String(primaryAnnouncement?.imageAlt || primaryAnnouncement?.image_alt || "").trim() ||
-    (primaryAnnouncement?.title ? `${primaryAnnouncement.title} announcement image` : "Announcement image");
   const elevatedDashboardCount = (viewer?.accessibleDashboardKeys || []).filter((key) => key !== "member").length;
   const hasElevatedAccess = elevatedDashboardCount > 0;
   const memberName = currentMember?.member?.full_name || currentMember?.session?.fullName || "";
@@ -75,58 +85,14 @@ export default async function HomePage() {
       <HomeQuickLinksAccordion />
 
       <section className="lc-stack">
-        {primaryAnnouncement ? (
-          <details className="lc-accordion-card lc-home-announcement-accordion">
-            <summary className="lc-accordion-summary">
-              <span className="lc-accordion-copy">
-                <strong>Announcements</strong>
-                <span>Open to read the latest update.</span>
-              </span>
-              <span className="lc-accordion-chevron" aria-hidden="true">
-                <IconChevronDown size={18} stroke={2} />
-              </span>
-            </summary>
-            <div className="lc-accordion-panel">
-              <article className="lc-home-announcement-scroll">
-                <h3>{primaryAnnouncement.title}</h3>
-                <p className="lc-muted">{formatMemberDate(primaryAnnouncement.startsAt || primaryAnnouncement.createdAt)}</p>
-                {primaryAnnouncementImageUrl ? (
-                  <div
-                    style={{
-                      borderRadius: "12px",
-                      overflow: "hidden",
-                      border: "1px solid rgba(140, 152, 164, 0.24)",
-                      margin: "0.45rem 0 0.7rem",
-                    }}
-                  >
-                    <img
-                      src={primaryAnnouncementImageUrl}
-                      alt={primaryAnnouncementImageAlt}
-                      loading="lazy"
-                      style={{
-                        width: "100%",
-                        display: "block",
-                        aspectRatio: "16 / 9",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </div>
-                ) : null}
-                <p>{primaryAnnouncement.body}</p>
-              </article>
-              <Link href={`/member/announcements/${primaryAnnouncement.id}`} className="lc-action-link primary">
-                Read More
-              </Link>
-            </div>
-          </details>
-        ) : (
-          <section className="lc-card alt flat">
-            <div className="lc-announcement-meta">
-              <IconSpeakerphone size={16} stroke={1.8} />
-              <span>No announcements have been published yet.</span>
-            </div>
-          </section>
-        )}
+        <div className="lc-section-head">
+          <h2>Announcements</h2>
+          <p className="lc-muted">Latest church updates and events.</p>
+        </div>
+        <HomeAnnouncementsCarousel announcements={announcementSlides} />
+        <div className="flex justify-end">
+          <Link href="/member/announcements" className="lc-link-inline">View all announcements</Link>
+        </div>
       </section>
 
       <section className="lc-card">
