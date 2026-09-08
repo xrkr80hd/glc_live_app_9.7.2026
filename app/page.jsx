@@ -1,5 +1,6 @@
 import { HomeAnnouncementsCarousel } from "@/components/public-site/HomeAnnouncementsCarousel";
 import { PublicSiteShell } from "@/components/public-site/PublicSiteShell";
+import { HomeRuntime } from "@/components/HomeRuntime";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,6 +84,7 @@ export default async function HomePage() {
           <BlurFade inView delay={0.04}>
             <Card className="relative overflow-hidden border border-[#E3E8E6] bg-white py-0 shadow-sm">
               <video
+                id="heroVideo"
                 className="pointer-events-none absolute inset-0 h-full w-full object-cover brightness-[0.52]"
                 autoPlay
                 loop
@@ -102,6 +104,12 @@ export default async function HomePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="relative z-10 space-y-4 px-5 pb-7 pt-2 sm:px-8 sm:pb-8">
+                <div className="w-fit border-l-4 border-[#2E7D32] bg-black/30 px-4 py-3 text-white backdrop-blur-sm">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/80">Sunday Services</p>
+                  <p className="mt-1 text-sm font-semibold sm:text-base">9:20 AM – Youth Devotion</p>
+                  <p className="text-sm font-semibold sm:text-base">10:00 AM – Worship Service</p>
+                </div>
+
                 <div className="flex flex-wrap gap-3">
                   <Button asChild className="h-10 w-full rounded-none bg-[#1F4D3A] px-4 text-sm font-semibold text-white hover:bg-[#2E7D32] sm:w-auto">
                     <Link href="/visit">Plan Your Visit</Link>
@@ -110,6 +118,15 @@ export default async function HomePage() {
                     <Link href="/sermons">Watch Sermons</Link>
                   </Button>
                 </div>
+
+                <button
+                  id="reopenWelcome"
+                  type="button"
+                  className="inline-flex min-h-10 w-full items-center justify-center border border-white/45 bg-transparent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10 sm:w-auto"
+                >
+                  A welcome message from Pastor Andrew Stokes
+                </button>
+
                 <div className="inline-flex max-w-full items-center rounded-none border border-[#E3E8E6] bg-white px-3 py-2 text-sm text-[#3F4D48]">100 McKeithen Dr, Alexandria, LA 71303</div>
               </CardContent>
             </Card>
@@ -166,6 +183,15 @@ export default async function HomePage() {
 
           <BlurFade inView delay={0.12} className="space-y-4">
             <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Church Announcements</p>
+              <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">What&apos;s Happening At Liberty</h2>
+              <p className="text-base text-[#3F4D48]">Current church updates, presented in a clean weekly flow.</p>
+            </div>
+            <HomeAnnouncementsCarousel announcements={announcementPreview} />
+          </BlurFade>
+
+          <BlurFade inView delay={0.14} className="space-y-4">
+            <div className="space-y-1">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Meet Our Pastor</p>
               <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">Pastor Andrew Stokes</h2>
             </div>
@@ -189,15 +215,6 @@ export default async function HomePage() {
             </div>
           </BlurFade>
 
-          <BlurFade inView delay={0.14} className="space-y-4">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">Church Announcements</p>
-              <h2 className="text-2xl font-semibold text-[#3F4D48] sm:text-3xl">What&apos;s Happening At Liberty</h2>
-              <p className="text-base text-[#3F4D48]">Current church updates, presented in a clean weekly flow.</p>
-            </div>
-            <HomeAnnouncementsCarousel announcements={announcementPreview} />
-          </BlurFade>
-
           <BlurFade inView delay={0.16}>
             <Card className="border border-[#E3E8E6] bg-white py-0 shadow-sm">
               <CardHeader className="px-5 pb-2 pt-6 sm:px-7 sm:pt-7">
@@ -219,6 +236,7 @@ export default async function HomePage() {
           </BlurFade>
         </div>
       </div>
+      <HomeRuntime />
     </PublicSiteShell>
   );
 }
