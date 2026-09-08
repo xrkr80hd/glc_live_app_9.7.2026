@@ -1,13 +1,13 @@
 export default function manifest() {
   return {
-    name: "Liberty Church Member Beta",
-    short_name: "Liberty Beta",
-    description: "Liberty Church member beta build",
-    start_url: "/member",
+    name: "Liberty Church",
+    short_name: "Liberty Church",
+    description: "Liberty Church public website and member experience",
+    start_url: "/",
+    scope: "/",
     display: "standalone",
     background_color: "#f7f8f4",
     theme_color: "#0f6048",
-    orientation: "portrait",
     icons: [
       {
         src: "/icon-192.png",
