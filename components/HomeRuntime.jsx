@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import styles from "./HomeRuntime.module.css";
 
 const HERO_VIDEOS = [
   "https://www.golibertychurch.com/assets/hero_vids/bible_hero.mp4",
@@ -115,13 +116,14 @@ export function HomeRuntime() {
   useEffect(() => {
     if (!isOpen) {
       document.body.classList.remove("modal-open");
-      return;
+      return undefined;
     }
+
     document.body.classList.add("modal-open");
 
     const modal = modalRef.current;
     if (!modal) {
-      return;
+      return () => document.body.classList.remove("modal-open");
     }
 
     const focusables = Array.from(
@@ -164,6 +166,7 @@ export function HomeRuntime() {
 
     return () => {
       modal.removeEventListener("keydown", handleKeydown);
+      document.body.classList.remove("modal-open");
     };
   }, [isOpen, welcomeHtml]);
 
@@ -197,27 +200,41 @@ export function HomeRuntime() {
     }
   }
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <div
       id="welcomeModal"
       ref={modalRef}
-      className={`modal ${isOpen ? "open" : ""}`}
-      aria-hidden={isOpen ? "false" : "true"}
+      className={styles.welcomeModal}
       role="dialog"
+      aria-modal="true"
       aria-labelledby="welcomeTitle"
     >
-      <div className="modal-backdrop" onClick={closeModal} />
-      <div className="modal-dialog" role="document">
-        <button className="modal-close" aria-label="Close" onClick={closeModal}>
-          x
+      <button
+        type="button"
+        className={styles.backdrop}
+        onClick={closeModal}
+        aria-label="Close welcome message"
+      />
+      <div className={styles.dialog} role="document">
+        <button
+          type="button"
+          className={styles.closeButton}
+          aria-label="Close"
+          onClick={closeModal}
+        >
+          ×
         </button>
-        <div className="modal-body">
-          <h2 id="welcomeTitle" tabIndex={-1}>
+        <div className={styles.body}>
+          <h2 id="welcomeTitle" className={styles.title} tabIndex={-1}>
             We&apos;re so glad you&apos;re here!
           </h2>
           <div
             id="welcomeContent"
-            className="welcome-content mt-12"
+            className={styles.content}
             dangerouslySetInnerHTML={{ __html: welcomeHtml }}
           />
         </div>
