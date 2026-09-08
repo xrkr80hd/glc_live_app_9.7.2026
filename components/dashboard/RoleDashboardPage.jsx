@@ -66,12 +66,14 @@ function ProfileCard({ viewer }) {
   );
 }
 
-function RealToolGrid({ config }) {
+function RoleTools({ config, viewer }) {
   const tools = (Array.isArray(config.primaryTools) ? config.primaryTools : []).filter((tool) => String(tool?.href || "").trim());
   const groupItems = (Array.isArray(config.groups) ? config.groups : [])
     .flatMap((group) => (group.items || []).map((item) => ({ ...item, groupTitle: group.title })))
     .filter((item) => String(item?.href || "").trim());
   const allTools = [...tools, ...groupItems];
+  const otherDashboards = (Array.isArray(viewer?.accessibleDashboards) ? viewer.accessibleDashboards : [])
+    .filter((dashboard) => dashboard?.path && dashboard.path !== config.path);
 
   return (
     <div className="space-y-4">
@@ -89,7 +91,7 @@ function RealToolGrid({ config }) {
       {allTools.length ? (
         <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-5">
           <h2 className="text-lg font-bold text-white">Available Tools</h2>
-          <p className="mt-1 text-sm text-[#aab8b0]">These are live destinations available to this role.</p>
+          <p className="mt-1 text-sm text-[#aab8b0]">Only working destinations are shown here.</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             {allTools.map((tool) => {
               const Icon = getDashboardIcon(tool.icon || "grid");
@@ -110,23 +112,24 @@ function RealToolGrid({ config }) {
       ) : (
         <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-5">
           <h2 className="text-lg font-bold text-white">Ministry Access</h2>
-          <p className="mt-1 text-sm leading-6 text-[#aab8b0]">Your role is active. Ministry chat is available now, and additional real tools will appear here only when they are connected and ready to use.</p>
+          <p className="mt-1 text-sm leading-6 text-[#aab8b0]">Your role is active. Ministry chat is available now. Additional tools will appear here only after they are fully connected.</p>
         </section>
       )}
 
-      <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-5">
-        <h2 className="text-lg font-bold text-white">Other Areas</h2>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {(viewerDashboards(config) || []).map(() => null)}
-        </div>
-        <Link href="/dashboard" className="mt-3 inline-flex rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/10">Back to My Dashboard</Link>
-      </section>
+      {otherDashboards.length ? (
+        <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-5">
+          <h2 className="text-lg font-bold text-white">My Other Areas</h2>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {otherDashboards.map((dashboard) => (
+              <Link key={dashboard.key} href={dashboard.path} className="rounded-xl border border-white/10 bg-black/10 px-4 py-3 text-sm font-semibold text-white hover:border-[#4f8f70] hover:bg-[#17392a]">
+                {dashboard.label}
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
-}
-
-function viewerDashboards() {
-  return [];
 }
 
 export function RoleDashboardPage({ config, viewer }) {
@@ -151,7 +154,7 @@ export function RoleDashboardPage({ config, viewer }) {
 
         <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
           <ProfileCard viewer={viewer} />
-          <RealToolGrid config={config} />
+          <RoleTools config={config} viewer={viewer} />
         </div>
       </section>
     </AdminConsoleShell>
