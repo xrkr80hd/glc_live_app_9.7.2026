@@ -1,75 +1,90 @@
-## Current user direction — 2026-09-07
+## Current user direction — 2026-09-08
 
-This section supersedes conflicting historical instructions below.
+This section supersedes older conflicting direction in this repository.
 
-- Active project name: `glc_live_app_9_7_2026`.
-- Source baseline: the uploaded app (`glc_live_app-main.zip`). Its source files were byte-for-byte identical to repository main at `671a28f5c135a20e80db9dfd58adad996227cacc` when checked.
-- Repository destination: `https://github.com/xrkr80hd/glc_live_app_9.7.2026.git`. Git pushes are authorized. The user confirms this repository does not serve the live site.
-- Build the app and its existing public pages. Do not use `glc_live_site` as the build source or merge its site files into this app. Earlier site audits remain historical evidence only.
-- This is a test environment. Do not change the live PHP site, its hosting, domains, or production database. Final cutover is a separate task.
-- Approved Supabase test project: `ywfvbgblyuqwofejmasv`; current connector returns permission denied. Do not substitute the fitness database.
-- Confirmed Vercel test project (user corrected ID): `prj_cBDegCZgScr5e8qb9f6zjqXnL2An`, `glc-new-preview`, https://glc-new-preview.vercel.app. Latest verified deployment uses this repository main; the earlier project ID is superseded.
-- Preserve Youth's distinct appearance and standalone CSS requirement; test it independently after shared styling changes.
-- Reuse the existing restricted YouTube key already identified in the supplied material. Never print it or commit it. No request for a replacement/upload is needed. Transfer and restriction verification remain pending.
-- Continue the staged QA loop, starting with baseline runtime verification. Do not mark login, database, visual, or installed-PWA QA passed without testing.
+- Active working repository: `xrkr80hd/glc_live_app_9.7.2026`.
+- Build the unified Liberty Church Next.js PWA here.
+- `xrkr80hd/glc_live_site` is the current PHP/static public-site source and may be inspected/copied from as the public foundation.
+- Do NOT modify, deploy, repoint, or cut over the current live PHP website, its hosting, or DNS during this phase.
+- The older application implementation is a reuse/reference source for auth, profiles, roles, dashboards, admin tools, and other application functionality.
+- Pushes to this repository are explicitly authorized and may deploy to the safe Vercel preview project `glc-new-preview` (`prj_cBDegCZgScr5e8qb9f6zjqXnL2An`).
+- Approved test Supabase project: `ywfvbgblyuqwofejmasv`. Do not substitute another project.
+- Keep the public `Login` entry visible in the top navigation.
+- Preserve Youth as a standalone styling exception and regression-test it after shared/global changes.
+- Never print or commit service-role/private secrets.
 
-## Current working instructions
+## Required control files
 
-Use this repository root as the active workspace, not the historical external-drive path. Read `00_MASTER_DIRECTIVE.md`, `01_IMPLEMENTATION_WORKBOOK.md`, and `02_QA_MASTER_CHECKLIST.md`. Maintain those documents plus the planned/completed logs. These explicitly required control documents supersede the old three-markdown-file limit.
+Before architectural or implementation work, read and obey:
+
+- `README_FIRST.md`
+- `00_MASTER_DIRECTIVE.md`
+- `01_IMPLEMENTATION_WORKBOOK.md`
+- `02_QA_MASTER_CHECKLIST.md`
+- `PLANNED_WORK.md`
+
+After meaningful work, update `COMPLETED_WORK.md` and the workbook where applicable.
+
+Newest explicit user direction always supersedes older contradictory checkpoints.
 
 # Agent Execution Policy
 
-## Active Build Workspace
+## Task workflow
 
-Use this folder as the active Next.js app root:
+1. LICL: inspect the current code and both relevant sources before editing.
+2. Read `PLANNED_WORK.md` and continue the current priority.
+3. Preserve proven working functionality.
+4. Implement in the Next.js working repository, not in the live PHP deployment.
+5. Push changes to `main` when ready for preview testing; preview deployment is authorized.
+6. Build/test the deployed preview.
+7. Check `02_QA_MASTER_CHECKLIST.md`, including separate Youth regression after shared visual changes.
+8. Fix failures and retest.
+9. Record completed work and remaining blockers.
 
-`/Volumes/LaCie/GLC_LOCAL_LACIE_MAIN`
+## Reference-source rule
 
-## Build/Run Commands Allowed Here
+Use the PHP/static source to preserve current Liberty Church public:
 
-- `npm install`
-- `npm run dev`
-- `npm run build`
-- `next dev`
-- `next build`
+- pages
+- content
+- navigation
+- imagery
+- visual identity
+- livestream/public behavior
+- forms and public workflows
 
-## Startup Guardrail (Repo-Specific)
-
-When starting this project locally, run side-by-side dev servers:
-
-- Admin/CMS view (admin-only mode): `NEXT_DIST_DIR=.next-admin npm run dev` (default `http://localhost:3000/admin`)
-- Website/public view: `ADMIN_ONLY_MODE=false NEXT_DIST_DIR=.next-site npm run dev -- --port 3001` (`http://localhost:3001`)
-
-Keep both running for change validation unless the user requests a different setup.
-
-## Task Workflow Guardrail
-
-Before acting on a new task in this repo, LICL: inspect the current local code/context first.
-
-Use the session work logs as the operating loop for ongoing work:
-
-- Read `PLANNED_WORK.md` before starting or resuming queued work.
-- Implement the current plan before jumping to newer steering, unless the user explicitly says `STOP` and reprioritizes.
-- If the user raises a new issue but does not explicitly say `STOP`, add it to `PLANNED_WORK.md` and keep working through the current operation.
-- After finishing a task, check `PLANNED_WORK.md` for anything missed.
-- Log finished work in `COMPLETED_WORK.md`.
-- Keep both files current as work changes.
-
-The repo-visible markdown files are the source of truth for planned and completed work so other agents and tools in the workspace can read them.
-Do not create or rely on additional repo markdown handoff/planning files.
-Keep repo markdown limited to:
-
-- `AGENTS.md`
-- `PLANNED_WORK.md`
-- `COMPLETED_WORK.md`
-
-## Reference Sources
-
-Legacy/PHP files in this folder are reference material. Rebuild behavior in Next.js app files under:
+Rebuild/port that behavior into Next.js under:
 
 - `app/`
 - `components/`
 - `lib/`
-- `supabase/`
+- `public/`
+- `supabase/` when test-backend work is required
 
-Do not push/deploy automatically unless explicitly requested by the user.
+Use the previous app implementation selectively for reusable authenticated functionality. Do not blindly preserve old UI or old architecture when it conflicts with the Master Directive.
+
+## Preview safety boundary
+
+Allowed during this phase:
+
+- edit/push `glc_live_app_9.7.2026`
+- deploy/test `glc-new-preview`
+- use the designated test Supabase project
+- inspect/reference `glc_live_site`
+
+Not allowed without explicit cutover authorization:
+
+- deploy changes to the live PHP site
+- change live hosting files
+- change live DNS/domain routing
+- replace the current public production site
+
+## Quality guardrails
+
+- Do not claim UI-only features work without testing.
+- Do not substitute mock data for required real behavior unless clearly marked temporary and authorized.
+- Do not rebuild before inspecting equivalent PHP/app functionality.
+- Keep public and authenticated experiences cohesive.
+- Support one account/profile with multiple roles.
+- Prefer shared workflows/entities over disconnected role-specific mini-apps.
+- Keep the application usable on desktop, mobile browser, and installed PWA.
