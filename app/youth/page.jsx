@@ -19,6 +19,10 @@ function getAnnouncementImage(item) {
   };
 }
 
+function isSyntheticAnnouncement(item) {
+  return String(item?.id || "").trim().toLowerCase().startsWith("fallback-");
+}
+
 function getTickerItems(announcements) {
   const items = (announcements || [])
     .map((item) => String(item?.title || "").replace(/\p{Extended_Pictographic}/gu, "").replace(/\s{2,}/g, " ").trim())
@@ -31,7 +35,8 @@ function getTickerItems(announcements) {
 
 export default async function YouthPage() {
   const { youthAnnouncements, youthScripture } = await getYouthPageContent();
-  const tickerItems = getTickerItems(youthAnnouncements);
+  const publicAnnouncements = (youthAnnouncements || []).filter((item) => !isSyntheticAnnouncement(item));
+  const tickerItems = getTickerItems(publicAnnouncements);
   const scriptureTitle = String(youthScripture?.title || "").trim();
   const showScriptureTitle = scriptureTitle && scriptureTitle.toLowerCase() !== "scripture";
 
@@ -99,8 +104,8 @@ export default async function YouthPage() {
             <p className="sub">Latest youth updates.</p>
           </div>
           <div className="announcements-grid" id="announcements-grid">
-            {youthAnnouncements.length ? (
-              youthAnnouncements.map((item) => {
+            {publicAnnouncements.length ? (
+              publicAnnouncements.map((item) => {
                 const { imageUrl, imageAlt } = getAnnouncementImage(item);
                 return (
                   <article key={item.id} className="announcement-card">
