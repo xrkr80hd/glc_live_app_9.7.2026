@@ -20,7 +20,7 @@ This section supersedes conflicting historical instructions below.
 - Build the app and its existing public pages. Do not use `glc_live_site` as the build source or merge its site files into this app. Earlier site audits remain historical evidence only.
 - This is a test environment. Do not change the live PHP site, its hosting, domains, or production database. Final cutover is a separate task.
 - Approved Supabase test project: `ywfvbgblyuqwofejmasv`; current connector returns permission denied. Do not substitute the fitness database.
-- User-specified Vercel project: `prj_Mfe4wogitvlctngsjHX2Gemxj5iZ`; current connected team returns 404. Do not substitute another project.
+- Confirmed Vercel test project (user corrected ID): `prj_cBDegCZgScr5e8qb9f6zjqXnL2An`, `glc-new-preview`, https://glc-new-preview.vercel.app. Latest verified deployment uses this repository main; the earlier project ID is superseded.
 - Preserve Youth's distinct appearance and standalone CSS requirement; test it independently after shared styling changes.
 - Reuse the existing restricted YouTube key already identified in the supplied material. Never print it or commit it. No request for a replacement/upload is needed. Transfer and restriction verification remain pending.
 - Continue the staged QA loop, starting with baseline runtime verification. Do not mark login, database, visual, or installed-PWA QA passed without testing.

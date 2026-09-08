@@ -26,3 +26,6 @@ Thumbs.db
 .env.*
 !.env.example
 node_modules
+
+# Explicitly approved public-only deployment defaults
+!.env.production

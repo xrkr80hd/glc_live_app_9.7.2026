@@ -1,3 +1,13 @@
+## Deployment configuration repair — 2026-09-08
+
+- User confirmed the service-role key was added to Vercel Production and Preview and redeployed; its value has not been read or committed.
+- Confirmed the corrected Vercel project ID and that deployment eb292b5 uses this app repository main. Live PHP site remains outside this deployment.
+- Reproduced deployed login HTTP 500: Member sign-in is not configured yet.
+- Added .env.production with only the approved test Supabase URL and user-supplied publishable key. User explicitly authorized committing the publishable key. Next.js production builds, including Vercel Preview builds, load this file; dashboard values retain precedence.
+- Narrow .gitignore exception permits only this reviewed production-default file. All .env.local files and secret-bearing variants remain ignored. Never add a service-role or YouTube key to the tracked file.
+- No auth guard, role policy, database schema, application layout or Youth styles changed.
+- Verification before push: file contains exactly the two public variables; no secret variables. Deployed build and login endpoint verification pending.
+
 ## Connected Supabase checkpoint — 2026-09-07
 
 - The user authorized Git pushes as the ongoing change-tracking/deployment workflow. Live PHP site cutover remains outside this task.
