@@ -19,10 +19,19 @@ function getAnnouncementImage(item) {
   };
 }
 
+function getTickerItems(announcements) {
+  const items = (announcements || [])
+    .map((item) => String(item?.title || "").replace(/\p{Extended_Pictographic}/gu, "").replace(/\s{2,}/g, " ").trim())
+    .filter(Boolean);
+
+  return items.length
+    ? items
+    : ["Sundays @ 9:20 AM — Youth Devotion", "Pop-Up Events — Check back for more info"];
+}
+
 export default async function YouthPage() {
-  const { youthAnnouncements, youthScripture, youthBanner } = await getYouthPageContent();
-  const tickerTextRaw = youthBanner?.subtitle || "Sundays @ 9:20 AM - Youth Devotion | Pop-Up Events - Check back for more info";
-  const tickerText = tickerTextRaw.replace(/\p{Extended_Pictographic}/gu, "").replace(/\s{2,}/g, " ").trim();
+  const { youthAnnouncements, youthScripture } = await getYouthPageContent();
+  const tickerItems = getTickerItems(youthAnnouncements);
   const scriptureTitle = String(youthScripture?.title || "").trim();
   const showScriptureTitle = scriptureTitle && scriptureTitle.toLowerCase() !== "scripture";
 
@@ -53,10 +62,12 @@ export default async function YouthPage() {
 
       <section className="youth-ticker" aria-live="polite">
         <div className="ticker-track">
-          <div className="ticker-item">{tickerText}</div>
-          <div className="ticker-item" aria-hidden="true">
-            {tickerText}
-          </div>
+          {tickerItems.map((text, index) => (
+            <div key={`ticker-a-${index}`} className="ticker-item">{text}</div>
+          ))}
+          {tickerItems.map((text, index) => (
+            <div key={`ticker-b-${index}`} className="ticker-item" aria-hidden="true">{text}</div>
+          ))}
         </div>
       </section>
 
@@ -105,7 +116,7 @@ export default async function YouthPage() {
               })
             ) : (
               <article className="announcement-card empty" id="announcements-empty">
-                <p className="muted">Announcements are loading...</p>
+                <p className="muted">Announcements are coming soon. Stay tuned for our next hangout!</p>
               </article>
             )}
           </div>
