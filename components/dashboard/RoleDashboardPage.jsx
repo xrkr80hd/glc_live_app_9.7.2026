@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { getMemberProfilePhotoUrl } from "@/lib/member-auth";
 
+const SERVICE_PLAN_DASHBOARD_KEYS = new Set(["worship", "musicMinister", "media", "foh", "pastor", "superuser"]);
+
 function buildRoleNavItems(config, viewer) {
   const navItems = [
     {
@@ -21,12 +23,22 @@ function buildRoleNavItems(config, viewer) {
       active: false,
     },
   ];
-  const seen = new Set([config.path, "/dashboard/role-access"]);
+
+  if (SERVICE_PLAN_DASHBOARD_KEYS.has(config.key)) {
+    navItems.push({
+      label: "Service Plan",
+      href: "/dashboard/services",
+      icon: "planning",
+      active: false,
+    });
+  }
+
+  const seen = new Set(navItems.map((item) => item.href).filter(Boolean));
 
   for (const tool of Array.isArray(config.primaryTools) ? config.primaryTools : []) {
     const href = String(tool?.href || "").trim();
     const key = `${tool?.label || ""}-${href || "disabled"}`;
-    if (seen.has(key)) {
+    if (seen.has(key) || (href && seen.has(href))) {
       continue;
     }
 
@@ -38,6 +50,7 @@ function buildRoleNavItems(config, viewer) {
       disabled: !href,
     });
     seen.add(key);
+    if (href) seen.add(href);
     if (navItems.length >= 8) {
       break;
     }
@@ -48,7 +61,7 @@ function buildRoleNavItems(config, viewer) {
       for (const item of group.items || []) {
         const href = String(item?.href || "").trim();
         const key = `${item?.label || ""}-${href || "disabled"}`;
-        if (seen.has(key)) {
+        if (seen.has(key) || (href && seen.has(href))) {
           continue;
         }
         navItems.push({
@@ -59,6 +72,7 @@ function buildRoleNavItems(config, viewer) {
           disabled: !href,
         });
         seen.add(key);
+        if (href) seen.add(href);
         if (navItems.length >= 8) {
           break;
         }
@@ -118,6 +132,7 @@ function SecondaryInfoPanel({ config, viewer }) {
   const otherDashboards = (Array.isArray(viewer?.accessibleDashboards) ? viewer.accessibleDashboards : []).filter(
     (dashboard) => dashboard?.path && dashboard.path !== config.path,
   );
+  const hasServicePlan = SERVICE_PLAN_DASHBOARD_KEYS.has(config.key);
 
   return (
     <Card className="bg-[#303944] py-0">
@@ -135,6 +150,21 @@ function SecondaryInfoPanel({ config, viewer }) {
             </span>
           ))}
         </div>
+
+        {hasServicePlan ? (
+          <Link
+            href="/dashboard/services"
+            className="flex items-center justify-between border border-[#8ee0c2]/30 bg-[#0f6048]/35 px-4 py-4 text-white transition-colors hover:bg-[#0f6048]/55"
+          >
+            <span>
+              <strong className="block text-base">Shared Service Plan</strong>
+              <span className="mt-1 block text-sm text-[#c7d5cf]">
+                Open the live Worship → Media → FOH plan, set list, lead vocalist assignments and readiness status.
+              </span>
+            </span>
+            <IconArrowRight size={18} stroke={1.9} />
+          </Link>
+        ) : null}
 
         <Separator />
 
