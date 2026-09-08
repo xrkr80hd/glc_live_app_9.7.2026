@@ -25,11 +25,11 @@ export default async function LivePage() {
             <Card className="border border-[#E3E8E6] bg-white py-0 shadow-sm">
               <CardHeader className="px-5 pb-2 pt-6 sm:px-7 sm:pt-7">
                 <CardTitle className="text-2xl text-[#3F4D48] sm:text-3xl">Live Stream</CardTitle>
-                <CardDescription className="text-base text-[#3F4D48]">Sundays at 10:00 AM.</CardDescription>
+                <CardDescription className="text-base text-[#3F4D48]">Join us Sundays at 10:00 AM.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 px-5 pb-6 pt-1 sm:px-7 sm:pb-7">
                 <div id="LS1" style={{ display: livestream.isLive ? "block" : "none" }}>
-                  <div className="overflow-hidden border border-[#E3E8E6] bg-white">
+                  <div className="overflow-hidden border border-[#E3E8E6] bg-black">
                     {livestream.isLive && livestream.liveEmbedUrl ? (
                       <iframe
                         src={livestream.liveEmbedUrl}
@@ -44,8 +44,8 @@ export default async function LivePage() {
                 </div>
 
                 <div id="LS2" style={{ display: livestream.isLive ? "none" : "block" }}>
-                  <div className="overflow-hidden border border-[#E3E8E6] bg-white">
-                    <video className="aspect-video w-full object-cover" autoPlay muted loop playsInline>
+                  <div className="overflow-hidden border border-[#E3E8E6] bg-black">
+                    <video className="aspect-video w-full bg-black object-contain" autoPlay muted loop playsInline preload="metadata">
                       <source src={fallbackVideo} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
@@ -60,7 +60,7 @@ export default async function LivePage() {
             <Card className="border border-[#E3E8E6] bg-white py-0 shadow-sm">
               <CardHeader className="px-5 pb-2 pt-6 sm:px-7 sm:pt-7">
                 <CardTitle className="text-2xl text-[#3F4D48] sm:text-3xl">Can&apos;t Make It Live?</CardTitle>
-                <CardDescription className="text-base text-[#3F4D48]">Watch recent messages anytime.</CardDescription>
+                <CardDescription className="text-base text-[#3F4D48]">Catch up on recent sermons and services.</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-3 px-5 pb-6 pt-1 sm:px-7 sm:pb-7">
                 <Button asChild className="h-10 rounded-none bg-[#1F4D3A] px-4 text-sm font-semibold text-white hover:bg-[#2E7D32]">
