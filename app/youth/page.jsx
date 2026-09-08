@@ -40,15 +40,21 @@ export default async function YouthPage() {
       <BodyClass className="youth" />
       <ChurchHeader active="youth" youthBrand />
 
-      <section className="relative h-[340px] overflow-hidden bg-[#172034] sm:h-[380px]">
-        <video className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-70 contrast-110 saturate-125" autoPlay loop muted playsInline preload="metadata" poster="/assets/youth-backdrop.png">
-          <source src="https://www.golibertychurch.com/assets/LC_YOUTH_HERO_VID.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(23,32,52,0.76)_0%,rgba(33,49,79,0.48)_50%,rgba(23,32,52,0.76)_100%)]" />
-        <div className="relative z-10 mx-auto flex h-full w-full max-w-[1100px] flex-col justify-center px-5 sm:px-7 lg:px-5">
-          <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#b7d9ff]">We Are</p>
-          <h1 className="mt-2 max-w-3xl text-[2rem] font-extrabold leading-[1.06] tracking-[-0.035em] text-white sm:text-[2.55rem]">Liberty Church Youth</h1>
-          <p className="mt-4 max-w-2xl text-[0.96rem] leading-6 text-white/85 sm:text-base">A place for students to encounter Jesus, build bold faith, and grow together.</p>
+      <section className="bg-[#07111f] py-6 sm:py-7">
+        <div className="mx-auto w-full max-w-[1100px] px-5">
+          <div className="relative h-[340px] overflow-hidden border border-[#66e49e]/30 bg-[#172034] sm:h-[380px]">
+            <video className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-72 contrast-110 saturate-125" autoPlay loop muted playsInline preload="metadata" poster="/assets/youth-backdrop.png">
+              <source src="https://www.golibertychurch.com/assets/LC_YOUTH_HERO_VID.mp4" type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,18,31,0.82)_0%,rgba(26,42,69,0.42)_54%,rgba(10,18,31,0.74)_100%)]" />
+            <div className="relative z-10 flex h-full flex-col justify-start px-5 py-7 sm:px-8 sm:py-9">
+              <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#b7d9ff]">We Are</p>
+              <h1 className="mt-3 max-w-[620px] text-[2rem] font-extrabold leading-[1.06] tracking-[-0.035em] text-white sm:text-[2.55rem]">Liberty Church Youth</h1>
+              <div className="mt-5 max-w-[560px] border-l-4 border-[#66e49e] bg-[#08111f]/55 px-4 py-3 backdrop-blur-[2px]">
+                <p className="text-[0.95rem] leading-6 text-white/90 sm:text-base">A place for students to encounter Jesus, build bold faith, and grow together.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
