@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { IconCompass, IconMapPin, IconSend } from "@tabler/icons-react";
 
+const inputClass = "mt-1 h-11 w-full rounded-xl border border-[#C9D7D0] bg-white px-3 text-[16px] text-[#1F3128] outline-none placeholder:text-[#7B8D84] focus:border-[#2E7D52] focus:ring-2 focus:ring-[#9FD6B8]/35";
+const labelClass = "grid gap-1 text-sm font-semibold text-[#2E4238]";
+
 export function VisitPlanner({ compact = false }) {
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -61,45 +64,32 @@ export function VisitPlanner({ compact = false }) {
           </p>
         </div>
 
-        <form className="form" onSubmit={handleSubmit}>
-          <div className="row">
-            <div>
-              <label>
-                First &amp; Last Name
-                <br />
-                <input required name="name" placeholder="Your name" />
-              </label>
-            </div>
-            <div>
-              <label>
-                Email
-                <br />
-                <input required type="email" name="email" placeholder="you@example.com" />
-              </label>
-            </div>
+        <form className="grid gap-4 rounded-2xl border border-[#D9E5DE] bg-[#F8FBF9] p-4 sm:p-5" onSubmit={handleSubmit}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className={labelClass}>
+              First &amp; Last Name
+              <input required name="name" placeholder="Your name" className={inputClass} />
+            </label>
+            <label className={labelClass}>
+              Email
+              <input required type="email" name="email" placeholder="you@example.com" className={inputClass} />
+            </label>
           </div>
 
-          <div className="row">
-            <div>
-              <label>
-                Phone
-                <br />
-                <input name="phone" placeholder="(###) ###-####" />
-              </label>
-            </div>
-            <div>
-              <label>
-                Visit Date
-                <br />
-                <input type="date" name="date" />
-              </label>
-            </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className={labelClass}>
+              Phone
+              <input name="phone" placeholder="(###) ###-####" className={inputClass} />
+            </label>
+            <label className={labelClass}>
+              Visit Date
+              <input type="date" name="date" className={inputClass} />
+            </label>
           </div>
 
-          <label>
+          <label className={labelClass}>
             How many are coming?
-            <br />
-            <select name="party" defaultValue="1">
+            <select name="party" defaultValue="1" className={inputClass}>
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -108,14 +98,13 @@ export function VisitPlanner({ compact = false }) {
             </select>
           </label>
 
-          <label>
+          <label className={labelClass}>
             Anything we can prepare for?
-            <br />
-            <textarea name="notes" rows={4} placeholder="Kids check-in, accessibility needs, prayer requests..." />
+            <textarea name="notes" rows={4} placeholder="Kids check-in, accessibility needs, prayer requests..." className="mt-1 min-h-28 w-full rounded-xl border border-[#C9D7D0] bg-white px-3 py-2.5 text-[16px] text-[#1F3128] outline-none placeholder:text-[#7B8D84] focus:border-[#2E7D52] focus:ring-2 focus:ring-[#9FD6B8]/35" />
           </label>
 
           <div>
-            <button className="btn" type="submit" disabled={submitting}>
+            <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#1F7A4C] px-5 text-sm font-bold text-white hover:bg-[#17613C] disabled:cursor-not-allowed disabled:bg-[#9EB5A8]" type="submit" disabled={submitting}>
               <IconSend size={18} stroke={1.9} aria-hidden="true" />
               {submitting ? "Sending..." : "Send"}
             </button>
