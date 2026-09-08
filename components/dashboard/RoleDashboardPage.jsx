@@ -4,6 +4,7 @@ import { getDashboardIcon } from "@/components/dashboard/dashboard-icons";
 import { getMemberProfilePhotoUrl } from "@/lib/member-auth";
 
 const SERVICE_PLAN_DASHBOARD_KEYS = new Set(["worship", "musicMinister", "media", "foh", "pastor", "superuser"]);
+const REQUEST_DASHBOARD_KEYS = new Set(["musicMinister", "media", "foh", "youth", "youthAssistant", "kids", "pastor", "superuser"]);
 
 function prettyRole(role) {
   return String(role || "member")
@@ -18,9 +19,8 @@ function buildRoleNavItems(config, viewer) {
     { label: "Chats", href: "/member/chat", icon: "people", active: false },
   ];
 
-  if (SERVICE_PLAN_DASHBOARD_KEYS.has(config.key)) {
-    navItems.push({ label: "Service Plan", href: "/dashboard/services", icon: "planning", active: false });
-  }
+  if (SERVICE_PLAN_DASHBOARD_KEYS.has(config.key)) navItems.push({ label: "Service Plan", href: "/dashboard/services", icon: "planning", active: false });
+  if (REQUEST_DASHBOARD_KEYS.has(config.key)) navItems.push({ label: "Ministry Requests", href: "/member/requests", icon: "finance", active: false });
 
   const realLinks = [
     ...(Array.isArray(config.primaryTools) ? config.primaryTools : []),
@@ -33,7 +33,7 @@ function buildRoleNavItems(config, viewer) {
     if (!href || seen.has(href)) continue;
     navItems.push({ label: item.label || "Tool", href, icon: item.icon || "grid", active: false });
     seen.add(href);
-    if (navItems.length >= 8) break;
+    if (navItems.length >= 9) break;
   }
 
   return navItems;
@@ -82,9 +82,8 @@ function RoleTools({ config, viewer }) {
         <p className="mt-1 text-sm leading-6 text-[#aab8b0]">{config.subtitle}</p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link href="/member/chat" className="rounded-xl bg-[#2d7a53] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#246343]">Open Ministry Chats</Link>
-          {SERVICE_PLAN_DASHBOARD_KEYS.has(config.key) ? (
-            <Link href="/dashboard/services" className="rounded-xl border border-white/25 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10">Service Plan</Link>
-          ) : null}
+          {SERVICE_PLAN_DASHBOARD_KEYS.has(config.key) ? <Link href="/dashboard/services" className="rounded-xl border border-white/25 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10">Service Plan</Link> : null}
+          {REQUEST_DASHBOARD_KEYS.has(config.key) ? <Link href="/member/requests" className="rounded-xl border border-white/25 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10">Ministry Requests</Link> : null}
         </div>
       </section>
 
@@ -112,7 +111,7 @@ function RoleTools({ config, viewer }) {
       ) : (
         <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-5">
           <h2 className="text-lg font-bold text-white">Ministry Access</h2>
-          <p className="mt-1 text-sm leading-6 text-[#aab8b0]">Your role is active. Ministry chat is available now. Additional tools will appear here only after they are fully connected.</p>
+          <p className="mt-1 text-sm leading-6 text-[#aab8b0]">Your role is active. Chat and any connected ministry tools are available above.</p>
         </section>
       )}
 
@@ -134,24 +133,19 @@ function RoleTools({ config, viewer }) {
 
 export function RoleDashboardPage({ config, viewer }) {
   const navItems = buildRoleNavItems(config, viewer);
-
   return (
     <AdminConsoleShell viewer={viewer} title={config.title} navItems={navItems} currentPath={config.path}>
       <section className="space-y-5">
         <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm text-[#9eb0a7]">
-          <Link href="/" className="font-semibold text-[#8ee0c2] hover:underline">Home</Link>
-          <span aria-hidden="true">/</span>
-          <Link href="/dashboard" className="font-semibold text-[#8ee0c2] hover:underline">Dashboard</Link>
-          <span aria-hidden="true">/</span>
+          <Link href="/" className="font-semibold text-[#8ee0c2] hover:underline">Home</Link><span aria-hidden="true">/</span>
+          <Link href="/dashboard" className="font-semibold text-[#8ee0c2] hover:underline">Dashboard</Link><span aria-hidden="true">/</span>
           <span aria-current="page" className="font-semibold text-white">{config.label}</span>
         </nav>
-
         <header>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#6ec897]">{config.kicker || "Ministry"}</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">{config.title}</h1>
           <p className="mt-1 text-sm text-[#aab8b0]">{config.subtitle}</p>
         </header>
-
         <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
           <ProfileCard viewer={viewer} />
           <RoleTools config={config} viewer={viewer} />
