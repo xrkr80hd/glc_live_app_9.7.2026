@@ -1,0 +1,166 @@
+.lc-admin-scope {
+  min-height: 100vh;
+  background: #0d2f22;
+  color: #ffffff;
+}
+
+.lc-admin-scope main,
+.lc-admin-scope .admin-layout-wrap {
+  background: #0d2f22 !important;
+  color: #ffffff !important;
+}
+
+.lc-admin-scope button,
+.lc-admin-scope input,
+.lc-admin-scope textarea,
+.lc-admin-scope select,
+.lc-admin-scope a,
+.lc-admin-scope section,
+.lc-admin-scope article,
+.lc-admin-scope form {
+  border-radius: 2px !important;
+}
+
+.lc-admin-scope input,
+.lc-admin-scope textarea,
+.lc-admin-scope select {
+  background: #ffffff !important;
+  color: #111111 !important;
+  border-color: #163f2f !important;
+}
+
+.lc-admin-scope input::placeholder,
+.lc-admin-scope textarea::placeholder {
+  color: #4c5c54 !important;
+  opacity: 1;
+}
+
+.lc-admin-scope details,
+.lc-admin-page-accordion {
+  border: 2px solid #06170f !important;
+  border-radius: 2px !important;
+  background: #ffffff !important;
+  color: #111111 !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+
+.lc-admin-scope details > summary,
+.lc-admin-page-accordion > summary {
+  cursor: pointer;
+  list-style: none;
+  background: #143f2e !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #06170f;
+  padding: 0.9rem 1rem;
+  font-weight: 800;
+}
+
+.lc-admin-scope details > summary::-webkit-details-marker,
+.lc-admin-page-accordion > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lc-admin-scope details[open] > :not(summary),
+.lc-admin-page-accordion[open] > :not(summary) {
+  max-height: 72dvh;
+  overflow: auto;
+}
+
+.lc-admin-scope details details[open] > :not(summary) {
+  max-height: 62dvh;
+}
+
+.lc-admin-page {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.lc-admin-page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  background: #143f2e;
+  color: #ffffff;
+  border: 2px solid #06170f;
+}
+
+.lc-admin-page-head h1,
+.lc-admin-page-head h2,
+.lc-admin-page-head p,
+.lc-admin-page-head span,
+.lc-admin-page-head strong,
+.lc-admin-page-head a {
+  color: #ffffff !important;
+}
+
+.lc-admin-page-head a {
+  border: 1px solid #ffffff !important;
+  background: transparent !important;
+  padding: 0.65rem 0.85rem;
+  text-decoration: none;
+}
+
+.lc-admin-scope details > :not(summary) section,
+.lc-admin-scope details > :not(summary) article,
+.lc-admin-scope details > :not(summary) form {
+  background: #ffffff !important;
+  color: #111111 !important;
+  border-color: #06170f !important;
+}
+
+.lc-admin-scope details > :not(summary) h1,
+.lc-admin-scope details > :not(summary) h2,
+.lc-admin-scope details > :not(summary) h3,
+.lc-admin-scope details > :not(summary) strong,
+.lc-admin-scope details > :not(summary) label {
+  color: #111111 !important;
+}
+
+.lc-admin-scope details > :not(summary) p,
+.lc-admin-scope details > :not(summary) span {
+  color: #183f31 !important;
+}
+
+.lc-admin-scope details > :not(summary) button {
+  border-radius: 2px !important;
+}
+
+.lc-admin-scope [class*="rounded-full"]:not(img):not([class*="avatar"]):not([class*="Avatar"]) {
+  border-radius: 2px !important;
+}
+
+.lc-admin-scope [class*="bg-[#f"],
+.lc-admin-scope [class*="bg-[#F"] {
+  background-color: #ffffff !important;
+}
+
+.lc-admin-scope [class*="text-[#6"],
+.lc-admin-scope [class*="text-[#7"],
+.lc-admin-scope [class*="text-[#8"] {
+  color: #23493a !important;
+}
+
+@media (max-width: 640px) {
+  .lc-admin-page {
+    padding: 0.6rem;
+  }
+
+  .lc-admin-page-head {
+    align-items: stretch;
+  }
+
+  .lc-admin-page-head > * {
+    width: 100%;
+  }
+
+  .lc-admin-scope details[open] > :not(summary),
+  .lc-admin-page-accordion[open] > :not(summary) {
+    max-height: 68dvh;
+  }
+}
