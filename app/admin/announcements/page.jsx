@@ -10,26 +10,19 @@ export default async function AdminAnnouncementsPage() {
   if (!session) redirect("/admin/login");
 
   return (
-    <main>
-      <div className="lc-admin-page">
-        <div className="lc-admin-page-head">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em]">Master Admin</p>
-            <h1 className="mt-1 text-3xl font-bold">Announcements</h1>
-            <p className="mt-1 text-sm">Create, edit, publish, and manage church announcements.</p>
+    <main className="min-h-screen bg-[#f4f7f5]">
+      <div className="border-b border-[#dbe7e0] bg-white px-4 py-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm text-[#5f7469]">
+            <Link href="/admin" className="font-semibold text-[#1f6846] hover:underline">Master Admin</Link>
+            <span aria-hidden="true">/</span>
+            <span className="font-semibold text-[#173329]">Announcements</span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/admin">Back to Admin</Link>
-            <Link href="/">View Website</Link>
-          </div>
+          <Link href="/" className="rounded-xl border border-[#bfd3c7] px-3 py-2 text-sm font-semibold text-[#1f6846] hover:bg-[#edf6f1]">View Website</Link>
         </div>
-
-        <details open className="lc-admin-page-accordion">
-          <summary>Announcement Management</summary>
-          <div className="p-3 sm:p-4">
-            <AnnouncementsManager />
-          </div>
-        </details>
+      </div>
+      <div className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
+        <AnnouncementsManager />
       </div>
     </main>
   );

@@ -6,19 +6,9 @@ export const dynamic = "force-dynamic";
 
 export default async function ServicePlanningAdminPage() {
   const session = await getAdminSessionFromServerCookies();
-  if (!session) redirect("/admin/login");
+  if (!session) {
+    redirect("/admin/login");
+  }
 
-  return (
-    <main>
-      <div className="lc-admin-page">
-        <div className="lc-admin-page-head">
-          <div><p className="text-xs font-bold uppercase tracking-[0.14em]">Master Admin</p><h1 className="text-3xl font-bold">Service Planning</h1></div>
-        </div>
-        <details open className="lc-admin-page-accordion">
-          <summary>Service Planning Workspace</summary>
-          <div className="p-3 sm:p-4"><ServicePlanningClient /></div>
-        </details>
-      </div>
-    </main>
-  );
+  return <ServicePlanningClient />;
 }
