@@ -1,12 +1,14 @@
+/* Liberty Chat only. No global dashboard/admin styles live here. */
 .liberty-chat-scope {
   --liberty-chat-green: #1d4c38;
   --liberty-chat-white: #ffffff;
   --liberty-chat-black: #111111;
+  --liberty-chat-soft: #f5f7f6;
+  min-height: 100%;
   background: var(--liberty-chat-white);
   color: var(--liberty-chat-black);
 }
 
-/* Keep the Messenger-inspired treatment isolated to Liberty Chat only. */
 .liberty-chat-scope [class*="bg-[#178b43]"],
 .liberty-chat-scope [class*="bg-[#0b4f2a]"] {
   background-color: var(--liberty-chat-green) !important;
@@ -26,12 +28,10 @@
   border-color: var(--liberty-chat-green) !important;
 }
 
-/* White stays the primary reading surface; strong text stays dark on white. */
 .liberty-chat-scope [class*="bg-white"][class*="text-[#0b4f2a]"] {
   color: var(--liberty-chat-black) !important;
 }
 
-/* No pill controls in chat. Circular geometry is reserved for avatars/status dots. */
 .liberty-chat-scope button:not([class*="rounded-full"]),
 .liberty-chat-scope input,
 .liberty-chat-scope textarea,
@@ -50,12 +50,39 @@
 
 .liberty-chat-scope input::placeholder,
 .liberty-chat-scope textarea::placeholder {
-  color: #4b5a52 !important;
+  color: #536158 !important;
   opacity: 1;
 }
 
-/* Forest green surfaces always use white text for high contrast. */
 .liberty-chat-scope [class*="bg-[#178b43]"] *,
 .liberty-chat-scope [class*="bg-[#0b4f2a]"] * {
   color: var(--liberty-chat-white);
+}
+
+/* Chat landing page should behave like a normal web page, not a docked mobile app. */
+.liberty-chat-scope .liberty-chat-bottom-nav {
+  display: none !important;
+}
+
+.liberty-chat-scope .liberty-chat-shell {
+  min-height: calc(100dvh - 11rem);
+  background: var(--liberty-chat-white);
+}
+
+.liberty-chat-scope .liberty-chat-header {
+  background: var(--liberty-chat-green);
+  color: var(--liberty-chat-white);
+  border-bottom: 2px solid var(--liberty-chat-black);
+}
+
+.liberty-chat-scope .liberty-chat-directory,
+.liberty-chat-scope .liberty-chat-recents {
+  background: var(--liberty-chat-white);
+  color: var(--liberty-chat-black);
+}
+
+@media (max-width: 767px) {
+  .liberty-chat-scope .liberty-chat-shell {
+    min-height: calc(100dvh - 8rem);
+  }
 }

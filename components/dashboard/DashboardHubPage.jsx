@@ -72,6 +72,8 @@ export async function DashboardHubPage({ viewer }) {
   const customRoles = assignedRoles.filter((role) => !STANDARD_ROLE_KEYS.has(normalizeRoleKeyForPolicy(role.role_key)));
   const navItems = buildHubNavItems(viewer, customRoles);
 
+  const managementButton = "inline-flex min-h-12 w-full items-center justify-center border-2 border-black bg-white px-4 py-3 text-center text-sm font-black text-[#17392a] transition hover:bg-[#eef5f1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
+
   return (
     <AdminConsoleShell viewer={viewer} title="My Liberty" navItems={navItems}>
       <section className="space-y-5">
@@ -138,11 +140,11 @@ export async function DashboardHubPage({ viewer }) {
             {canManage ? (
               <section className="rounded-2xl border border-[#4b8f6d]/40 bg-[#17392a] p-4 sm:p-5">
                 <h2 className="text-xl font-bold text-white">Church Management</h2>
-                <p className="mt-1 text-sm text-[#b6cfc1]">Manage people, roles, announcements, and church content.</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Link href="/api/admin/login/member?next=/admin/people-roles" className="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-[#1f6846]">People & Roles</Link>
-                  <Link href="/api/admin/login/member?next=/admin/announcements" className="rounded-xl border border-white/30 px-4 py-2.5 text-sm font-bold text-white">Announcements</Link>
-                  <Link href="/api/admin/login/member?next=/admin" className="rounded-xl border border-white/30 px-4 py-2.5 text-sm font-bold text-white">Master Admin</Link>
+                <p className="mt-1 text-sm text-[#d7e4dc]">Manage people, roles, announcements, and church content.</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  <Link href="/api/admin/login/member?next=/admin/people-roles" className={managementButton}>People & Roles</Link>
+                  <Link href="/api/admin/login/member?next=/admin/announcements" className={managementButton}>Announcements</Link>
+                  <Link href="/api/admin/login/member?next=/admin" className={managementButton}>Master Admin</Link>
                 </div>
               </section>
             ) : null}
