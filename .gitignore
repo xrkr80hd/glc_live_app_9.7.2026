@@ -27,5 +27,4 @@ Thumbs.db
 !.env.example
 node_modules
 
-# Explicitly approved public-only deployment defaults
-!.env.production
+# Production environment variables are configured outside Git.
